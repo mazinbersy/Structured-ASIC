@@ -1,6 +1,5 @@
 # parse_design.py
 import json
-from pathlib import Path
 from collections import defaultdict
 
 """
@@ -40,7 +39,7 @@ result = {
 
 def parse_design_json(json_file):
     """
-    Parse a Yosys-generated *_mapped.json file.
+    Parse *_mapped.json file.
     
     Args:
         json_file: Path to the JSON file
@@ -124,9 +123,10 @@ def parse_design_json(json_file):
             result['nets'][net_id]['connections'].append((inst_name, pin_name))
     
     # Debug print
-    print(f"\nInstance Type Counts:")
+    print(f"\nLogical Cell Type Counts:")
     for cell_type, instances in sorted(result['instances_by_type'].items()):
         print(f"  {cell_type}: {len(instances)}")
+    print(f"\nTotal Logical Cell Types: {len(result['instances_by_type'])}")
     
     return result
 
@@ -134,3 +134,10 @@ def parse_design_json(json_file):
 if __name__ == "__main__":
     design_file = "designs/6502_mapped.json"
     design_data = parse_design_json(design_file)
+    
+    print(f"\n{'='*60}")
+    print(f"Total Instances: {len(design_data['instances'])}")
+    print(f"Total Nets: {len(design_data['nets'])}")
+    print(f"Input Ports: {len(design_data['ports']['inputs'])}")
+    print(f"Output Ports: {len(design_data['ports']['outputs'])}")
+    print(f"{'='*60}")
