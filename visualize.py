@@ -39,10 +39,18 @@ def _normalize_cells_by_tile(fabric_db: Dict[str, Any]):
 
 
 def _collect_pin_list(pins):
-    """Normalize pins into a list of dicts with x, y, name."""
+    """Normalize pins into a list of dicts with x, y, name.
+    Handles both flat lists and nested dict structures like pin_placement['pins'].
+    """
     pin_list = []
     if pins is None:
         return pin_list
+
+    # If 'pins' key exists inside, descend into it
+    if isinstance(pins, dict) and "pins" in pins:
+        pins = pins["pins"]
+
+    # Case 1: dict of pin_name -> coords
     if isinstance(pins, dict):
         for name, info in pins.items():
             if isinstance(info, dict):
@@ -57,6 +65,8 @@ def _collect_pin_list(pins):
                     pin_list.append({"name": name, "x": float(x), "y": float(y)})
                 except Exception:
                     continue
+
+    # Case 2: list of dicts (standard format)
     elif isinstance(pins, list):
         for item in pins:
             if isinstance(item, dict):
@@ -66,7 +76,9 @@ def _collect_pin_list(pins):
                 if x is None or y is None:
                     continue
                 pin_list.append({"name": name, "x": float(x), "y": float(y)})
+
     return pin_list
+
 
 
 # ---------------------------------------------------------------------
