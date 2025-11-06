@@ -10,15 +10,15 @@ Parses a Yosys-generated [design_name]_mapped.json file and constructs:
 This module is part of Phase 1 (Database, Validation & Visualization)
 for the Structured ASIC project.
 
-Usage (standalone test):
-    python parse_design.py designs/6502_mapped.json
+Usage (import example):
+    from parse_design import parse_design_json
+    logical_db, netlist_graph = parse_design_json("designs/6502_mapped.json")
 """
 
 import json
 import os
 from collections import defaultdict
 from typing import Dict, Any, Tuple
-
 import networkx as nx
 
 
@@ -27,10 +27,7 @@ import networkx as nx
 # ===============================================================
 
 def _get_single_bit(bit_list):
-    """
-    Helper for Yosys-style 'bits' arrays.
-    Returns (bit_id, multi_bit_flag)
-    """
+    """Helper for Yosys-style 'bits' arrays. Returns (bit_id, multi_bit_flag)."""
     if not isinstance(bit_list, list) or len(bit_list) == 0:
         raise ValueError(f"Expected non-empty list of bits, got {bit_list}")
     if len(bit_list) > 1:
@@ -39,9 +36,7 @@ def _get_single_bit(bit_list):
 
 
 def _find_top_module(modules: Dict[str, Any]) -> Tuple[str, Dict]:
-    """
-    Return (name, module_data) for the top-level module.
-    """
+    """Return (name, module_data) for the top-level module."""
     for name, m in modules.items():
         if m.get("attributes", {}).get("top"):
             return name, m
@@ -130,42 +125,22 @@ def parse_design_json(json_path: str) -> Tuple[Dict[str, Any], nx.Graph]:
     # ===============================================================
     # 3. Build logical_db (Internal Representation)
     # ===============================================================
-    cell_type_counts = {ctype: len(insts) for ctype, insts in instances_by_type.items()}
     logical_db = {
         "cells": instances,
         "cells_by_type": dict(instances_by_type),
         "nets": nets,
         "ports": ports,
-        "stats": {
-            "total_cells": len(instances),
-            "cell_type_counts": cell_type_counts,
-            "total_nets": len(nets),
-            "input_ports": len(ports.get("inputs", {})),
-            "output_ports": len(ports.get("outputs", {})),
+        "meta": {
+            "top_module": top_name,
+            "source_file": os.path.basename(json_path),
+            "multi_bit_warnings": multi_bit_warnings,
         },
-        "meta": {"top_module": top_name, "source_file": os.path.basename(json_path)},
     }
 
     # ===============================================================
     # 4. Build Netlist Graph (for connectivity and placement)
     # ===============================================================
     netlist_graph = _build_netlist_graph(logical_db)
-
-    # ===============================================================
-    # 5. Console Summary
-    # ===============================================================
-    print(f"\nParsed top module: {top_name}")
-    print("Logical Cell Type Counts:")
-    for ctype, cnt in sorted(cell_type_counts.items()):
-        print(f"  {ctype}: {cnt}")
-    print(f"\nTotal Cells: {logical_db['stats']['total_cells']}")
-    print(f"Total Nets: {logical_db['stats']['total_nets']}")
-    print(f"Inputs: {logical_db['stats']['input_ports']}, Outputs: {logical_db['stats']['output_ports']}")
-
-    if multi_bit_warnings:
-        print("\n[WARNINGS] Multi-bit nets/buses detected:")
-        for w in multi_bit_warnings:
-            print("  -", w)
 
     return logical_db, netlist_graph
 
@@ -208,7 +183,7 @@ def _build_netlist_graph(logical_db: Dict[str, Any]) -> nx.Graph:
 
 
 # ===============================================================
-# 6. Standalone Testing Mode
+# 6. (Optional) Minimal Test Mode
 # ===============================================================
 
 if __name__ == "__main__":
@@ -224,7 +199,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logical_db, netlist_graph = parse_design_json(path)
-
-    print(f"\n[OK] Parsed {logical_db['meta']['source_file']}")
-    print(f"Nodes in graph: {len(netlist_graph.nodes())}")
-    print(f"Edges in graph: {len(netlist_graph.edges())}")
+    print(f"[OK] Parsed {logical_db['meta']['source_file']}")
+    print(f"Nodes: {len(netlist_graph.nodes())}, Edges: {len(netlist_graph.edges())}")
