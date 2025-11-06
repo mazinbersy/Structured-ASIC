@@ -44,9 +44,9 @@ if __name__ == "__main__":
     # Save as YAML
     with open(output_file, "w") as f:
         yaml.dump(db, f, sort_keys=False)
-    print(f"✅ Fabric database written to {output_file}")
+    print(f"Fabric database written to {output_file}")
 
     # Save as JSON for scripts
     with open("fabric/fabric_db.json", "w") as f:
         json.dump(db, f, indent=2)
-    print("✅ Fabric database also saved as fabric_db.json")
+    print("Fabric database also saved as fabric_db.json")
