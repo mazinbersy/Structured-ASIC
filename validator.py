@@ -1,4 +1,6 @@
 import sys
+sys.dont_write_bytecode = True
+
 from parse_design import parse_design_json
 from build_fabric_db import build_fabric_db
 from collections import defaultdict
