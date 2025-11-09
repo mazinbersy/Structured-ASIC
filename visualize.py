@@ -9,6 +9,7 @@ Function:
 Features:
   - Automatically detects pins from fabric_db["fabric"]["pin_placement"] if not given.
   - Extracts die and core dimensions from pin_placement data.
+  - Calculates cell dimensions from fabric.yaml using width_sites * site_width_um
   - Supports flexible pin formats.
   - Draws die, core, pins, and a semi-transparent rectangle for every fabric slot.
 """
@@ -23,20 +24,71 @@ import math
 # ---------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------
+def _get_cell_dimensions_um(fabric_db: Dict[str, Any], cell_type: str) -> Tuple[float, float]:
+    """
+    Calculate cell width and height in micrometers from fabric.yaml data.
+    
+    Returns:
+        (width_um, height_um) tuple
+    """
+    # Get site dimensions
+    site_info = fabric_db.get("fabric", {}).get("fabric_info", {}).get("site_dimensions_um", {})
+    site_width = site_info.get("width", 0.46)
+    site_height = site_info.get("height", 2.72)
+    
+    # Get cell definitions
+    cell_defs = fabric_db.get("fabric", {}).get("cell_definitions", {})
+    
+    # Look up this cell type
+    if cell_type in cell_defs:
+        width_sites = cell_defs[cell_type].get("width_sites", 1)
+        width_um = width_sites * site_width
+        # Height is always one row (site_height)
+        height_um = site_height
+        return width_um, height_um
+    
+    # Fallback if cell type not found
+    return site_width, site_height
+
+
 def _normalize_cells_by_tile(fabric_db: Dict[str, Any]):
-    """Return an iterable of (tile_name, tile_x, tile_y, cell_dict)."""
+    """Return an iterable of (tile_name, tile_x, tile_y, width_um, height_um, cell_dict)."""
     cells_by_tile = fabric_db.get("fabric", {}).get("cells_by_tile", {})
+    
+    # Get tile dimensions from fabric_layout
+    tile_def = fabric_db.get("fabric", {}).get("tile_definition", {})
+    tile_dims_sites = tile_def.get("dimensions_sites", {})
+    
+    site_info = fabric_db.get("fabric", {}).get("fabric_info", {}).get("site_dimensions_um", {})
+    site_width = site_info.get("width", 0.46)
+    site_height = site_info.get("height", 2.72)
+    
+    tile_width_um = tile_dims_sites.get("width", 60) * site_width
+    tile_height_um = tile_dims_sites.get("height", 4) * site_height
+    
     for tile_name, tile in cells_by_tile.items():
         tile_x = tile.get("x", None)
         tile_y = tile.get("y", None)
         cells = tile.get("cells", []) or []
 
         for cell in cells:
+            # Get cell type to look up dimensions
+            cell_type = cell.get("cell_type", cell.get("type", ""))
+            
+            # Calculate dimensions from fabric.yaml
+            w_um, h_um = _get_cell_dimensions_um(fabric_db, cell_type)
+            
+            # Get cell position (use tile position if cell position not specified)
             cx = cell.get("x", tile_x)
             cy = cell.get("y", tile_y)
-            w = cell.get("w", cell.get("width", None))
-            h = cell.get("h", cell.get("height", None))
-            yield tile_name, cx, cy, w, h, cell
+            
+            # Override with explicit dimensions if provided
+            if "w" in cell or "width" in cell:
+                w_um = cell.get("w", cell.get("width"))
+            if "h" in cell or "height" in cell:
+                h_um = cell.get("h", cell.get("height"))
+            
+            yield tile_name, cx, cy, w_um, h_um, cell
 
 
 def _collect_pin_list(pins):
@@ -129,6 +181,7 @@ def plot_fabric_ground_truth(
     """
     Draw the die, core, pins, and all fabric slots.
     Automatically extracts pins, die, and core from fabric_db if not provided.
+    Cell dimensions are calculated from fabric.yaml cell_definitions and site_dimensions_um.
     """
     # Auto-detect pins if not explicitly passed
     if pins is None:
@@ -142,7 +195,7 @@ def plot_fabric_ground_truth(
         if core_bbox is None:
             core_bbox = auto_core
 
-    # Collect cells
+    # Collect cells (now with dimensions from fabric.yaml)
     cell_entries = list(_normalize_cells_by_tile(fabric_db))
     if not cell_entries:
         raise ValueError("No fabric cells found in fabric_db['fabric']['cells_by_tile'].")
@@ -150,10 +203,12 @@ def plot_fabric_ground_truth(
     # Determine world bounds from cells if die_bbox still not available
     if die_bbox is None:
         xs, ys = [], []
-        for _, cx, cy, _, _, _ in cell_entries:
+        for _, cx, cy, w, h, _ in cell_entries:
             if cx is not None and cy is not None:
-                xs.append(cx)
-                ys.append(cy)
+                xs.append(cx - w/2)
+                xs.append(cx + w/2)
+                ys.append(cy - h/2)
+                ys.append(cy + h/2)
         if not xs or not ys:
             xs, ys = [0], [0]
 
@@ -178,7 +233,17 @@ def plot_fabric_ground_truth(
 
     # Extract cell types for color mapping
     import re
-    def extract_type_from_name(name: str):
+    def extract_type_from_name(cell_dict):
+        """Extract cell type from cell_type field or name field"""
+        cell_type = cell_dict.get("cell_type", cell_dict.get("type", ""))
+        if cell_type:
+            # Extract the main cell type (e.g., "nand2_2" from "sky130_fd_sc_hd__nand2_2")
+            parts = cell_type.split("__")
+            if len(parts) > 1:
+                return parts[-1].upper()
+            return cell_type.upper()
+        
+        name = cell_dict.get("name", "")
         if not name:
             return "UNKNOWN"
         m = re.search(r"__R\d+_([A-Za-z0-9]+)_", name)
@@ -195,8 +260,7 @@ def plot_fabric_ground_truth(
     type_to_index = {}
     cur_index = 0
     for _, _, _, _, _, cell in cell_entries:
-        name = cell.get("name", "")
-        t = extract_type_from_name(name)
+        t = extract_type_from_name(cell)
         if t not in type_to_index:
             type_to_index[t] = cur_index
             cur_index += 1
@@ -217,11 +281,10 @@ def plot_fabric_ground_truth(
 
     # Draw fabric slots
     for tile_name, cx, cy, w, h, cell in cell_entries:
-        name = cell.get("name", "")
-        t = extract_type_from_name(name)
+        t = extract_type_from_name(cell)
         idx = type_to_index.get(t, 0)
-        if w is None or h is None:
-            w, h = slot_default_size
+        
+        # Use the dimensions calculated from fabric.yaml
         if cx is None or cy is None:
             m = re.match(r".*T(\d+)Y(\d+).*", tile_name)
             if m:
@@ -229,6 +292,7 @@ def plot_fabric_ground_truth(
                 cy = int(m.group(2)) * h
             else:
                 cx, cy = 0.0, 0.0
+        
         x0, y0 = cx - w / 2.0, cy - h / 2.0
         color = cmap(idx % cmap.N)
         ax.add_patch(patches.Rectangle((x0, y0), w, h, facecolor=color, edgecolor='black', lw=0.4, alpha=alpha))
