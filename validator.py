@@ -156,7 +156,7 @@ def print_validation_report(logical_db, validation_results, is_valid):
             usage_str = "N/A (no slots)"
             status = "FAIL"
         else:
-            usage_str = f"{utilization:.1f}%"
+            usage_str = f"{utilization:.2f}%"
             status = "OK" if fits else "FAIL"
         
         print(f"{cell_type:<20} {required:<12} {available:<12} {usage_str:<15} {status}")
@@ -169,7 +169,7 @@ def print_validation_report(logical_db, validation_results, is_valid):
     total_available = sum(r["available"] for r in validation_results)
     overall_utilization = (total_required / total_available * 100) if total_available > 0 else 0
     
-    print(f"Overall Fabric Utilization: {total_required}/{total_available} ({overall_utilization:.1f}%)")
+    print(f"Overall Fabric Utilization: {total_required}/{total_available} ({overall_utilization:.2f}%)")
     print()
     
     # Final verdict
