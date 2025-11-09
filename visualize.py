@@ -11,6 +11,7 @@ Features:
   - Extracts die and core dimensions from pin_placement data.
   - Supports flexible pin formats.
   - Draws die, core, pins, and a semi-transparent rectangle for every fabric slot.
+  - Uses width_um and height_um from fabric_db for accurate cell dimensions.
 """
 
 from build_fabric_db import build_fabric_db
@@ -34,8 +35,9 @@ def _normalize_cells_by_tile(fabric_db: Dict[str, Any]):
         for cell in cells:
             cx = cell.get("x", tile_x)
             cy = cell.get("y", tile_y)
-            w = cell.get("w", cell.get("width", None))
-            h = cell.get("h", cell.get("height", None))
+            # Use width_um and height_um from fabric_db
+            w = cell.get("width_um")
+            h = cell.get("height_um")
             yield tile_name, cx, cy, w, h, cell
 
 
@@ -112,6 +114,43 @@ def _extract_die_core_from_pin_placement(fabric_db: Dict[str, Any]) -> Tuple[Opt
     return die_bbox, core_bbox
 
 
+def _extract_cell_type(cell: Dict[str, Any]) -> str:
+    """Extract cell type from cell dict."""
+    # Try to get cell_type directly
+    cell_type = cell.get("cell_type", "")
+    if cell_type:
+        # Extract the main component name from cell_type
+        # e.g., "sky130_fd_sc_hd__nand2_2" -> "NAND2"
+        parts = cell_type.split("__")
+        if len(parts) > 1:
+            base = parts[-1]  # Get the part after "__"
+            # Remove trailing numbers and underscores
+            import re
+            m = re.match(r"([a-z]+)\d*_?\d*", base)
+            if m:
+                return m.group(1).upper()
+            return base.upper()
+
+    # Fallback to template_name
+    template_name = cell.get("template_name", "")
+    if template_name:
+        # Extract type from template name like "R0_NAND_0"
+        import re
+        m = re.match(r"R\d+_([A-Z]+)_\d+", template_name)
+        if m:
+            return m.group(1)
+
+    # Fallback to name field
+    name = cell.get("name", "")
+    if name:
+        import re
+        m = re.search(r"R\d+_([A-Z]+)_\d+", name)
+        if m:
+            return m.group(1)
+
+    return "UNKNOWN"
+
+
 # ---------------------------------------------------------------------
 # Main Visualization Function
 # ---------------------------------------------------------------------
@@ -129,6 +168,7 @@ def plot_fabric_ground_truth(
     """
     Draw the die, core, pins, and all fabric slots.
     Automatically extracts pins, die, and core from fabric_db if not provided.
+    Uses width_um and height_um from fabric_db for accurate cell dimensions.
     """
     # Auto-detect pins if not explicitly passed
     if pins is None:
@@ -150,10 +190,15 @@ def plot_fabric_ground_truth(
     # Determine world bounds from cells if die_bbox still not available
     if die_bbox is None:
         xs, ys = [], []
-        for _, cx, cy, _, _, _ in cell_entries:
+        for _, cx, cy, w, h, _ in cell_entries:
             if cx is not None and cy is not None:
                 xs.append(cx)
                 ys.append(cy)
+                # Include cell dimensions in bounds
+                if w is not None:
+                    xs.append(cx + w)
+                if h is not None:
+                    ys.append(cy + h)
         if not xs or not ys:
             xs, ys = [0], [0]
 
@@ -177,26 +222,10 @@ def plot_fabric_ground_truth(
         )
 
     # Extract cell types for color mapping
-    import re
-    def extract_type_from_name(name: str):
-        if not name:
-            return "UNKNOWN"
-        m = re.search(r"__R\d+_([A-Za-z0-9]+)_", name)
-        if m:
-            return m.group(1).upper()
-        m2 = re.search(r"__([a-z0-9]+)_[0-9]+", name)
-        if m2:
-            return m2.group(1).upper()
-        m3 = re.search(r"([a-z]+)_\d+$", name)
-        if m3:
-            return m3.group(1).upper()
-        return name.upper()
-
     type_to_index = {}
     cur_index = 0
     for _, _, _, _, _, cell in cell_entries:
-        name = cell.get("name", "")
-        t = extract_type_from_name(name)
+        t = _extract_cell_type(cell)
         if t not in type_to_index:
             type_to_index[t] = cur_index
             cur_index += 1
@@ -215,23 +244,28 @@ def plot_fabric_ground_truth(
     import matplotlib
     cmap = matplotlib.colormaps.get_cmap('tab20')
 
-    # Draw fabric slots
+    # Draw fabric slots using width_um and height_um
     for tile_name, cx, cy, w, h, cell in cell_entries:
-        name = cell.get("name", "")
-        t = extract_type_from_name(name)
+        t = _extract_cell_type(cell)
         idx = type_to_index.get(t, 0)
+
+        # Use width_um and height_um from cell, fallback to defaults
         if w is None or h is None:
             w, h = slot_default_size
+
+        # Use cx, cy as provided or calculate from tile name
         if cx is None or cy is None:
+            import re
             m = re.match(r".*T(\d+)Y(\d+).*", tile_name)
             if m:
                 cx = int(m.group(1)) * w
                 cy = int(m.group(2)) * h
             else:
                 cx, cy = 0.0, 0.0
-        x0, y0 = cx - w / 2.0, cy - h / 2.0
+
+        # Draw rectangle with actual dimensions
         color = cmap(idx % cmap.N)
-        ax.add_patch(patches.Rectangle((x0, y0), w, h, facecolor=color, edgecolor='black', lw=0.4, alpha=alpha))
+        ax.add_patch(patches.Rectangle((cx, cy), w, h, facecolor=color, edgecolor='black', lw=0.4, alpha=alpha))
 
     # Draw pins (without labels)
     pin_list = _collect_pin_list(pins)
@@ -273,5 +307,5 @@ def plot_fabric_ground_truth(
 
 
 if __name__ == "__main__":
-    fabric_db = build_fabric_db("fabric/fabric_cells.yaml","fabric/pins.yaml")
+    fabric_db = build_fabric_db("fabric/fabric_cells.yaml","fabric/pins.yaml", "fabric/fabric.yaml")
     plot_fabric_ground_truth(fabric_db, show=True, savepath="fabric_layout.png")

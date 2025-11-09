@@ -197,6 +197,7 @@ def main():
     design_path = "designs/6502_mapped.json"
     fabric_cells_path = "fabric/fabric_cells.yaml"
     pins_path = "fabric/pins.yaml"
+    fabric_def_path = "fabric/fabric.yaml"
     
     if len(sys.argv) > 1:
         design_path = sys.argv[1]
@@ -204,6 +205,8 @@ def main():
         fabric_cells_path = sys.argv[2]
     if len(sys.argv) > 3:
         pins_path = sys.argv[3]
+    if len(sys.argv) > 3:
+        fabric_def_path = sys.argv[4]
     
     # Load design
     try:
@@ -214,7 +217,7 @@ def main():
     
     # Build fabric database dynamically
     try:
-        fabric_db = build_fabric_db(fabric_cells_path, pins_path)
+        fabric_db = build_fabric_db(fabric_cells_path, pins_path, fabric_def_path)
     except Exception as e:
         print(f"Error building fabric database: {e}")
         sys.exit(1)
