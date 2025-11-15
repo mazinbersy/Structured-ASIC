@@ -188,6 +188,8 @@ def _build_netlist_graph(logical_db: Dict[str, Any]) -> nx.Graph:
 
 if __name__ == "__main__":
     import sys
+    import json
+    from networkx.readwrite import json_graph
 
     if len(sys.argv) != 2:
         print("Usage: python parse_design.py path/to/[design]_mapped.json")
@@ -201,3 +203,20 @@ if __name__ == "__main__":
     logical_db, netlist_graph = parse_design_json(path)
     print(f"[OK] Parsed {logical_db['meta']['source_file']}")
     print(f"Nodes: {len(netlist_graph.nodes())}, Edges: {len(netlist_graph.edges())}")
+
+    # -------------------------
+    # Write logical_db to JSON
+    # -------------------------
+    logical_json_file = "logical_db.json"
+    with open(logical_json_file, "w") as f:
+        json.dump(logical_db, f, indent=2)
+    print(f"logical_db written to {logical_json_file}")
+
+    # -------------------------
+    # Write netlist_graph to JSON
+    # -------------------------
+    graph_data = json_graph.node_link_data(netlist_graph)
+    netlist_json_file = "netlist_graph.json"
+    with open(netlist_json_file, "w") as f:
+        json.dump(graph_data, f, indent=2)
+    print(f"netlist_graph written to {netlist_json_file}")
