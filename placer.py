@@ -146,56 +146,31 @@ def initial_placement(fabric_db, logical_db, netlist_graph):
 # 4. HPWL Calculation
 # --------------------------------------------------
 
-def calculate_hpwl(netlist_graph, placement_dict):
-    """
-    Calculate Half-Perimeter Wire Length (HPWL) for the placement.
-
-    For each net (edge in the netlist graph), compute the bounding box
-    of all connected nodes and sum up the half-perimeter.
-
-    Returns: total HPWL value
-    """
+def calculate_hpwl(netlist_graph, placement_dict, logical_db):
+    """Calculate Half-Perimeter Wire Length (HPWL) for the placement."""
     total_hpwl = 0.0
-
-    # Get all unique nets from the graph
-    # In a netlist graph, nets are typically represented by edges
-    # We need to group nodes that share the same net
-    nets = {}
-
-    for node in netlist_graph.nodes():
-        for neighbor in netlist_graph.neighbors(node):
-            # Create a canonical net representation (sorted tuple)
-            net_key = tuple(sorted([node, neighbor]))
-            if net_key not in nets:
-                nets[net_key] = set(net_key)
-
-    # Calculate HPWL for each net
-    for net_nodes in nets.values():
-        if len(net_nodes) < 2:
-            continue  # Skip single-node nets
-
-        # Get positions of all nodes in this net
-        positions = []
-        for node in net_nodes:
-            if node in placement_dict:
-                positions.append(placement_dict[node])
-
-        if len(positions) < 2:
-            continue  # Skip if not enough nodes are placed
-
-        # Calculate bounding box
+    
+    for net_id, net_info in logical_db["nets"].items():
+        connections = net_info.get("connections", [])
+        
+        # Get all nodes connected to this net
+        nodes = [node_name for node_name, pin_name in connections]
+        
+        # Filter to only placed nodes
+        placed_nodes = [n for n in nodes if n in placement_dict]
+        
+        if len(placed_nodes) < 2:
+            continue
+        
+        # Get positions
+        positions = [placement_dict[n] for n in placed_nodes]
         x_coords = [pos[0] for pos in positions]
         y_coords = [pos[1] for pos in positions]
-
-        min_x = min(x_coords)
-        max_x = max(x_coords)
-        min_y = min(y_coords)
-        max_y = max(y_coords)
-
-        # Half-perimeter = (width + height)
-        hpwl = (max_x - min_x) + (max_y - min_y)
+        
+        # HPWL = bounding box half-perimeter
+        hpwl = (max(x_coords) - min(x_coords)) + (max(y_coords) - min(y_coords))
         total_hpwl += hpwl
-
+    
     return total_hpwl
 
 
@@ -230,7 +205,8 @@ if __name__ == "__main__":
     placement_dict = initial_placement(fabric_db, logical_db, netlist_graph)
 
     # Calculate and print HPWL
-    hpwl = calculate_hpwl(netlist_graph, placement_dict)
+# Calculate and print HPWL
+    hpwl = calculate_hpwl(netlist_graph, placement_dict, logical_db)
     print(f"\n{'='*50}")
     print(f"HPWL (Half-Perimeter Wire Length): {hpwl:.2f} µm")
     print(f"{'='*50}\n")
