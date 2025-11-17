@@ -185,7 +185,7 @@ def write_map_file(placement_dict, filename="placement.map"):
     with open(filename, "w") as f:
         for cell, (x, y) in placement_dict.items():
             f.write(f"{cell} {x:.2f} {y:.2f}\n")
-    print(f"[OK] Placement written to {filename}")
+    #print(f"[OK] Placement written to {filename}")
 
 # --------------------------------------------------
 # 6. Main runner
