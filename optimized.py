@@ -8,6 +8,7 @@ Key Features:
   • Temperature schedule with geometric cooling
   • Two move types: REFINE (swap) and EXPLORE (shift)
   • Adaptive acceptance based on temperature
+  • Range-limiting window (w_initial) for Explore moves
   • Tracks best solution found
 """
 
@@ -37,6 +38,9 @@ class SAConfig:
         # Move type probabilities
         self.prob_refine = 0.8          # REFINE: Swap two cells (increased)
         self.prob_explore = 0.2         # EXPLORE: Move one cell to new location
+        
+        # Range-limiting window for Explore moves
+        self.w_initial = 0.7          # Initial window size (50% of die width)
 
 
 # ===============================================================
@@ -68,6 +72,16 @@ def is_port(node_name, logical_db):
             node_name in logical_db["ports"].get("outputs", {}))
 
 
+def get_fabric_dimensions(fabric_db):
+    """Calculate the width and height of the fabric die."""
+    max_x = max_y = 0
+    for tile_id, tile_info in fabric_db["fabric"]["cells_by_tile"].items():
+        for cell in tile_info["cells"]:
+            max_x = max(max_x, cell["x"])
+            max_y = max(max_y, cell["y"])
+    return max_x, max_y
+
+
 # ===============================================================
 # 3. Move Generation Functions
 # ===============================================================
@@ -88,10 +102,14 @@ def refine_move(placement_dict, logical_db):
     return (cell1, cell2, pos1, pos2)
 
 
-def explore_move(placement_dict, fabric_db, logical_db, netlist_graph):
+def explore_move(placement_dict, fabric_db, logical_db, netlist_graph, window_size=None):
     """
     EXPLORE: Move one cell to a nearby available slot (guided by neighbors).
     Returns (cell, old_pos, new_pos) or None if no slots available.
+    
+    Args:
+        window_size: Maximum distance (in die units) from current position. 
+                    If None, no range limiting is applied.
     """
     available = get_available_slots(fabric_db, placement_dict)
     if not available:
@@ -103,6 +121,18 @@ def explore_move(placement_dict, fabric_db, logical_db, netlist_graph):
     
     cell = random.choice(cells)
     old_pos = placement_dict[cell]
+    
+    # Apply range-limiting window if specified
+    if window_size is not None:
+        # Filter available slots to those within window_size of current position
+        available = [
+            pos for pos in available
+            if abs(pos[0] - old_pos[0]) <= window_size and abs(pos[1] - old_pos[1]) <= window_size
+        ]
+        
+        # If no slots within window, fall back to all available slots
+        if not available:
+            available = get_available_slots(fabric_db, placement_dict)
     
     # Try to find a slot near this cell's neighbors
     neighbors = list(netlist_graph.neighbors(cell))
@@ -133,10 +163,13 @@ def explore_move(placement_dict, fabric_db, logical_db, netlist_graph):
     return (cell, old_pos, new_pos)
 
 
-def generate_move(placement_dict, fabric_db, logical_db, netlist_graph, config):
+def generate_move(placement_dict, fabric_db, logical_db, netlist_graph, config, window_size=None):
     """
     Generate a random move based on configured probabilities.
     Returns (move_type, move_data) or (None, None).
+    
+    Args:
+        window_size: Range-limiting window size for Explore moves.
     """
     rand_val = random.random()
     
@@ -146,8 +179,8 @@ def generate_move(placement_dict, fabric_db, logical_db, netlist_graph, config):
         if move_data:
             return ("refine", move_data)
     else:
-        # EXPLORE: Shift one cell
-        move_data = explore_move(placement_dict, fabric_db, logical_db, netlist_graph)
+        # EXPLORE: Shift one cell (with optional window size)
+        move_data = explore_move(placement_dict, fabric_db, logical_db, netlist_graph, window_size)
         if move_data:
             return ("explore", move_data)
     
@@ -232,6 +265,10 @@ def simulated_annealing(fabric_db, logical_db, netlist_graph, initial_placement_
     current_cost = calculate_hpwl(netlist_graph, current_placement, logical_db)
     best_cost = current_cost
     
+    # Get fabric dimensions for window sizing
+    die_width, die_height = get_fabric_dimensions(fabric_db)
+    initial_window = config.w_initial * max(die_width, die_height)
+    
     # Statistics tracking
     stats = {
         "iterations": 0,
@@ -255,11 +292,18 @@ def simulated_annealing(fabric_db, logical_db, netlist_graph, initial_placement_
     while temperature > config.final_temp and iteration < config.max_iterations:
         accepted_at_temp = 0
         
+        # Calculate current window size based on temperature
+        # Window shrinks as temperature decreases (from w_initial to 0)
+        temp_ratio = (temperature - config.final_temp) / (config.initial_temp - config.final_temp)
+        current_window = initial_window * temp_ratio
+        
         for _ in range(config.moves_per_temp):
             iteration += 1
             
-            # Generate a move
-            move_type, move_data = generate_move(current_placement, fabric_db, logical_db, netlist_graph, config)
+            # Generate a move with current window size
+            move_type, move_data = generate_move(
+                current_placement, fabric_db, logical_db, netlist_graph, config, current_window
+            )
             
             if move_type is None:
                 stats["rejected_moves"] += 1
@@ -321,7 +365,7 @@ def simulated_annealing(fabric_db, logical_db, netlist_graph, initial_placement_
         # Progress update every 10 temperature steps
         if len(stats["temperature_history"]) % 10 == 0:
             acceptance_rate = accepted_at_temp / config.moves_per_temp * 100
-            print(f"  T={temperature:7.2f} | Current HPWL: {current_cost:8.2f} | Best: {best_cost:8.2f} | Accept: {acceptance_rate:5.1f}%")
+            print(f"  T={temperature:7.2f} | Window: {current_window:6.1f} | Current HPWL: {current_cost:8.2f} | Best: {best_cost:8.2f} | Accept: {acceptance_rate:5.1f}%")
         
         # Cool down
         temperature *= config.cooling_rate
@@ -371,14 +415,8 @@ if __name__ == "__main__":
     initial_hpwl = calculate_hpwl(netlist_graph, initial_placement_dict, logical_db)
     print(f"Greedy Placement HPWL: {initial_hpwl:.2f} µm")
     
-    # Configure SA
+    # Configure SA (uses defaults from SAConfig class)
     config = SAConfig()
-    config.initial_temp = 100.0
-    config.final_temp = 0.01
-    config.cooling_rate = 0.98
-    config.moves_per_temp = 150
-    config.prob_refine = 0.8
-    config.prob_explore = 0.2
     
     # Run Simulated Annealing
     optimized_placement, stats = simulated_annealing(
