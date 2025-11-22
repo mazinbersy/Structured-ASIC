@@ -1,5 +1,6 @@
 .DS_Store
 build/experiments/*
+build/refine_temp_experiments
 
 __pycache__/
 .DS_Store
