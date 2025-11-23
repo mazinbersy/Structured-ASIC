@@ -29,18 +29,18 @@ from placer import initial_placement, calculate_hpwl, write_map_file
 class SAConfig:
     """Configuration parameters for Simulated Annealing."""
     def __init__(self):
-        self.initial_temp = 100.0       # Starting temperature (reduced)
+        self.initial_temp = 200.0       # Starting temperature (reduced)
         self.final_temp = 0.01          # Stopping temperature
-        self.cooling_rate = 0.98        # Slower cooling for better exploration
-        self.moves_per_temp = 150       # More moves per temperature
+        self.cooling_rate = 0.97     # Slower cooling for better exploration
+        self.moves_per_temp = 200       # More moves per temperature
         self.max_iterations = 15000     # Safety limit
         
         # Move type probabilities
-        self.prob_refine = 0.8          # REFINE: Swap two cells (increased)
-        self.prob_explore = 0.2         # EXPLORE: Move one cell to new location
+        self.prob_refine = 0.5          # REFINE: Swap two cells (increased)
+        self.prob_explore = 0.5         # EXPLORE: Move one cell to new location
         
         # Range-limiting window for Explore moves
-        self.w_initial = 0.7          # Initial window size (50% of die width)
+        self.w_initial = 0.3          # Initial window size (50% of die width)
 
 
 # ===============================================================
