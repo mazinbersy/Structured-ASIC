@@ -1,5 +1,5 @@
 # Structured-ASIC
-## 🔍 SA Knob Exploration (Task 1.D)
+## SA Knob Exploration (Task 1.D)
 
 To evaluate how simulated annealing parameters affect placement quality and runtime, a structured two-phase sweep was performed using the **6502** design.
 
