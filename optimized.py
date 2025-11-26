@@ -10,6 +10,7 @@ Key Features:
   • Adaptive acceptance based on temperature
   • Range-limiting window (w_initial) for Explore moves
   • Tracks best solution found
+  • Fabric-centric output format for CTS/ECO support
 """
 
 import random
@@ -19,7 +20,13 @@ from typing import Dict, Tuple, List
 
 from build_fabric_db import build_fabric_db
 from parse_design import parse_design_json
-from placer import initial_placement, calculate_hpwl, write_map_file
+from placer import (
+    initial_placement, 
+    calculate_hpwl, 
+    write_map_file,
+    fabric_to_logical_map,
+    build_complete_fabric_map
+)
 
 
 # ===============================================================
@@ -29,10 +36,10 @@ from placer import initial_placement, calculate_hpwl, write_map_file
 class SAConfig:
     """Configuration parameters for Simulated Annealing."""
     def __init__(self):
-        self.initial_temp = 200.0       # Starting temperature (reduced)
+        self.initial_temp = 100.0       # Starting temperature (reduced)
         self.final_temp = 0.01          # Stopping temperature
         self.cooling_rate = 0.97     # Slower cooling for better exploration
-        self.moves_per_temp = 200       # More moves per temperature
+        self.moves_per_temp = 100       # More moves per temperature
         self.max_iterations = 15000     # Safety limit
         
         # Move type probabilities
@@ -40,7 +47,7 @@ class SAConfig:
         self.prob_explore = 0.5         # EXPLORE: Move one cell to new location
         
         # Range-limiting window for Explore moves
-        self.w_initial = 0.3          # Initial window size (50% of die width)
+        self.w_initial = 0.5          # Initial window size (50% of die width)
 
 
 # ===============================================================
@@ -48,7 +55,7 @@ class SAConfig:
 # ===============================================================
 
 def get_available_slots(fabric_db, placement_dict):
-    """Returns list of (x, y) positions that are unoccupied."""
+    """Returns list of (fabric_name, x, y) tuples that are unoccupied."""
     all_slots = []
     occupied = set(placement_dict.values())
     
@@ -56,7 +63,7 @@ def get_available_slots(fabric_db, placement_dict):
         for cell in tile_info["cells"]:
             pos = (cell["x"], cell["y"])
             if pos not in occupied:
-                all_slots.append(pos)
+                all_slots.append((cell["name"], cell["x"], cell["y"]))
     
     return all_slots
 
@@ -82,14 +89,32 @@ def get_fabric_dimensions(fabric_db):
     return max_x, max_y
 
 
+def get_fabric_slot_for_cell(fabric_db, cell_name):
+    """Find which fabric slot a logical cell is occupying."""
+    for tile_id, tile_info in fabric_db["fabric"]["cells_by_tile"].items():
+        for slot in tile_info["cells"]:
+            if slot.get("placed") == cell_name:
+                return slot
+    return None
+
+
+def get_fabric_slot_at_position(fabric_db, x, y):
+    """Find the fabric slot at a specific (x, y) position."""
+    for tile_id, tile_info in fabric_db["fabric"]["cells_by_tile"].items():
+        for slot in tile_info["cells"]:
+            if slot["x"] == x and slot["y"] == y:
+                return slot
+    return None
+
+
 # ===============================================================
 # 3. Move Generation Functions
 # ===============================================================
 
-def refine_move(placement_dict, logical_db):
+def refine_move(placement_dict, logical_db, fabric_db):
     """
     REFINE: Swap two randomly selected cells.
-    Returns (cell1, cell2, old_pos1, old_pos2) or None if invalid.
+    Returns (cell1, cell2, slot1, slot2, old_pos1, old_pos2) or None if invalid.
     """
     cells = get_placeable_cells(logical_db)
     if len(cells) < 2:
@@ -99,13 +124,20 @@ def refine_move(placement_dict, logical_db):
     pos1 = placement_dict[cell1]
     pos2 = placement_dict[cell2]
     
-    return (cell1, cell2, pos1, pos2)
+    # Find fabric slots for both cells
+    slot1 = get_fabric_slot_at_position(fabric_db, pos1[0], pos1[1])
+    slot2 = get_fabric_slot_at_position(fabric_db, pos2[0], pos2[1])
+    
+    if slot1 is None or slot2 is None:
+        return None
+    
+    return (cell1, cell2, slot1, slot2, pos1, pos2)
 
 
 def explore_move(placement_dict, fabric_db, logical_db, netlist_graph, window_size=None):
     """
     EXPLORE: Move one cell to a nearby available slot (guided by neighbors).
-    Returns (cell, old_pos, new_pos) or None if no slots available.
+    Returns (cell, old_slot, new_slot, old_pos, new_pos) or None if no slots available.
     
     Args:
         window_size: Maximum distance (in die units) from current position. 
@@ -122,12 +154,17 @@ def explore_move(placement_dict, fabric_db, logical_db, netlist_graph, window_si
     cell = random.choice(cells)
     old_pos = placement_dict[cell]
     
+    # Get old fabric slot
+    old_slot = get_fabric_slot_at_position(fabric_db, old_pos[0], old_pos[1])
+    if old_slot is None:
+        return None
+    
     # Apply range-limiting window if specified
     if window_size is not None:
         # Filter available slots to those within window_size of current position
         available = [
-            pos for pos in available
-            if abs(pos[0] - old_pos[0]) <= window_size and abs(pos[1] - old_pos[1]) <= window_size
+            (name, x, y) for name, x, y in available
+            if abs(x - old_pos[0]) <= window_size and abs(y - old_pos[1]) <= window_size
         ]
         
         # If no slots within window, fall back to all available slots
@@ -144,23 +181,32 @@ def explore_move(placement_dict, fabric_db, logical_db, netlist_graph, window_si
         avg_y = sum(placement_dict[n][1] for n in placed_neighbors) / len(placed_neighbors)
         
         # Find closest available slot to neighbor center
-        def distance(pos):
-            return (pos[0] - avg_x)**2 + (pos[1] - avg_y)**2
+        def distance(slot_info):
+            name, x, y = slot_info
+            return (x - avg_x)**2 + (y - avg_y)**2
         
         # Pick from top 5 closest slots (some randomness)
         available_sorted = sorted(available, key=distance)
         candidates = available_sorted[:min(5, len(available_sorted))]
-        new_pos = random.choice(candidates)
+        new_fabric_name, new_x, new_y = random.choice(candidates)
     else:
         # No neighbors, pick randomly but close to current position
-        def distance(pos):
-            return (pos[0] - old_pos[0])**2 + (pos[1] - old_pos[1])**2
+        def distance(slot_info):
+            name, x, y = slot_info
+            return (x - old_pos[0])**2 + (y - old_pos[1])**2
         
         available_sorted = sorted(available, key=distance)
         candidates = available_sorted[:min(5, len(available_sorted))]
-        new_pos = random.choice(candidates)
+        new_fabric_name, new_x, new_y = random.choice(candidates)
     
-    return (cell, old_pos, new_pos)
+    # Get new fabric slot
+    new_slot = get_fabric_slot_at_position(fabric_db, new_x, new_y)
+    if new_slot is None:
+        return None
+    
+    new_pos = (new_x, new_y)
+    
+    return (cell, old_slot, new_slot, old_pos, new_pos)
 
 
 def generate_move(placement_dict, fabric_db, logical_db, netlist_graph, config, window_size=None):
@@ -175,7 +221,7 @@ def generate_move(placement_dict, fabric_db, logical_db, netlist_graph, config, 
     
     if rand_val < config.prob_refine:
         # REFINE: Swap two cells
-        move_data = refine_move(placement_dict, logical_db)
+        move_data = refine_move(placement_dict, logical_db, fabric_db)
         if move_data:
             return ("refine", move_data)
     else:
@@ -188,31 +234,73 @@ def generate_move(placement_dict, fabric_db, logical_db, netlist_graph, config, 
 
 
 # ===============================================================
-# 4. Move Application and Reversal
+# 4. Move Application and Reversal (with Fabric Tracking)
 # ===============================================================
 
 def apply_move(placement_dict, move_type, move_data):
-    """Apply a move to the placement dictionary (in-place)."""
+    """Apply a move to the placement dictionary and fabric slots (in-place)."""
     if move_type == "refine":
-        cell1, cell2, pos1, pos2 = move_data
+        cell1, cell2, slot1, slot2, pos1, pos2 = move_data
+        
+        # Swap positions in placement_dict
         placement_dict[cell1] = pos2
         placement_dict[cell2] = pos1
+        
+        # Update fabric slots
+        slot1["placed"] = cell2
+        slot2["placed"] = cell1
+        
+        # Update global fabric_to_logical_map
+        fabric_to_logical_map[slot1["name"]] = cell2
+        fabric_to_logical_map[slot2["name"]] = cell1
+        
     elif move_type == "explore":
-        cell, old_pos, new_pos = move_data
+        cell, old_slot, new_slot, old_pos, new_pos = move_data
+        
+        # Move cell to new position
         placement_dict[cell] = new_pos
+        
+        # Update fabric slots
+        if "placed" in old_slot:
+            del old_slot["placed"]
+        new_slot["placed"] = cell
+        
+        # Update global fabric_to_logical_map
+        fabric_to_logical_map[old_slot["name"]] = "UNUSED"
+        fabric_to_logical_map[new_slot["name"]] = cell
 
 
 def revert_move(placement_dict, move_type, move_data):
-    """Revert a move from the placement dictionary (in-place)."""
+    """Revert a move from the placement dictionary and fabric slots (in-place)."""
     if move_type == "refine":
         # Swap back
-        cell1, cell2, pos1, pos2 = move_data
+        cell1, cell2, slot1, slot2, pos1, pos2 = move_data
+        
         placement_dict[cell1] = pos1
         placement_dict[cell2] = pos2
+        
+        # Revert fabric slots
+        slot1["placed"] = cell1
+        slot2["placed"] = cell2
+        
+        # Revert global fabric_to_logical_map
+        fabric_to_logical_map[slot1["name"]] = cell1
+        fabric_to_logical_map[slot2["name"]] = cell2
+        
     elif move_type == "explore":
         # Move back to old position
-        cell, old_pos, new_pos = move_data
+        cell, old_slot, new_slot, old_pos, new_pos = move_data
+        
         placement_dict[cell] = old_pos
+        
+        # Revert fabric slots
+        if "placed" in new_slot:
+            del new_slot["placed"]
+        old_slot["placed"] = cell
+        
+        # Revert global fabric_to_logical_map
+        fabric_to_logical_map[old_slot["name"]] = cell
+        fabric_to_logical_map[new_slot["name"]] = "UNUSED"
 
 
 # ===============================================================
@@ -408,12 +496,22 @@ if __name__ == "__main__":
         "designs/6502_mapped.json"
     )
     
+    # Clear global mapping
+    fabric_to_logical_map.clear()
+    
     print("Running initial greedy placement...")
     initial_placement_dict = initial_placement(fabric_db, logical_db, netlist_graph)
+    
+    # Build complete fabric mapping for initial placement
+    build_complete_fabric_map(fabric_db)
     
     # Calculate initial HPWL
     initial_hpwl = calculate_hpwl(netlist_graph, initial_placement_dict, logical_db)
     print(f"Greedy Placement HPWL: {initial_hpwl:.2f} µm")
+    
+    # Write initial placement BEFORE optimization (while fabric_db is still clean)
+    write_map_file(fabric_db, filename="placement_greedy_initial.map")
+    print(f"[OK] Greedy placement saved to: placement_greedy_initial.map")
     
     # Configure SA (uses defaults from SAConfig class)
     config = SAConfig()
@@ -427,11 +525,9 @@ if __name__ == "__main__":
         config
     )
     
-    # Write optimized placement
-    write_map_file(optimized_placement, filename="placement_sa_optimized.map")
+    # Rebuild complete fabric mapping for optimized placement
+    build_complete_fabric_map(fabric_db)
     
-    # Also write initial placement for comparison
-    write_map_file(initial_placement_dict, filename="placement_greedy_initial.map")
-    
-    print(f"[OK] Greedy placement saved to: placement_greedy_initial.map")
+    # Write optimized placement (fabric-centric format)
+    write_map_file(fabric_db, filename="placement_sa_optimized.map")
     print(f"[OK] SA-optimized placement saved to: placement_sa_optimized.map")
