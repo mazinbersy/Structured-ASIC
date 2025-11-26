@@ -5,8 +5,8 @@ Initial placer for structured ASIC using:
   • fabric_db, logical_db, netlist_graph imported via build functions
 
 Output:
-- .map file: fabric-centric format listing all fabric cells
-  Format: fabric_cell_name  fabric_type  x  y  ->  logical_cell_name or UNUSED
+- .map file: lists cell placement per line with format:
+  slot_name  cell_type  x y  ->  logical_cell_name
 """
 
 from math import sqrt
@@ -19,14 +19,7 @@ from build_fabric_db import build_fabric_db
 from parse_design import parse_design_json  # returns logical_db, netlist_graph
 
 # --------------------------------------------------
-# 2. Global mapping
-# --------------------------------------------------
-
-# Maps fabric slot name -> logical cell name (or "UNUSED")
-fabric_to_logical_map = {}
-
-# --------------------------------------------------
-# 3. Utility functions
+# 2. Utility functions
 # --------------------------------------------------
 
 def available_tiles(fabric_db):
@@ -36,37 +29,46 @@ def available_tiles(fabric_db):
 def get_tile_cells(fabric_db, tile_id):
     return fabric_db["fabric"]["cells_by_tile"][tile_id]["cells"]
 
-def assign_cell_to_nearest_slot(fabric_db, cell_name, target_pos):
+def assign_cell_to_nearest_slot(fabric_db, cell_name, target_pos, logical_db):
     """
     Assign a cell to the nearest available slot to the target (x, y) position.
-    Returns (fabric_cell_name, x, y).
+    Returns (slot_name, cell_type, x, y).
     """
     best_tile = None
     best_cell_slot = None
     best_dist = float('inf')
 
+    # Get the required cell type from logical_db
+    # FIXED: Access type correctly from logical_db
+    cell_info = logical_db["cells"].get(cell_name, {})
+    required_type = cell_info.get("type", "")
+
     for tile_id, tile_info in fabric_db["fabric"]["cells_by_tile"].items():
         for cell in tile_info["cells"]:
             if "placed" not in cell:
-                dx = cell["x"] - target_pos[0]
-                dy = cell["y"] - target_pos[1]
-                dist = sqrt(dx*dx + dy*dy)
-                if dist < best_dist:
-                    best_dist = dist
-                    best_tile = tile_id
-                    best_cell_slot = cell
+                # FIXED: Match cell_type from fabric with type from logical
+                # Check if the fabric slot's cell_type matches the required type
+                slot_cell_type = cell.get("cell_type", "")
+
+                # Only consider slots that match the required cell type
+                if slot_cell_type == required_type:
+                    dx = cell["x"] - target_pos[0]
+                    dy = cell["y"] - target_pos[1]
+                    dist = sqrt(dx*dx + dy*dy)
+                    if dist < best_dist:
+                        best_dist = dist
+                        best_tile = tile_id
+                        best_cell_slot = cell
 
     if best_cell_slot is None:
-        raise ValueError("No free slots available for cell placement")
+        raise ValueError(f"No free slots available for cell '{cell_name}' of type '{required_type}'")
 
-    # Mark as placed
     best_cell_slot["placed"] = cell_name
-    
-    # Store in global mapping
-    fabric_cell_name = best_cell_slot["name"]
-    fabric_to_logical_map[fabric_cell_name] = cell_name
-    
-    return fabric_cell_name, best_cell_slot["x"], best_cell_slot["y"]
+    # FIXED: Return cell_type from fabric_db (not type)
+    return (best_cell_slot["name"],
+            best_cell_slot["cell_type"],
+            best_cell_slot["x"],
+            best_cell_slot["y"])
 
 def barycenter_position(cell_name, netlist_graph, placement_dict):
     """Compute average position of already placed neighbors."""
@@ -74,8 +76,8 @@ def barycenter_position(cell_name, netlist_graph, placement_dict):
     placed_neighbors = [n for n in neighbors if n in placement_dict]
     if not placed_neighbors:
         return None
-    x = sum(placement_dict[n][0] for n in placed_neighbors) / len(placed_neighbors)
-    y = sum(placement_dict[n][1] for n in placed_neighbors) / len(placed_neighbors)
+    x = sum(placement_dict[n][2] for n in placed_neighbors) / len(placed_neighbors)
+    y = sum(placement_dict[n][3] for n in placed_neighbors) / len(placed_neighbors)
     return x, y
 
 def place_pins(fabric_db, logical_db):
@@ -84,41 +86,32 @@ def place_pins(fabric_db, logical_db):
     pin_data = fabric_db["fabric"].get("pin_placement", {}).get("pins", [])
     pin_dict = {p["name"]: p for p in pin_data}
 
-    for port in list(logical_db["ports"].get("inputs", {})) + \
-                list(logical_db["ports"].get("outputs", {})):
+    # FIXED: Handle both input and output ports correctly
+    inputs = logical_db.get("ports", {}).get("inputs", {})
+    outputs = logical_db.get("ports", {}).get("outputs", {})
+
+    # Combine inputs and outputs - handle both dict and list formats
+    all_ports = []
+    if isinstance(inputs, dict):
+        all_ports.extend(inputs.keys())
+    else:
+        all_ports.extend(inputs)
+
+    if isinstance(outputs, dict):
+        all_ports.extend(outputs.keys())
+    else:
+        all_ports.extend(outputs)
+
+    for port in all_ports:
         if port not in pin_dict:
             raise ValueError(f"Port {port} not found in pin_placement!")
         p = pin_dict[port]
-        placement[port] = (p["x_um"], p["y_um"])
-        
-        # Store in global mapping - pin name maps to logical port name
-        # For pins, the fabric name and logical name are the same
-        fabric_to_logical_map[port] = port
-    
+        # Format: (slot_name, cell_type, x, y)
+        placement[port] = (port, "PIN", p["x_um"], p["y_um"])
     return placement
 
 # --------------------------------------------------
-# 4. Build complete fabric mapping
-# --------------------------------------------------
-
-def build_complete_fabric_map(fabric_db):
-    """
-    After placement, iterate over ALL fabric cells and record their status.
-    Updates fabric_to_logical_map with UNUSED entries.
-    """
-    for tile_id, tile_info in fabric_db["fabric"]["cells_by_tile"].items():
-        for slot in tile_info["cells"]:
-            fabric_cell_name = slot["name"]
-            if "placed" in slot:
-                # Already recorded during placement
-                if fabric_cell_name not in fabric_to_logical_map:
-                    fabric_to_logical_map[fabric_cell_name] = slot["placed"]
-            else:
-                # Mark as unused
-                fabric_to_logical_map[fabric_cell_name] = "UNUSED"
-
-# --------------------------------------------------
-# 5. Initial placement algorithm
+# 3. Initial placement algorithm
 # --------------------------------------------------
 
 def initial_placement(fabric_db, logical_db, netlist_graph):
@@ -134,7 +127,8 @@ def initial_placement(fabric_db, logical_db, netlist_graph):
     pin_nodes = set(placement.keys())   # in1, in2, out1, etc.
     seed_cells = []
 
-    for cell in logical_db["cells"]:
+    # FIXED: Iterate over cell names correctly
+    for cell in logical_db["cells"].keys():
         neighbors = set(netlist_graph.neighbors(cell))
         if neighbors & pin_nodes:       # if any neighbor is a pin
             seed_cells.append(cell)
@@ -143,11 +137,11 @@ def initial_placement(fabric_db, logical_db, netlist_graph):
     for cell in seed_cells:
         # barycenter will be just the pin position(s)
         pos = barycenter_position(cell, netlist_graph, placement)
-        fabric_name, x, y = assign_cell_to_nearest_slot(fabric_db, cell, pos)
-        placement[cell] = (x, y)
+        slot_name, cell_type, x, y = assign_cell_to_nearest_slot(fabric_db, cell, pos, logical_db)
+        placement[cell] = (slot_name, cell_type, x, y)
 
     # Remaining cells
-    remaining_cells = set(logical_db["cells"]) - set(seed_cells)
+    remaining_cells = set(logical_db["cells"].keys()) - set(seed_cells)
 
     # ------------------------------------------------------
     # Stage 3: GROW — repeatedly place most-connected cell
@@ -168,88 +162,95 @@ def initial_placement(fabric_db, logical_db, netlist_graph):
 
             # Place using barycenter
             pos = barycenter_position(cell_to_place, netlist_graph, placement)
-            fabric_name, x, y = assign_cell_to_nearest_slot(fabric_db, cell_to_place, pos)
+            slot_name, cell_type, x, y = assign_cell_to_nearest_slot(fabric_db, cell_to_place, pos, logical_db)
 
-            placement[cell_to_place] = (x, y)
+            placement[cell_to_place] = (slot_name, cell_type, x, y)
             remaining_cells.remove(cell_to_place)
         else:
             # No neighbors placed, fallback (rare)
             cell_to_place = remaining_cells.pop()
-            fabric_name, x, y = assign_cell_to_nearest_slot(fabric_db, cell_to_place, (0,0))
-            placement[cell_to_place] = (x, y)
+            slot_name, cell_type, x, y = assign_cell_to_nearest_slot(fabric_db, cell_to_place, (0,0), logical_db)
+            placement[cell_to_place] = (slot_name, cell_type, x, y)
 
     return placement
 
 
 # --------------------------------------------------
-# 6. HPWL Calculation
+# 4. HPWL Calculation
 # --------------------------------------------------
 
 def calculate_hpwl(netlist_graph, placement_dict, logical_db):
     """Calculate Half-Perimeter Wire Length (HPWL) for the placement."""
     total_hpwl = 0.0
-    
+
     for net_id, net_info in logical_db["nets"].items():
         connections = net_info.get("connections", [])
-        
+
         # Get all nodes connected to this net
         nodes = [node_name for node_name, pin_name in connections]
-        
+
         # Filter to only placed nodes
         placed_nodes = [n for n in nodes if n in placement_dict]
-        
+
         if len(placed_nodes) < 2:
             continue
-        
-        # Get positions
-        positions = [placement_dict[n] for n in placed_nodes]
+
+        # Get positions (x, y are at indices 2, 3)
+        positions = [(placement_dict[n][2], placement_dict[n][3]) for n in placed_nodes]
         x_coords = [pos[0] for pos in positions]
         y_coords = [pos[1] for pos in positions]
-        
+
         # HPWL = bounding box half-perimeter
         hpwl = (max(x_coords) - min(x_coords)) + (max(y_coords) - min(y_coords))
         total_hpwl += hpwl
-    
+
     return total_hpwl
 
 
 # --------------------------------------------------
-# 7. Write fabric-centric .map file
+# 5. Write .map file
 # --------------------------------------------------
 
-def write_map_file(fabric_db, filename="placement.map"):
+def write_map_file(placement_dict, fabric_db, filename="placement.map"):
     """
-    Write fabric-centric .map file:
-    Format: fabric_cell_name  fabric_type  x  y  ->  logical_cell_name or UNUSED
-    (Pins are written without the -> mapping since it's redundant)
+    Write a .map file with format:
+    slot_name  cell_type  x y  ->  logical_cell_name
+
+    For pins: pin_name  x y
+    For cells: slot_name  cell_type  x y  ->  logical_cell_name
+    For unused slots: slot_name  cell_type  x y  ->  UNUSED
     """
     with open(filename, "w") as f:
-        # First write pins (without redundant mapping)
-        pin_data = fabric_db["fabric"].get("pin_placement", {}).get("pins", [])
-        for pin in pin_data:
-            pin_name = pin["name"]
-            x = pin["x_um"]
-            y = pin["y_um"]
-            pin_type = pin.get("type", "PIN")  # Default to PIN if not specified
-            
-            #f.write(f"{pin_name}  {pin_type}  {x:.2f}  {y:.2f}\n")
-            f.write(f"{pin_name}  {x:.2f}  {y:.2f}\n")
+        # First write all pins (sorted for consistency)
+        pin_entries = [(name, data) for name, data in placement_dict.items()
+                      if data[1] == "PIN"]
+        pin_entries.sort(key=lambda x: x[0])
 
-        # Then write fabric cells
+        for name, (slot_name, cell_type, x, y) in pin_entries:
+            f.write(f"{name}  {x:.2f}  {y:.2f}\n")
+
+        # Then write all placed cells
+        cell_entries = [(name, data) for name, data in placement_dict.items()
+                       if data[1] != "PIN"]
+        cell_entries.sort(key=lambda x: x[1][0])  # Sort by slot name
+
+        for name, (slot_name, cell_type, x, y) in cell_entries:
+            f.write(f"{slot_name}  {cell_type}  {x:.2f}  {y:.2f}  ->  {name}\n")
+
+        # Finally write all unused slots
+        unused_slots = []
         for tile_id, tile_info in fabric_db["fabric"]["cells_by_tile"].items():
-            for slot in tile_info["cells"]:
-                fabric_name = slot["name"]
-                fabric_type = slot["cell_type"]
-                x = slot["x"]
-                y = slot["y"]
-                logical_name = fabric_to_logical_map.get(fabric_name, "UNUSED")
-                
-                f.write(f"{fabric_name}  {fabric_type}  {x:.2f}  {y:.2f}  ->  {logical_name}\n")
-    
-    print(f"[OK] Fabric-centric placement written to {filename}")
+            for cell in tile_info["cells"]:
+                if "placed" not in cell:
+                    # FIXED: Use cell_type field consistently
+                    unused_slots.append((cell["name"], cell["cell_type"], cell["x"], cell["y"]))
+
+        unused_slots.sort(key=lambda x: x[0])  # Sort by slot name
+        for slot_name, cell_type, x, y in unused_slots:
+            f.write(f"{slot_name}  {cell_type}  {x:.2f}  {y:.2f}  ->  UNUSED\n")
 
 # --------------------------------------------------
-# 8. Main runner
+# 6. Main runner
 # --------------------------------------------------
 
 if __name__ == "__main__":
@@ -263,20 +264,13 @@ if __name__ == "__main__":
         "designs/6502_mapped.json"
     )
 
-    # Clear global mapping
-    fabric_to_logical_map.clear()
-    
-    # Run placement
     placement_dict = initial_placement(fabric_db, logical_db, netlist_graph)
 
-    # Build complete fabric mapping (mark unused cells)
-    build_complete_fabric_map(fabric_db)
-    
     # Calculate and print HPWL
     hpwl = calculate_hpwl(netlist_graph, placement_dict, logical_db)
     print(f"\n{'='*50}")
     print(f"HPWL (Half-Perimeter Wire Length): {hpwl:.2f} µm")
     print(f"{'='*50}\n")
 
-    # Write fabric-centric .map file
-    write_map_file(fabric_db)
+    # Write .map
+    write_map_file(placement_dict, fabric_db)
