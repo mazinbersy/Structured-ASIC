@@ -90,6 +90,11 @@ def place_pins(fabric_db, logical_db):
             raise ValueError(f"Port {port} not found in pin_placement!")
         p = pin_dict[port]
         placement[port] = (p["x_um"], p["y_um"])
+        
+        # Store in global mapping - pin name maps to logical port name
+        # For pins, the fabric name and logical name are the same
+        fabric_to_logical_map[port] = port
+    
     return placement
 
 # --------------------------------------------------
@@ -216,8 +221,21 @@ def write_map_file(fabric_db, filename="placement.map"):
     """
     Write fabric-centric .map file:
     Format: fabric_cell_name  fabric_type  x  y  ->  logical_cell_name or UNUSED
+    (Pins are written without the -> mapping since it's redundant)
     """
     with open(filename, "w") as f:
+        # First write pins (without redundant mapping)
+        pin_data = fabric_db["fabric"].get("pin_placement", {}).get("pins", [])
+        for pin in pin_data:
+            pin_name = pin["name"]
+            x = pin["x_um"]
+            y = pin["y_um"]
+            pin_type = pin.get("type", "PIN")  # Default to PIN if not specified
+            
+            #f.write(f"{pin_name}  {pin_type}  {x:.2f}  {y:.2f}\n")
+            f.write(f"{pin_name}  {x:.2f}  {y:.2f}\n")
+
+        # Then write fabric cells
         for tile_id, tile_info in fabric_db["fabric"]["cells_by_tile"].items():
             for slot in tile_info["cells"]:
                 fabric_name = slot["name"]
