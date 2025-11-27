@@ -10,6 +10,7 @@ Key Features:
   • Adaptive acceptance based on temperature
   • Range-limiting window (w_initial) for Explore moves
   • Tracks best solution found
+  • Follows placer.py format conventions
 """
 
 import random
@@ -19,7 +20,11 @@ from typing import Dict, Tuple, List
 
 from build_fabric_db import build_fabric_db
 from parse_design import parse_design_json
-from placer import initial_placement, calculate_hpwl, write_map_file
+from placer import (
+    initial_placement, 
+    calculate_hpwl, 
+    write_map_file
+)
 
 
 # ===============================================================
@@ -29,18 +34,18 @@ from placer import initial_placement, calculate_hpwl, write_map_file
 class SAConfig:
     """Configuration parameters for Simulated Annealing."""
     def __init__(self):
-        self.initial_temp = 200.0       # Starting temperature (reduced)
+        self.initial_temp = 100.0       # Starting temperature
         self.final_temp = 0.01          # Stopping temperature
-        self.cooling_rate = 0.97     # Slower cooling for better exploration
-        self.moves_per_temp = 200       # More moves per temperature
+        self.cooling_rate = 0.97        # Slower cooling for better exploration
+        self.moves_per_temp = 100       # More moves per temperature
         self.max_iterations = 15000     # Safety limit
         
         # Move type probabilities
-        self.prob_refine = 0.5          # REFINE: Swap two cells (increased)
+        self.prob_refine = 0.5          # REFINE: Swap two cells
         self.prob_explore = 0.5         # EXPLORE: Move one cell to new location
         
         # Range-limiting window for Explore moves
-        self.w_initial = 0.3          # Initial window size (50% of die width)
+        self.w_initial = 0.5            # Initial window size (50% of die width)
 
 
 # ===============================================================
@@ -48,28 +53,41 @@ class SAConfig:
 # ===============================================================
 
 def get_available_slots(fabric_db, placement_dict):
-    """Returns list of (x, y) positions that are unoccupied."""
+    """
+    Returns list of (slot_name, cell_type, x, y) tuples that are unoccupied.
+    
+    Args:
+        fabric_db: Fabric database
+        placement_dict: Current placement {cell_name: (slot_name, cell_type, x, y)}
+    """
     all_slots = []
-    occupied = set(placement_dict.values())
+    # Get all occupied positions
+    occupied_positions = set((data[2], data[3]) for data in placement_dict.values())
     
     for tile_id, tile_info in fabric_db["fabric"]["cells_by_tile"].items():
         for cell in tile_info["cells"]:
             pos = (cell["x"], cell["y"])
-            if pos not in occupied:
-                all_slots.append(pos)
+            if pos not in occupied_positions:
+                all_slots.append((cell["name"], cell["cell_type"], cell["x"], cell["y"]))
     
     return all_slots
 
 
-def get_placeable_cells(logical_db):
+def get_placeable_cells(logical_db, placement_dict):
     """Return list of cell names (exclude ports)."""
-    return list(logical_db["cells"].keys())
+    cells = []
+    for cell_name in logical_db["cells"].keys():
+        # Check if it's not a port (ports have cell_type "PIN")
+        if placement_dict[cell_name][1] != "PIN":
+            cells.append(cell_name)
+    return cells
 
 
-def is_port(node_name, logical_db):
+def is_port(node_name, placement_dict):
     """Check if a node is a port (I/O pin)."""
-    return (node_name in logical_db["ports"].get("inputs", {}) or 
-            node_name in logical_db["ports"].get("outputs", {}))
+    if node_name not in placement_dict:
+        return False
+    return placement_dict[node_name][1] == "PIN"
 
 
 def get_fabric_dimensions(fabric_db):
@@ -89,15 +107,21 @@ def get_fabric_dimensions(fabric_db):
 def refine_move(placement_dict, logical_db):
     """
     REFINE: Swap two randomly selected cells.
-    Returns (cell1, cell2, old_pos1, old_pos2) or None if invalid.
+    Returns (cell1, cell2, pos1, pos2) or None if invalid.
+    
+    Format: placement_dict[cell_name] = (slot_name, cell_type, x, y)
     """
-    cells = get_placeable_cells(logical_db)
+    cells = get_placeable_cells(logical_db, placement_dict)
     if len(cells) < 2:
         return None
     
     cell1, cell2 = random.sample(cells, 2)
-    pos1 = placement_dict[cell1]
+    pos1 = placement_dict[cell1]  # (slot_name, cell_type, x, y)
     pos2 = placement_dict[cell2]
+    
+    # Verify both cells have the same type (can only swap compatible types)
+    if pos1[1] != pos2[1]:
+        return None
     
     return (cell1, cell2, pos1, pos2)
 
@@ -110,55 +134,69 @@ def explore_move(placement_dict, fabric_db, logical_db, netlist_graph, window_si
     Args:
         window_size: Maximum distance (in die units) from current position. 
                     If None, no range limiting is applied.
+    
+    Format: placement_dict[cell_name] = (slot_name, cell_type, x, y)
     """
     available = get_available_slots(fabric_db, placement_dict)
     if not available:
         return None
     
-    cells = get_placeable_cells(logical_db)
+    cells = get_placeable_cells(logical_db, placement_dict)
     if not cells:
         return None
     
     cell = random.choice(cells)
-    old_pos = placement_dict[cell]
+    old_pos = placement_dict[cell]  # (slot_name, cell_type, x, y)
+    old_x, old_y = old_pos[2], old_pos[3]
+    required_type = old_pos[1]
+    
+    # Filter available slots to matching cell type
+    available = [(name, ctype, x, y) for name, ctype, x, y in available if ctype == required_type]
+    
+    if not available:
+        return None
     
     # Apply range-limiting window if specified
     if window_size is not None:
-        # Filter available slots to those within window_size of current position
         available = [
-            pos for pos in available
-            if abs(pos[0] - old_pos[0]) <= window_size and abs(pos[1] - old_pos[1]) <= window_size
+            (name, ctype, x, y) for name, ctype, x, y in available
+            if abs(x - old_x) <= window_size and abs(y - old_y) <= window_size
         ]
         
-        # If no slots within window, fall back to all available slots
+        # If no slots within window, fall back to all available slots of correct type
         if not available:
-            available = get_available_slots(fabric_db, placement_dict)
+            available = [(name, ctype, x, y) for name, ctype, x, y in 
+                        get_available_slots(fabric_db, placement_dict) if ctype == required_type]
     
     # Try to find a slot near this cell's neighbors
     neighbors = list(netlist_graph.neighbors(cell))
-    placed_neighbors = [n for n in neighbors if n in placement_dict and not is_port(n, logical_db)]
+    placed_neighbors = [n for n in neighbors if n in placement_dict and not is_port(n, placement_dict)]
     
     if placed_neighbors:
         # Calculate center of neighbors
-        avg_x = sum(placement_dict[n][0] for n in placed_neighbors) / len(placed_neighbors)
-        avg_y = sum(placement_dict[n][1] for n in placed_neighbors) / len(placed_neighbors)
+        avg_x = sum(placement_dict[n][2] for n in placed_neighbors) / len(placed_neighbors)
+        avg_y = sum(placement_dict[n][3] for n in placed_neighbors) / len(placed_neighbors)
         
         # Find closest available slot to neighbor center
-        def distance(pos):
-            return (pos[0] - avg_x)**2 + (pos[1] - avg_y)**2
+        def distance(slot_info):
+            name, ctype, x, y = slot_info
+            return (x - avg_x)**2 + (y - avg_y)**2
         
         # Pick from top 5 closest slots (some randomness)
         available_sorted = sorted(available, key=distance)
         candidates = available_sorted[:min(5, len(available_sorted))]
-        new_pos = random.choice(candidates)
+        new_slot_name, new_cell_type, new_x, new_y = random.choice(candidates)
     else:
         # No neighbors, pick randomly but close to current position
-        def distance(pos):
-            return (pos[0] - old_pos[0])**2 + (pos[1] - old_pos[1])**2
+        def distance(slot_info):
+            name, ctype, x, y = slot_info
+            return (x - old_x)**2 + (y - old_y)**2
         
         available_sorted = sorted(available, key=distance)
         candidates = available_sorted[:min(5, len(available_sorted))]
-        new_pos = random.choice(candidates)
+        new_slot_name, new_cell_type, new_x, new_y = random.choice(candidates)
+    
+    new_pos = (new_slot_name, new_cell_type, new_x, new_y)
     
     return (cell, old_pos, new_pos)
 
@@ -192,23 +230,35 @@ def generate_move(placement_dict, fabric_db, logical_db, netlist_graph, config, 
 # ===============================================================
 
 def apply_move(placement_dict, move_type, move_data):
-    """Apply a move to the placement dictionary (in-place)."""
+    """
+    Apply a move to the placement dictionary (in-place).
+    
+    Format: placement_dict[cell_name] = (slot_name, cell_type, x, y)
+    """
     if move_type == "refine":
         cell1, cell2, pos1, pos2 = move_data
+        # Swap positions
         placement_dict[cell1] = pos2
         placement_dict[cell2] = pos1
+        
     elif move_type == "explore":
         cell, old_pos, new_pos = move_data
+        # Move cell to new position
         placement_dict[cell] = new_pos
 
 
 def revert_move(placement_dict, move_type, move_data):
-    """Revert a move from the placement dictionary (in-place)."""
+    """
+    Revert a move from the placement dictionary (in-place).
+    
+    Format: placement_dict[cell_name] = (slot_name, cell_type, x, y)
+    """
     if move_type == "refine":
         # Swap back
         cell1, cell2, pos1, pos2 = move_data
         placement_dict[cell1] = pos1
         placement_dict[cell2] = pos2
+        
     elif move_type == "explore":
         # Move back to old position
         cell, old_pos, new_pos = move_data
@@ -289,6 +339,15 @@ def simulated_annealing(fabric_db, logical_db, netlist_graph, initial_placement_
     no_improvement_count = 0
     last_best_cost = best_cost
     
+    print(f"\n{'='*60}")
+    print(f"STARTING SIMULATED ANNEALING OPTIMIZATION")
+    print(f"{'='*60}")
+    print(f"Initial HPWL: {current_cost:.2f} µm")
+    print(f"Temperature: {config.initial_temp:.2f} → {config.final_temp:.2f}")
+    print(f"Cooling Rate: {config.cooling_rate}")
+    print(f"Moves per Temperature: {config.moves_per_temp}")
+    print(f"{'='*60}\n")
+    
     while temperature > config.final_temp and iteration < config.max_iterations:
         accepted_at_temp = 0
         
@@ -356,7 +415,7 @@ def simulated_annealing(fabric_db, logical_db, netlist_graph, initial_placement_
         
         # If stuck at bad solution, reheat
         if current_cost > best_cost * 1.5 and no_improvement_count > 20:
-            print(f"  [REHEAT] Current solution degraded too much, returning to best and reheating")
+            print(f"  [REHEAT] Current solution degraded, returning to best and reheating")
             current_placement = copy.deepcopy(best_placement)
             current_cost = best_cost
             temperature = min(temperature * 5.0, config.initial_temp * 0.5)
@@ -413,7 +472,11 @@ if __name__ == "__main__":
     
     # Calculate initial HPWL
     initial_hpwl = calculate_hpwl(netlist_graph, initial_placement_dict, logical_db)
-    print(f"Greedy Placement HPWL: {initial_hpwl:.2f} µm")
+    print(f"\nGreedy Placement HPWL: {initial_hpwl:.2f} µm")
+    
+    # Write initial placement
+    write_map_file(initial_placement_dict, fabric_db, filename="placement_greedy_initial.map")
+    print(f"[OK] Greedy placement saved to: placement_greedy_initial.map")
     
     # Configure SA (uses defaults from SAConfig class)
     config = SAConfig()
@@ -428,10 +491,5 @@ if __name__ == "__main__":
     )
     
     # Write optimized placement
-    write_map_file(optimized_placement, filename="placement_sa_optimized.map")
-    
-    # Also write initial placement for comparison
-    write_map_file(initial_placement_dict, filename="placement_greedy_initial.map")
-    
-    print(f"[OK] Greedy placement saved to: placement_greedy_initial.map")
+    write_map_file(optimized_placement, fabric_db, filename="placement_sa_optimized.map")
     print(f"[OK] SA-optimized placement saved to: placement_sa_optimized.map")
