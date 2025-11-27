@@ -16,17 +16,25 @@ import sys
 import json
 import math
 from typing import List, Dict, Tuple, Set
+from build_fabric_db import build_fabric_db
 
 
 class HTreeCTS:
     def __init__(self, placement_file: str):
-        """Initialize CTS with placement data."""
+        """Initialize CTS with placement data and fabric database."""
         self.placement_file = placement_file
 
         print(f"Loading placement: {placement_file}")
         self.io_ports = {}  # I/O port positions
         self.fabric_cells = {}  # Fabric cell info
         self._parse_placement()
+
+        print(f"Building fabric database from YAML files...")
+        self.fabric_db = build_fabric_db(
+            'fabric/fabric_cells.yaml',
+            'fabric/pins.yaml',
+            'fabric/fabric.yaml'
+        )
 
         self.sinks = []  # DFF locations (clock sinks)
         self.resources = []  # Available buffers/inverters
@@ -80,7 +88,7 @@ class HTreeCTS:
                             continue
 
         print(f"Loaded {len(self.io_ports)} I/O ports")
-        print(f"Loaded {len(self.fabric_cells)} fabric cells")
+        print(f"Loaded {len(self.fabric_cells)} fabric cells from placement")
 
     def find_clock_net(self, clock_name: str = None) -> str:
         """Identify the clock net (default to 'clk' if not specified)."""
@@ -110,7 +118,7 @@ class HTreeCTS:
             cell_type = info['type']
 
             # Check if it's a DFF
-            is_dff = 'dfbbp' in cell_type.lower()
+            is_dff = 'dfbbp' in cell_type.lower() or 'dff' in cell_type.lower()
 
             if is_dff and not info['is_unused']:
                 sink_info = {
@@ -126,30 +134,47 @@ class HTreeCTS:
         return self.sinks
 
     def find_resources(self) -> List[Dict]:
-        """Find all unused buffer/inverter cells."""
+        """Find all unused buffer/inverter cells from fabric_db."""
         self.resources = []
+        used_cells = set(info['mapped'] for info in self.fabric_cells.values()
+                         if not info['is_unused'])
 
-        for fabric_cell, info in self.fabric_cells.items():
-            if not info['is_unused']:
-                continue
+        # Get cells_by_tile from fabric database
+        cells_by_tile = self.fabric_db.get('fabric', {}).get('cells_by_tile', {})
 
-            cell_type = info['type']
+        for tile_name, tile_data in cells_by_tile.items():
+            cells = tile_data.get('cells', [])
 
-            # Check if it's a buffer or inverter
-            is_buffer = any(pattern in cell_type.lower() for pattern in
-                            ['buf', 'clkbuf'])
-            is_inverter = any(pattern in cell_type.lower() for pattern in
-                              ['inv', 'clkinv'])
+            for cell in cells:
+                cell_name = cell.get('name')
+                cell_type = cell.get('cell_type', '').lower()
+                x = cell.get('x', 0)
+                y = cell.get('y', 0)
 
-            if is_buffer or is_inverter:
-                self.resources.append({
-                    'name': fabric_cell,
-                    'type': cell_type,
-                    'x': info['x'],
-                    'y': info['y'],
-                    'claimed': False,
-                    'is_buffer': is_buffer
-                })
+                if not cell_name:
+                    continue
+
+                # Skip if this cell is already used in placement
+                if cell_name in used_cells:
+                    continue
+
+                # Check if this fabric cell is in placement and marked as used
+                if cell_name in self.fabric_cells and not self.fabric_cells[cell_name]['is_unused']:
+                    continue
+
+                # Check if it's a buffer or inverter using BUF or INV keywords
+                is_buffer = 'buf' in cell_type
+                is_inverter = 'inv' in cell_type
+
+                if is_buffer or is_inverter:
+                    self.resources.append({
+                        'name': cell_name,
+                        'type': cell.get('cell_type'),
+                        'x': x,
+                        'y': y,
+                        'claimed': False,
+                        'is_buffer': is_buffer
+                    })
 
         print(f"Found {len(self.resources)} available buffer/inverter resources")
         print(f"  Buffers: {sum(1 for r in self.resources if r['is_buffer'])}")
