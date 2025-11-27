@@ -237,18 +237,6 @@ def write_map_file(placement_dict, fabric_db, filename="placement.map"):
         for name, (slot_name, cell_type, x, y) in cell_entries:
             f.write(f"{slot_name}  {cell_type}  {x:.2f}  {y:.2f}  ->  {name}\n")
 
-        # Finally write all unused slots
-        unused_slots = []
-        for tile_id, tile_info in fabric_db["fabric"]["cells_by_tile"].items():
-            for cell in tile_info["cells"]:
-                if "placed" not in cell:
-                    # FIXED: Use cell_type field consistently
-                    unused_slots.append((cell["name"], cell["cell_type"], cell["x"], cell["y"]))
-
-        unused_slots.sort(key=lambda x: x[0])  # Sort by slot name
-        for slot_name, cell_type, x, y in unused_slots:
-            f.write(f"{slot_name}  {cell_type}  {x:.2f}  {y:.2f}  ->  UNUSED\n")
-
 # --------------------------------------------------
 # 6. Main runner
 # --------------------------------------------------
