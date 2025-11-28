@@ -1,593 +1,720 @@
+#!/usr/bin/env python3
 """
 power_down_eco.py
 -----------------
-Power-Down ECO: Ties unused logic cell inputs to low (GND) using a sky130_fd_sc_hd__conb_1 cell.
+Implements Power-Down ECO by tying unused logic cell inputs to conb_1 cells.
 
-Process:
-1. Parse placement.map to identify UNUSED cells
-2. Claim one sky130_fd_sc_hd__conb_1 cell for tie-low generation
-3. Modify design_mapped.json to connect all unused cell inputs to conb_1 LO output
-4. Write updated netlist with power-down ECO applied
+Strategy:
+  1. Parse logical netlist and fabric database using parse_design.py and build_fabric_db.py
+  2. Identify unused cells in the fabric
+  3. Claim one sky130_fd_sc_hd__conb_1 per tile (tie-low)
+  4. Modify netlist to connect unused inputs to conb_1 output
+  5. Generate updated netlist and placement
 
-Input:
-  - placement.map: Fabric placement mapping (fabric_cell -> logical_cell or UNUSED)
-  - design_mapped.json: Original logical netlist
-
-Output:
-  - design_mapped_eco.json: Modified netlist with unused inputs tied low
-  - eco_report.txt: Summary of ECO changes
+Usage:
+    # Direct from source files (recommended):
+    python power_down_eco.py design_mapped.json fabric_cells.yaml pins.yaml fabric.yaml placement.map
+    
+    # From Python (in-memory):
+    from power_down_eco import run_power_down_eco_from_sources
+    
+    updated_db, report = run_power_down_eco_from_sources(
+        design_json="design_mapped.json",
+        fabric_cells_yaml="fabric_cells.yaml",
+        pins_yaml="pins.yaml",
+        fabric_def_yaml="fabric.yaml",
+        placement_map_file="placement.map"
+    )
 """
 
 import json
-import copy
-from typing import Dict, List, Set, Tuple
+import yaml
+import sys
+import os
 from collections import defaultdict
+from typing import Dict, Any, List, Set, Tuple, Optional
+
+# Import the parsing modules
+from parse_design import parse_design_json
+from build_fabric_db import build_fabric_db
 
 
 # ===============================================================
-# 1. Cell Pin Database (Sky130 Standard Cells)
+# Cell Type Classification
 # ===============================================================
 
-CELL_PIN_INFO = {
-    # Logic gates
-    "sky130_fd_sc_hd__nand2_1": {"inputs": ["A", "B"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nand2_2": {"inputs": ["A", "B"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nand2_4": {"inputs": ["A", "B"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nand3_1": {"inputs": ["A", "B", "C"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nand3_2": {"inputs": ["A", "B", "C"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nand3_4": {"inputs": ["A", "B", "C"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nand4_1": {"inputs": ["A", "B", "C", "D"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nand4_2": {"inputs": ["A", "B", "C", "D"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nand4_4": {"inputs": ["A", "B", "C", "D"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nor2_1": {"inputs": ["A", "B"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nor2_2": {"inputs": ["A", "B"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nor2_4": {"inputs": ["A", "B"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nor3_1": {"inputs": ["A", "B", "C"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nor3_2": {"inputs": ["A", "B", "C"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nor3_4": {"inputs": ["A", "B", "C"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nor4_1": {"inputs": ["A", "B", "C", "D"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nor4_2": {"inputs": ["A", "B", "C", "D"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__nor4_4": {"inputs": ["A", "B", "C", "D"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__and2_1": {"inputs": ["A", "B"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__and2_2": {"inputs": ["A", "B"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__and2_4": {"inputs": ["A", "B"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__and3_1": {"inputs": ["A", "B", "C"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__and3_2": {"inputs": ["A", "B", "C"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__and3_4": {"inputs": ["A", "B", "C"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__and4_1": {"inputs": ["A", "B", "C", "D"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__and4_2": {"inputs": ["A", "B", "C", "D"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__and4_4": {"inputs": ["A", "B", "C", "D"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__or2_1": {"inputs": ["A", "B"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__or2_2": {"inputs": ["A", "B"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__or2_4": {"inputs": ["A", "B"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__or3_1": {"inputs": ["A", "B", "C"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__or3_2": {"inputs": ["A", "B", "C"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__or3_4": {"inputs": ["A", "B", "C"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__or4_1": {"inputs": ["A", "B", "C", "D"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__or4_2": {"inputs": ["A", "B", "C", "D"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__or4_4": {"inputs": ["A", "B", "C", "D"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__xor2_1": {"inputs": ["A", "B"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__xor2_2": {"inputs": ["A", "B"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__xor2_4": {"inputs": ["A", "B"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__xnor2_1": {"inputs": ["A", "B"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__xnor2_2": {"inputs": ["A", "B"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__xnor2_4": {"inputs": ["A", "B"], "outputs": ["Y"]},
-    
-    # Inverters and buffers
-    "sky130_fd_sc_hd__inv_1": {"inputs": ["A"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__inv_2": {"inputs": ["A"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__inv_4": {"inputs": ["A"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__inv_8": {"inputs": ["A"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__clkinv_1": {"inputs": ["A"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__clkinv_2": {"inputs": ["A"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__clkinv_4": {"inputs": ["A"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__clkinv_8": {"inputs": ["A"], "outputs": ["Y"]},
-    "sky130_fd_sc_hd__buf_1": {"inputs": ["A"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__buf_2": {"inputs": ["A"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__buf_4": {"inputs": ["A"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__buf_8": {"inputs": ["A"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__clkbuf_1": {"inputs": ["A"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__clkbuf_2": {"inputs": ["A"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__clkbuf_4": {"inputs": ["A"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__clkbuf_8": {"inputs": ["A"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__clkbuf_16": {"inputs": ["A"], "outputs": ["X"]},
-    
-    # Multiplexers
-    "sky130_fd_sc_hd__mux2_1": {"inputs": ["A0", "A1", "S"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__mux2_2": {"inputs": ["A0", "A1", "S"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__mux2_4": {"inputs": ["A0", "A1", "S"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__mux4_1": {"inputs": ["A0", "A1", "A2", "A3", "S0", "S1"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__mux4_2": {"inputs": ["A0", "A1", "A2", "A3", "S0", "S1"], "outputs": ["X"]},
-    "sky130_fd_sc_hd__mux4_4": {"inputs": ["A0", "A1", "A2", "A3", "S0", "S1"], "outputs": ["X"]},
-    
-    # Flip-flops
-    "sky130_fd_sc_hd__dfxtp_1": {"inputs": ["CLK", "D"], "outputs": ["Q"]},
-    "sky130_fd_sc_hd__dfxtp_2": {"inputs": ["CLK", "D"], "outputs": ["Q"]},
-    "sky130_fd_sc_hd__dfxtp_4": {"inputs": ["CLK", "D"], "outputs": ["Q"]},
-    "sky130_fd_sc_hd__dfrtp_1": {"inputs": ["CLK", "D", "RESET_B"], "outputs": ["Q"]},
-    "sky130_fd_sc_hd__dfrtp_2": {"inputs": ["CLK", "D", "RESET_B"], "outputs": ["Q"]},
-    "sky130_fd_sc_hd__dfrtp_4": {"inputs": ["CLK", "D", "RESET_B"], "outputs": ["Q"]},
-    "sky130_fd_sc_hd__dfstp_1": {"inputs": ["CLK", "D", "SET_B"], "outputs": ["Q"]},
-    "sky130_fd_sc_hd__dfstp_2": {"inputs": ["CLK", "D", "SET_B"], "outputs": ["Q"]},
-    "sky130_fd_sc_hd__dfstp_4": {"inputs": ["CLK", "D", "SET_B"], "outputs": ["Q"]},
-    "sky130_fd_sc_hd__dfbbp_1": {"inputs": ["CLK", "D", "RESET_B", "SET_B"], "outputs": ["Q", "Q_N"]},
-    
-    # Constant generator (tie cell)
-    "sky130_fd_sc_hd__conb_1": {"inputs": [], "outputs": ["HI", "LO"]},
-    
-    # Infrastructure
-    "sky130_fd_sc_hd__tapvpwrvgnd_1": {"inputs": [], "outputs": []},
-    "sky130_fd_sc_hd__decap_4": {"inputs": [], "outputs": []},
-    "sky130_fd_sc_hd__decap_8": {"inputs": [], "outputs": []},
-    "sky130_fd_sc_hd__fill_1": {"inputs": [], "outputs": []},
-    "sky130_fd_sc_hd__fill_2": {"inputs": [], "outputs": []},
-}
+def is_macro(cell_type: str) -> bool:
+    """
+    Check if cell is a macro (not a standard cell).
+    Macros should NOT be tied - they have complex internal structure.
+    """
+    macro_patterns = [
+        "dfbbp",      # Flip-flop banks
+        "sram",       # Memory
+        "regfile",    # Register files
+        "macro",      # Generic macro indicator
+        "dffram",     # DFF RAM blocks
+        "fifo",       # FIFO blocks
+    ]
+    cell_lower = cell_type.lower()
+    return any(p in cell_lower for p in macro_patterns)
 
 
-def get_cell_inputs(cell_type: str) -> List[str]:
-    """Get list of input pins for a cell type."""
-    if cell_type in CELL_PIN_INFO:
-        return CELL_PIN_INFO[cell_type]["inputs"]
+def is_infrastructure(cell_type: str) -> bool:
+    """
+    Check if cell is infrastructure (tap, decap, filler, etc.).
+    These should be skipped - they're not logic.
+    """
+    infra_patterns = [
+        "tap",        # Tap cells (power/ground)
+        "decap",      # Decoupling capacitors
+        "conb",       # Tie cells (already serving this purpose)
+        "fill",       # Filler cells
+        "diode",      # Antenna diodes
+        "antenna",    # Antenna protection
+        "endcap",     # End caps
+        "welltap",    # Well taps
+    ]
+    cell_lower = cell_type.lower()
+    return any(p in cell_lower for p in infra_patterns)
+
+
+# ===============================================================
+# Pin Enumeration from Cell Library
+# ===============================================================
+
+def get_cell_input_pins(cell_type: str, fabric_db: Dict[str, Any] = None) -> List[str]:
+    """
+    Return list of input pins for a cell type.
     
-    # Pattern matching for unknown cell types
-    # Extract base cell name without drive strength suffix
-    base_name = cell_type.rsplit('_', 1)[0] if '_' in cell_type else cell_type
+    Priority:
+    1. Look up in fabric_db cell library (if available)
+    2. Parse from cell type name
+    3. Return empty list if unknown (safer than guessing)
     
-    # Try to find a similar cell in the database
-    for known_cell, info in CELL_PIN_INFO.items():
-        if known_cell.startswith(base_name):
-            print(f"Info: Using {known_cell} pin definition for {cell_type}")
-            return info["inputs"]
+    Args:
+        cell_type: Cell type string (e.g., "sky130_fd_sc_hd__nand2_2")
+        fabric_db: Fabric database with cell library definitions
     
-    # Common patterns
-    if "nand" in cell_type:
-        # Extract number of inputs from name (e.g., nand3 -> 3 inputs)
-        if "nand2" in cell_type:
-            return ["A", "B"]
-        elif "nand3" in cell_type:
-            return ["A", "B", "C"]
-        elif "nand4" in cell_type:
-            return ["A", "B", "C", "D"]
-    elif "nor" in cell_type:
-        if "nor2" in cell_type:
-            return ["A", "B"]
-        elif "nor3" in cell_type:
-            return ["A", "B", "C"]
-        elif "nor4" in cell_type:
-            return ["A", "B", "C", "D"]
-    elif "and" in cell_type:
-        if "and2" in cell_type:
-            return ["A", "B"]
-        elif "and3" in cell_type:
-            return ["A", "B", "C"]
-        elif "and4" in cell_type:
-            return ["A", "B", "C", "D"]
-    elif "or" in cell_type and "nor" not in cell_type and "xor" not in cell_type:
-        if "or2" in cell_type:
-            return ["A", "B"]
-        elif "or3" in cell_type:
-            return ["A", "B", "C"]
-        elif "or4" in cell_type:
-            return ["A", "B", "C", "D"]
-    elif "inv" in cell_type or "clkinv" in cell_type:
+    Returns:
+        List of input pin names, or empty list if unknown
+    """
+    # Try to find cell definition in fabric_db
+    if fabric_db:
+        cell_defs = fabric_db.get("cell_library", {})
+        
+        if cell_type in cell_defs:
+            pins = cell_defs[cell_type].get("pins", {})
+            input_pins = [p for p, dir in pins.items() if dir in ["input", "INPUT", "in"]]
+            if input_pins:
+                return input_pins
+    
+    # Fallback: parse from cell name patterns
+    cell_lower = cell_type.lower()
+    
+    # 2-input gates
+    if any(gate in cell_lower for gate in ["nand2", "nor2", "and2", "or2", "xor2", "xnor2"]):
+        return ["A", "B"]
+    
+    # 3-input gates
+    if any(gate in cell_lower for gate in ["nand3", "nor3", "and3", "or3"]):
+        return ["A", "B", "C"]
+    
+    # 4-input gates
+    if any(gate in cell_lower for gate in ["nand4", "nor4", "and4", "or4"]):
+        return ["A", "B", "C", "D"]
+    
+    # Single-input gates
+    if any(gate in cell_lower for gate in ["inv", "buf", "clkbuf"]):
         return ["A"]
-    elif "buf" in cell_type or "clkbuf" in cell_type:
-        return ["A"]
-    elif "mux2" in cell_type:
+    
+    # 2:1 Mux
+    if "mux2" in cell_lower:
         return ["A0", "A1", "S"]
-    elif "mux4" in cell_type:
+    
+    # 4:1 Mux
+    if "mux4" in cell_lower:
         return ["A0", "A1", "A2", "A3", "S0", "S1"]
-    elif "dfxtp" in cell_type or "dffp" in cell_type:
-        return ["CLK", "D"]
-    elif "dfrtp" in cell_type:
-        return ["CLK", "D", "RESET_B"]
-    elif "dfstp" in cell_type:
-        return ["CLK", "D", "SET_B"]
-    elif "dfbbp" in cell_type:
-        return ["CLK", "D", "RESET_B", "SET_B"]
     
-    print(f"Warning: Unknown cell type '{cell_type}', assuming no inputs")
-    return []
-
-
-def get_cell_outputs(cell_type: str) -> List[str]:
-    """Get list of output pins for a cell type."""
-    if cell_type in CELL_PIN_INFO:
-        return CELL_PIN_INFO[cell_type]["outputs"]
+    # Flip-flops - only tie data input, NOT clock
+    if "dff" in cell_lower or "dlatch" in cell_lower:
+        # NOTE: Only tie D (data), never CLK
+        # In practice, DFFs should probably be skipped entirely
+        return ["D"]
     
-    # Pattern matching for unknown cell types
-    base_name = cell_type.rsplit('_', 1)[0] if '_' in cell_type else cell_type
-    
-    # Try to find a similar cell in the database
-    for known_cell, info in CELL_PIN_INFO.items():
-        if known_cell.startswith(base_name):
-            return info["outputs"]
-    
-    # Common patterns
-    if any(x in cell_type for x in ["nand", "nor", "xnor", "inv", "clkinv"]):
-        return ["Y"]
-    elif any(x in cell_type for x in ["and", "or", "xor", "buf", "clkbuf", "mux"]):
-        return ["X"]
-    elif "df" in cell_type:  # Flip-flops
-        if "dfbbp" in cell_type:
-            return ["Q", "Q_N"]
-        return ["Q"]
-    
-    print(f"Warning: Unknown cell type '{cell_type}', assuming no outputs")
+    # Unknown cell type - don't guess, return empty
+    print(f"  Warning: Unknown cell type '{cell_type}', skipping pin enumeration")
     return []
 
 
 # ===============================================================
-# 2. Parse Placement Map
+# Placement Mapping
 # ===============================================================
 
-def parse_placement_map(filename: str) -> Tuple[Dict[str, Tuple[str, str]], List[Tuple[str, str]], List[str]]:
+def load_placement_mapping(placement_file: str = None) -> Dict[str, str]:
     """
-    Parse placement.map file to extract:
-    - placement_dict: {fabric_cell: (cell_type, logical_cell)}
-    - unused_logic_fabric: List of (fabric_cell, cell_type) for UNUSED logic gates
-    - conb_cells: List of sky130_fd_sc_hd__conb_1 fabric cells
+    Load the placement mapping: logical_instance -> fabric_cell.
+    
+    Supports multiple formats:
+    - .map format: "fabric_cell  cell_type  x  y  ->  logical_instance"
+    - .json format: {"logical_inst": "fabric_cell", ...}
+    - .yaml format: same as json
     
     Returns:
-        (placement_dict, unused_logic_fabric, conb_cells)
+        Dict[logical_instance, fabric_cell]
     """
-    placement_dict = {}
-    unused_logic_fabric = []
-    conb_cells = []
+    if not placement_file or not os.path.exists(placement_file):
+        return {}
     
-    with open(filename, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
-            
-            parts = line.split()
-            if len(parts) < 5:
-                continue
-            
-            fabric_cell = parts[0]
-            cell_type = parts[1]
-            # x = parts[2]
-            # y = parts[3]
-            
-            # Handle both formats: "-> UNUSED" or just "UNUSED"
-            if "->" in line:
-                logical_cell = parts[5] if len(parts) >= 6 else "UNUSED"
-            else:
-                logical_cell = parts[4] if len(parts) >= 5 else "UNUSED"
-            
-            placement_dict[fabric_cell] = (cell_type, logical_cell)
-            
-            # Track unused LOGIC cells (not infrastructure)
-            if logical_cell == "UNUSED":
-                # Check if this is a real logic gate (not TAP, DECAP, FILL)
-                if ("tap" not in cell_type.lower() and 
-                    "decap" not in cell_type.lower() and 
-                    "fill" not in cell_type.lower() and
-                    "conb" not in cell_type.lower()):
-                    unused_logic_fabric.append((fabric_cell, cell_type))
-            
-            # Track conb_1 cells
-            if cell_type == "sky130_fd_sc_hd__conb_1":
-                conb_cells.append(fabric_cell)
+    placement_map = {}
     
-    return placement_dict, unused_logic_fabric, conb_cells
+    with open(placement_file, 'r') as f:
+        if placement_file.endswith('.json'):
+            placement_map = json.load(f)
+        elif placement_file.endswith(('.yaml', '.yml')):
+            placement_map = yaml.safe_load(f)
+        elif placement_file.endswith('.map'):
+            # Parse .map format:
+            # fabric_cell  cell_type  x  y  ->  logical_instance
+            for line in f:
+                line = line.strip()
+                if not line or '->' not in line:
+                    continue
+                
+                # Split on '->'
+                parts = line.split('->')
+                if len(parts) != 2:
+                    continue
+                
+                left_part = parts[0].strip().split()
+                logical_inst = parts[1].strip()
+                
+                if len(left_part) >= 1:
+                    fabric_cell = left_part[0]
+                    # Map: logical_instance -> fabric_cell
+                    placement_map[logical_inst] = fabric_cell
+        else:
+            print(f"Warning: Unknown placement file format: {placement_file}")
+    
+    return placement_map
 
 
 # ===============================================================
-# 3. Identify Unused Logic Cells
+# Identify Unused Cells
 # ===============================================================
 
-def identify_unused_fabric_cells_for_eco(placement_dict: Dict[str, Tuple[str, str]], 
-                                          unused_fabric_cells: List[Tuple[str, str]],
-                                          design: Dict) -> Dict[str, List[str]]:
+def identify_unused_cells(logical_db: Dict[str, Any], 
+                          fabric_db: Dict[str, Any],
+                          placement_map: Dict[str, str] = None) -> Dict[str, List[str]]:
     """
-    Create synthetic logical cells for unused fabric cells that need power-down.
+    Find unused cells in fabric that are not used in logical netlist.
     
-    For each unused fabric cell with inputs, we'll create a virtual logical cell
-    in the design that we can then tie to ground.
+    Enhanced version with proper filtering:
+    - Skip macros (DFBBP, SRAM, etc.)
+    - Skip infrastructure (TAP, DECAP, etc.)
+    - Verify cell is truly unused (not placed AND not in netlist)
+    
+    Args:
+        logical_db: The logical netlist database
+        fabric_db: The fabric database with all available cells
+        placement_map: Dict mapping logical_instance -> fabric_cell_name
     
     Returns:
-        Dictionary with:
-        - 'fabric_cells': List of (fabric_cell, cell_type) tuples to power down
-        - 'synthetic_cells': List of synthetic logical cell names created
+        Dict[tile_key, List[unused_cell_dicts]]
     """
-    cells = design.get("cells", {})
+    # Get set of fabric cells that are actually used (placed)
+    if placement_map:
+        used_fabric_cells = set(placement_map.values())
+        print(f"  Using placement map: {len(used_fabric_cells)} cells placed")
+    else:
+        used_fabric_cells = set()
+        print(f"  Warning: No placement map provided")
+        print(f"  Will check logical netlist only")
     
-    synthetic_cells = []
-    fabric_cells_to_power_down = []
+    # Also get cells that appear in logical netlist
+    logical_cells = set(logical_db.get("cells", {}).keys())
+    print(f"  Logical netlist contains: {len(logical_cells)} cells")
     
-    # For each unused fabric cell that has inputs, create a synthetic logical cell
-    for fabric_cell, cell_type in unused_fabric_cells:
-        # Get input pins for this cell type
-        input_pins = get_cell_inputs(cell_type)
-        
-        if not input_pins:
-            # No inputs to tie, skip
-            continue
-        
-        # Create a synthetic logical cell name
-        synthetic_name = f"$fabric_eco${fabric_cell}"
-        
-        # Add this cell to the design
-        cells[synthetic_name] = {
-            "type": cell_type,
-            "pins": {}
-        }
-        
-        # Initialize all input pins to 0 (we'll tie them to GND later)
-        for pin in input_pins:
-            cells[synthetic_name]["pins"][pin] = 0
-        
-        # Initialize output pins to 0 as well
-        output_pins = get_cell_outputs(cell_type)
-        for pin in output_pins:
-            cells[synthetic_name]["pins"][pin] = 0
-        
-        synthetic_cells.append(synthetic_name)
-        fabric_cells_to_power_down.append((fabric_cell, cell_type))
-        
-        # Update placement to mark this fabric cell as used
-        placement_dict[fabric_cell] = (cell_type, synthetic_name)
+    # Track unused cells per tile
+    unused_by_tile = defaultdict(list)
     
-    print(f"  Created {len(synthetic_cells)} synthetic cells for unused fabric")
+    cells_by_tile = fabric_db.get("fabric", {}).get("cells_by_tile", {})
     
-    return {
-        'fabric_cells': fabric_cells_to_power_down,
-        'synthetic_cells': synthetic_cells
-    }
+    total_fabric_cells = 0
+    skipped_macro = 0
+    skipped_infra = 0
+    skipped_used = 0
+    
+    for tile_key, tile_data in cells_by_tile.items():
+        for cell in tile_data.get("cells", []):
+            total_fabric_cells += 1
+            
+            cell_name = cell.get("name", "")
+            cell_type = cell.get("cell_type", "")
+            
+            # Filter 1: Skip macros (DFBBP, SRAM, etc.)
+            if is_macro(cell_type):
+                skipped_macro += 1
+                continue
+            
+            # Filter 2: Skip infrastructure (TAP, DECAP, CONB, etc.)
+            if is_infrastructure(cell_type):
+                skipped_infra += 1
+                continue
+            
+            # Filter 3: Check if cell is used
+            is_placed = cell_name in used_fabric_cells
+            is_in_netlist = cell_name in logical_cells
+            
+            if is_placed or is_in_netlist:
+                skipped_used += 1
+                continue
+            
+            # This cell is unused - add it
+            unused_by_tile[tile_key].append(cell)
+    
+    print(f"  Total fabric cells: {total_fabric_cells}")
+    print(f"  Skipped macros: {skipped_macro}")
+    print(f"  Skipped infrastructure: {skipped_infra}")
+    print(f"  Skipped used cells: {skipped_used}")
+    
+    return dict(unused_by_tile)
 
 
 # ===============================================================
-# 4. Claim CONB_1 Cell for Tie-Low
+# Claim TIE Cells (conb_1)
 # ===============================================================
 
-def claim_conb_cell(conb_cells: List[str], 
-                   placement_dict: Dict[str, Tuple[str, str]],
-                   design: Dict) -> Tuple[str, int]:
+def claim_tie_cells(fabric_db: Dict[str, Any], 
+                    unused_by_tile: Dict[str, List]) -> Dict[str, str]:
     """
-    Claim one sky130_fd_sc_hd__conb_1 cell from UNUSED slots.
-    Returns (fabric_cell_name, lo_net_id) or (None, None) if no conb available.
+    Claim one sky130_fd_sc_hd__conb_1 cell per tile for tie-low.
+    Search ALL cells in fabric (not just unused_by_tile since we filtered out CONBs).
     
-    The LO output will be used as the tie-low net.
+    Returns:
+        Dict[tile_key, tie_cell_name]
     """
-    cells = design.get("cells", {})
+    tie_cells = {}
+    cells_by_tile = fabric_db.get("fabric", {}).get("cells_by_tile", {})
     
-    # Find an unused conb_1 cell
-    for fabric_cell in conb_cells:
-        # FIX: placement_dict stores tuples (cell_type, logical_cell)
-        cell_type, logical_cell = placement_dict.get(fabric_cell, ("", "UNUSED"))
+    # Only claim tie cells for tiles that have unused logic cells
+    for tile_key in unused_by_tile.keys():
+        tile_data = cells_by_tile.get(tile_key, {})
         
-        if logical_cell == "UNUSED":
-            # This conb_1 is unused - claim it!
-            # We need to add it to the design and create a net for LO output
-            
-            # Create new cell name
-            conb_logical_name = f"$eco$tie_low_conb"
-            
-            # Find next available net ID
-            max_net_id = 0
-            for cell_name, cell_info in cells.items():
-                for pin_name, net_id in cell_info.get("pins", {}).items():
-                    if isinstance(net_id, int):
-                        max_net_id = max(max_net_id, net_id)
-            
-            lo_net_id = max_net_id + 1
-            hi_net_id = max_net_id + 2
-            
-            # Add conb_1 to design
-            cells[conb_logical_name] = {
+        # Search ALL cells in this tile for conb_1
+        for cell in tile_data.get("cells", []):
+            cell_type = cell.get("cell_type", "")
+            if "conb_1" in cell_type.lower():
+                tie_cells[tile_key] = cell.get("name")
+                print(f"  Tile {tile_key}: Claimed tie cell {cell.get('name')}")
+                break
+        
+        if tile_key not in tie_cells:
+            print(f"  Warning: No conb_1 available in tile {tile_key}")
+    
+    return tie_cells
+
+
+# ===============================================================
+# Modify Netlist - Add TIE Connections
+# ===============================================================
+
+def add_tie_connections(logical_db: Dict[str, Any],
+                        fabric_db: Dict[str, Any],
+                        unused_by_tile: Dict[str, List],
+                        tie_cells: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Modify logical_db to add conb_1 cells and tie unused inputs.
+    
+    Simple version: One tie cell per tile, ties all unused cells.
+    
+    Returns:
+        Updated logical_db
+    """
+    cells = logical_db.get("cells", {})
+    nets = logical_db.get("nets", {})
+    cells_by_type = logical_db.get("cells_by_type", {})
+    
+    # Create new net ID generator
+    max_net_id = max((int(nid) for nid in nets.keys() if str(nid).isdigit()), 
+                     default=0)
+    
+    def get_new_net_id():
+        nonlocal max_net_id
+        max_net_id += 1
+        return max_net_id
+    
+    modifications = []
+    warnings = []
+    
+    # Add conb_1 cells to logical netlist
+    for tile_key, tie_cell_name in tie_cells.items():
+        if tie_cell_name not in cells:
+            # Add tie cell
+            cells[tie_cell_name] = {
                 "type": "sky130_fd_sc_hd__conb_1",
-                "pins": {
-                    "LO": lo_net_id,
-                    "HI": hi_net_id
-                }
+                "pins": {}
+            }
+            cells_by_type.setdefault("sky130_fd_sc_hd__conb_1", []).append(tie_cell_name)
+            
+            # Create output net for LO (logic 0) only
+            # Power-down ECO typically only needs LO
+            lo_net_id = get_new_net_id()
+            
+            # Connect LO pin
+            cells[tie_cell_name]["pins"]["LO"] = lo_net_id
+            nets[lo_net_id] = {
+                "name": f"tie_lo_{tile_key}",
+                "connections": [(tie_cell_name, "LO")]
             }
             
-            # Update placement to mark this conb as used
-            placement_dict[fabric_cell] = (cell_type, conb_logical_name)
-            
-            print(f"[ECO] Claimed {fabric_cell} as {conb_logical_name}")
-            print(f"[ECO] LO net ID: {lo_net_id}, HI net ID: {hi_net_id}")
-            
-            return (conb_logical_name, lo_net_id)
+            modifications.append(f"Added tie cell {tie_cell_name} in tile {tile_key}")
     
-    return (None, None)
+    # Tie unused cell inputs
+    for tile_key, unused_cells in unused_by_tile.items():
+        if tile_key not in tie_cells:
+            continue
+            
+        tie_cell_name = tie_cells[tile_key]
+        
+        # Find the LO net for this tie cell
+        if tie_cell_name not in cells:
+            continue
+        
+        tie_lo_net = cells[tie_cell_name]["pins"].get("LO")
+        if not tie_lo_net:
+            continue
+        
+        # Track statistics for this tile
+        cells_tied = 0
+        pins_tied = 0
+        
+        for cell in unused_cells:
+            cell_name = cell.get("name")
+            cell_type = cell.get("cell_type", "")
+            
+            # Skip the tie cell itself
+            if cell_name == tie_cell_name:
+                continue
+            
+            # Double-check: skip macros and infrastructure
+            if is_macro(cell_type) or is_infrastructure(cell_type):
+                continue
+            
+            # Get actual input pins for this cell type
+            input_pins = get_cell_input_pins(cell_type, fabric_db)
+            
+            if not input_pins:
+                # Unknown cell type or no inputs - skip it
+                warnings.append(f"Skipped {cell_name} (type: {cell_type}) - no pins found")
+                continue
+            
+            # Add cell if not in logical netlist
+            if cell_name not in cells:
+                cells[cell_name] = {
+                    "type": cell_type,
+                    "pins": {}
+                }
+                cells_by_type.setdefault(cell_type, []).append(cell_name)
+                
+                # Tie all inputs to LO
+                for pin in input_pins:
+                    cells[cell_name]["pins"][pin] = tie_lo_net
+                    nets[tie_lo_net]["connections"].append((cell_name, pin))
+                
+                cells_tied += 1
+                pins_tied += len(input_pins)
+        
+        if cells_tied > 0:
+            modifications.append(
+                f"Tile {tile_key}: Tied {cells_tied} cells ({pins_tied} pins) to tie-low"
+            )
+    
+    # Update logical_db
+    logical_db["cells"] = cells
+    logical_db["nets"] = nets
+    logical_db["cells_by_type"] = cells_by_type
+    logical_db["meta"]["eco_modifications"] = modifications
+    logical_db["meta"]["eco_warnings"] = warnings
+    
+    return logical_db
 
 
 # ===============================================================
-# 5. Apply Power-Down ECO
+# Generate Statistics
 # ===============================================================
 
-def apply_power_down_eco(design: Dict, 
-                        unused_logic_cells: List[str],
-                        lo_net_id: int) -> Dict:
+def generate_eco_report(unused_by_tile: Dict[str, List],
+                       tie_cells: Dict[str, str],
+                       logical_db: Dict[str, Any]) -> str:
+    """Generate a human-readable ECO report."""
+    report = []
+    report.append("=" * 70)
+    report.append("POWER-DOWN ECO REPORT")
+    report.append("=" * 70)
+    report.append("")
+    
+    # Summary
+    total_unused = sum(len(cells) for cells in unused_by_tile.values())
+    report.append(f"Total unused cells found: {total_unused}")
+    report.append(f"Tiles with unused cells: {len(unused_by_tile)}")
+    report.append(f"Tie cells claimed: {len(tie_cells)}")
+    report.append("")
+    
+    # Per-tile breakdown
+    report.append("PER-TILE BREAKDOWN:")
+    report.append("-" * 70)
+    for tile_key in sorted(unused_by_tile.keys()):
+        unused_count = len(unused_by_tile[tile_key])
+        tie_cell = tie_cells.get(tile_key, "NONE")
+        report.append(f"  {tile_key}: {unused_count} unused cells, Tie: {tie_cell}")
+    
+    report.append("")
+    
+    # Modifications
+    modifications = logical_db.get("meta", {}).get("eco_modifications", [])
+    if modifications:
+        report.append("MODIFICATIONS:")
+        report.append("-" * 70)
+        for mod in modifications:
+            report.append(f"  • {mod}")
+    
+    report.append("")
+    
+    # Warnings
+    warnings = logical_db.get("meta", {}).get("eco_warnings", [])
+    if warnings:
+        report.append("WARNINGS:")
+        report.append("-" * 70)
+        for warn in warnings:
+            report.append(f"  ⚠ {warn}")
+        report.append("")
+    
+    report.append("=" * 70)
+    
+    return "\n".join(report)
+
+
+# ===============================================================
+# Main ECO Flow - From Source Files
+# ===============================================================
+
+def run_power_down_eco_from_sources(
+    design_json: str,
+    fabric_cells_yaml: str,
+    pins_yaml: str,
+    fabric_def_yaml: str,
+    placement_map_file: str = None,
+    output_dir: str = "eco_output",
+    verbose: bool = True
+) -> Tuple[Dict[str, Any], str]:
     """
-    Modify the design to tie all inputs of unused logic cells to lo_net_id (GND).
+    Run Power-Down ECO flow directly from source files using parse modules.
+    
+    This is the PRIMARY interface - parses source files directly without
+    needing intermediate logical_db.json or fabric_db.yaml files.
+    
+    Args:
+        design_json: Path to Yosys-generated design_mapped.json
+        fabric_cells_yaml: Path to fabric_cells.yaml
+        pins_yaml: Path to pins.yaml
+        fabric_def_yaml: Path to fabric.yaml (fabric definition)
+        placement_map_file: Path to placement mapping file (optional)
+        output_dir: Output directory for results
+        verbose: If True, print progress messages
     
     Returns:
-        eco_changes: Dictionary summarizing changes made
+        Tuple of (updated_logical_db, eco_report_text)
+    
+    Example:
+        >>> from power_down_eco import run_power_down_eco_from_sources
+        >>> 
+        >>> updated_db, report = run_power_down_eco_from_sources(
+        ...     design_json="designs/6502_mapped.json",
+        ...     fabric_cells_yaml="fabric/fabric_cells.yaml",
+        ...     pins_yaml="fabric/pins.yaml",
+        ...     fabric_def_yaml="fabric/fabric.yaml",
+        ...     placement_map_file="placement.map"
+        ... )
+        >>> print(report)
     """
-    cells = design.get("cells", {})
+    if verbose:
+        print("=" * 70)
+        print("POWER-DOWN ECO FLOW (FIXED VERSION)")
+        print("=" * 70)
+        print()
     
-    eco_changes = {
-        "cells_modified": [],
-        "pins_tied_low": [],
-        "total_pins_changed": 0
-    }
+    # Create output directory
+    os.makedirs(output_dir, exist_ok=True)
     
-    for cell_name in unused_logic_cells:
-        if cell_name not in cells:
-            continue
-        
-        cell_info = cells[cell_name]
-        cell_type = cell_info.get("type", "")
-        pins = cell_info.get("pins", {})
-        
-        # Get input pins for this cell type
-        input_pins = get_cell_inputs(cell_type)
-        
-        if not input_pins:
-            continue
-        
-        # Tie all input pins to lo_net_id
-        pins_changed = []
-        for pin_name in input_pins:
-            if pin_name in pins:
-                old_net = pins[pin_name]
-                pins[pin_name] = lo_net_id
-                pins_changed.append(f"{pin_name}: {old_net} -> {lo_net_id}")
-                eco_changes["total_pins_changed"] += 1
-        
-        if pins_changed:
-            eco_changes["cells_modified"].append({
-                "cell": cell_name,
-                "type": cell_type,
-                "pins": pins_changed
-            })
-            eco_changes["pins_tied_low"].extend(pins_changed)
+    # Step 1: Parse design and fabric databases
+    if verbose:
+        print("Step 1: Parsing source files...")
+        print(f"  Design JSON: {design_json}")
+        print(f"  Fabric cells: {fabric_cells_yaml}")
+        print(f"  Pins: {pins_yaml}")
+        print(f"  Fabric def: {fabric_def_yaml}")
     
-    return eco_changes
-
-
-# ===============================================================
-# 6. Write ECO Report
-# ===============================================================
-
-def write_eco_report(filename: str,
-                    conb_cell: str,
-                    lo_net_id: int,
-                    unused_logic_cells: List[str],
-                    eco_changes: Dict,
-                    fabric_cells: List[Tuple[str, str]] = None):
-    """Write a summary report of ECO changes."""
-    with open(filename, 'w') as f:
-        f.write("="*70 + "\n")
-        f.write("POWER-DOWN ECO REPORT\n")
-        f.write("="*70 + "\n\n")
-        
-        f.write(f"Tie-Low Cell:     {conb_cell}\n")
-        f.write(f"Tie-Low Net ID:   {lo_net_id}\n")
-        f.write(f"Fabric Cells:     {len(fabric_cells) if fabric_cells else 0}\n")
-        f.write(f"Synthetic Cells:  {len(unused_logic_cells)}\n")
-        f.write(f"Cells Modified:   {len(eco_changes['cells_modified'])}\n")
-        f.write(f"Pins Tied Low:    {eco_changes['total_pins_changed']}\n\n")
-        
-        if fabric_cells:
-            f.write("-"*70 + "\n")
-            f.write("FABRIC CELLS POWERED DOWN (sample, first 100)\n")
-            f.write("-"*70 + "\n")
-            for fabric_cell, cell_type in fabric_cells[:100]:
-                f.write(f"  {fabric_cell} ({cell_type})\n")
-            if len(fabric_cells) > 100:
-                f.write(f"  ... and {len(fabric_cells) - 100} more\n")
-            f.write("\n")
-        
-        f.write("-"*70 + "\n")
-        f.write("ECO CHANGES (Pin Modifications, sample first 50)\n")
-        f.write("-"*70 + "\n")
-        for change in eco_changes['cells_modified'][:50]:
-            f.write(f"\nCell: {change['cell']} ({change['type']})\n")
-            for pin_change in change['pins']:
-                f.write(f"  {pin_change}\n")
-        
-        if len(eco_changes['cells_modified']) > 50:
-            f.write(f"\n... and {len(eco_changes['cells_modified']) - 50} more cells\n")
-        
-        f.write("\n" + "="*70 + "\n")
-
-
-# ===============================================================
-# 7. Main ECO Flow
-# ===============================================================
-
-def main():
-    """Main Power-Down ECO flow."""
-    print("="*70)
-    print("POWER-DOWN ECO: Tie Unused Logic Cells to GND")
-    print("="*70)
+    # Parse logical netlist
+    logical_db, _ = parse_design_json(design_json)
+    if verbose:
+        print(f"  ✓ Parsed logical DB: {len(logical_db.get('cells', {}))} cells")
     
-    # Input files
-    placement_file = "placement_sa_optimized.map"
-    design_file = "designs/6502_mapped.json"
+    # Build fabric database
+    fabric_db = build_fabric_db(fabric_cells_yaml, pins_yaml, fabric_def_yaml)
+    if verbose:
+        print(f"  ✓ Built fabric DB: {len(fabric_db.get('fabric', {}).get('cells_by_tile', {}))} tiles")
     
-    # Output files
-    output_design_file = "designs/6502_mapped_eco.json"
-    report_file = "eco_report.txt"
-    
-    # Step 1: Parse placement map
-    print("\n[1/5] Parsing placement map...")
-    placement_dict, unused_fabric_cells, conb_cells = parse_placement_map(placement_file)
-    print(f"  Found {len(unused_fabric_cells)} unused fabric cells")
-    print(f"  Found {len(conb_cells)} conb_1 cells")
-    
-    # Step 2: Load design
-    print("\n[2/5] Loading design netlist...")
-    with open(design_file, 'r') as f:
-        design = json.load(f)
-    
-    # Debug: Check design structure
-    print(f"  Design keys: {list(design.keys())}")
-    
-    # Handle different JSON formats (Yosys vs custom)
-    if "modules" in design:
-        # Yosys JSON format
-        module_name = list(design["modules"].keys())[0]
-        print(f"  Found Yosys format, module: {module_name}")
-        module_data = design["modules"][module_name]
-        cells = module_data.get("cells", {})
-        print(f"  Loaded {len(cells)} cells from module")
-        # Flatten to top level for easier processing
-        design["cells"] = cells
+    # Load placement mapping
+    placement_map = load_placement_mapping(placement_map_file)
+    if placement_map:
+        if verbose:
+            print(f"  ✓ Loaded placement map: {len(placement_map)} placements")
     else:
-        cells = design.get("cells", {})
-        print(f"  Loaded {len(cells)} cells")
+        if verbose:
+            print(f"  ⚠ WARNING: No placement map provided!")
+    print()
     
-    # Step 3: Identify unused logic cells
-    print("\n[3/5] Identifying unused fabric cells for power-down...")
-    eco_info = identify_unused_fabric_cells_for_eco(placement_dict, unused_fabric_cells, design)
-    unused_logic_cells = eco_info['synthetic_cells']
-    print(f"  Found {len(unused_logic_cells)} fabric cells to power down")
+    # Step 2: Identify unused cells
+    if verbose:
+        print("Step 2: Identifying unused cells (with enhanced filtering)...")
+    unused_by_tile = identify_unused_cells(logical_db, fabric_db, placement_map)
+    total_unused = sum(len(cells) for cells in unused_by_tile.values())
+    if verbose:
+        print(f"  Found {total_unused} unused cells across {len(unused_by_tile)} tiles")
+        print()
     
-    if not unused_logic_cells:
-        print("\n[SKIP] No fabric cells need power-down ECO!")
-        return
+    # Step 3: Claim tie cells
+    if verbose:
+        print("Step 3: Claiming tie cells (conb_1)...")
+    tie_cells = claim_tie_cells(fabric_db, unused_by_tile)
+    if verbose:
+        print()
     
-    # Step 4: Claim conb_1 cell
-    print("\n[4/5] Claiming conb_1 cell for tie-low...")
-    conb_cell, lo_net_id = claim_conb_cell(conb_cells, placement_dict, design)
+    # Step 4: Modify netlist
+    if verbose:
+        print("Step 4: Modifying netlist...")
+    updated_logical_db = add_tie_connections(logical_db, fabric_db, unused_by_tile, tie_cells)
+    if verbose:
+        mods = len(updated_logical_db.get('meta', {}).get('eco_modifications', []))
+        warns = len(updated_logical_db.get('meta', {}).get('eco_warnings', []))
+        print(f"  Applied {mods} modifications")
+        if warns > 0:
+            print(f"  Generated {warns} warnings")
+        print()
     
-    if conb_cell is None:
-        print("\n[ERROR] No available conb_1 cells found!")
-        print("        Cannot perform ECO without a tie cell.")
-        return
+    # Step 5: Generate outputs
+    if verbose:
+        print("Step 5: Generating outputs...")
     
-    # Step 5: Apply ECO
-    print("\n[5/5] Applying power-down ECO...")
-    eco_changes = apply_power_down_eco(design, unused_logic_cells, lo_net_id)
-    print(f"  Modified {len(eco_changes['cells_modified'])} cells")
-    print(f"  Tied {eco_changes['total_pins_changed']} pins to GND")
+    # Write updated logical_db
+    output_db_path = os.path.join(output_dir, "logical_db_eco.json")
+    with open(output_db_path, 'w') as f:
+        json.dump(updated_logical_db, f, indent=2)
+    if verbose:
+        print(f"  Written: {output_db_path}")
     
-    # Write outputs
-    print(f"\n[SAVE] Writing modified netlist to: {output_design_file}")
-    with open(output_design_file, 'w') as f:
-        json.dump(design, f, indent=2)
+    # Generate report
+    report = generate_eco_report(unused_by_tile, tie_cells, updated_logical_db)
     
-    print(f"[SAVE] Writing ECO report to: {report_file}")
-    write_eco_report(report_file, conb_cell, lo_net_id, unused_logic_cells, eco_changes, eco_info['fabric_cells'])
+    # Write ECO report
+    report_path = os.path.join(output_dir, "eco_report.txt")
+    with open(report_path, 'w') as f:
+        f.write(report)
+    if verbose:
+        print(f"  Written: {report_path}")
     
-    print("\n" + "="*70)
-    print("POWER-DOWN ECO COMPLETE")
-    print("="*70)
-    print(f"Summary:")
-    print(f"  - {len(eco_info['fabric_cells'])} unused fabric cells powered down")
-    print(f"  - {eco_changes['total_pins_changed']} input pins tied to GND")
-    print(f"  - Tie-low net: {lo_net_id} (from {conb_cell})")
-    print(f"\nOutput files:")
-    print(f"  - {output_design_file}")
-    print(f"  - {report_file}")
-    print("="*70 + "\n")
+    # Write unused cells list
+    unused_list_path = os.path.join(output_dir, "unused_cells.yaml")
+    with open(unused_list_path, 'w') as f:
+        yaml.dump({"unused_by_tile": unused_by_tile}, f, default_flow_style=False)
+    if verbose:
+        print(f"  Written: {unused_list_path}")
+    
+    if verbose:
+        print()
+        print(report)
+        print()
+        print(f"ECO completed successfully! Outputs in: {output_dir}/")
+        
+        if not placement_map:
+            print()
+            print("⚠️  IMPORTANT: Rerun with placement map for accurate results!")
+    
+    return updated_logical_db, report
 
+
+# ===============================================================
+# Entry Point
+# ===============================================================
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 5:
+        print("Usage: python power_down_eco.py <design_mapped.json> <fabric_cells.yaml> <pins.yaml> <fabric.yaml> [placement.map]")
+        print()
+        print("Arguments:")
+        print("  design_mapped.json  - Yosys-generated netlist (input to parse_design.py)")
+        print("  fabric_cells.yaml   - Fabric cell placement data")
+        print("  pins.yaml          - Pin placement data")
+        print("  fabric.yaml        - Fabric definition with cell dimensions")
+        print("  placement.map      - [Optional] Placement mapping file")
+        print()
+        print("Example:")
+        print("  python power_down_eco.py designs/6502_mapped.json \\")
+        print("                           fabric/fabric_cells.yaml \\")
+        print("                           fabric/pins.yaml \\")
+        print("                           fabric/fabric.yaml \\")
+        print("                           placement.map")
+        print()
+        print("Placement file format (.map):")
+        print('  fabric_cell  cell_type  x  y  ->  logical_instance')
+        print("Or JSON/YAML:")
+        print('  {"logical_inst": "fabric_cell", ...}')
+        print()
+        print("=" * 70)
+        print("For Python integration:")
+        print("=" * 70)
+        print("from power_down_eco import run_power_down_eco_from_sources")
+        print()
+        print("updated_db, report = run_power_down_eco_from_sources(")
+        print("    design_json='designs/6502_mapped.json',")
+        print("    fabric_cells_yaml='fabric/fabric_cells.yaml',")
+        print("    pins_yaml='fabric/pins.yaml',")
+        print("    fabric_def_yaml='fabric/fabric.yaml',")
+        print("    placement_map_file='placement.map'")
+        print(")")
+        sys.exit(1)
+    
+    design_json = sys.argv[1]
+    fabric_cells_yaml = sys.argv[2]
+    pins_yaml = sys.argv[3]
+    fabric_def_yaml = sys.argv[4]
+    placement_map_file = sys.argv[5] if len(sys.argv) > 5 else None
+    
+    if not os.path.exists(design_json):
+        print(f"Error: Design JSON not found: {design_json}")
+        sys.exit(1)
+    
+    if not os.path.exists(fabric_cells_yaml):
+        print(f"Error: Fabric cells YAML not found: {fabric_cells_yaml}")
+        sys.exit(1)
+    
+    if not os.path.exists(pins_yaml):
+        print(f"Error: Pins YAML not found: {pins_yaml}")
+        sys.exit(1)
+    
+    if not os.path.exists(fabric_def_yaml):
+        print(f"Error: Fabric definition YAML not found: {fabric_def_yaml}")
+        sys.exit(1)
+    
+    if placement_map_file and not os.path.exists(placement_map_file):
+        print(f"Error: Placement map not found: {placement_map_file}")
+        sys.exit(1)
+    
+    run_power_down_eco_from_sources(
+        design_json,
+        fabric_cells_yaml,
+        pins_yaml,
+        fabric_def_yaml,
+        placement_map_file
+    )
