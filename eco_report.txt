@@ -1,0 +1,325 @@
+======================================================================
+POWER-DOWN ECO REPORT
+======================================================================
+
+Tie-Low Cell:     $eco$tie_low_conb
+Tie-Low Net ID:   1
+Fabric Cells:     100784
+Synthetic Cells:  100784
+Cells Modified:   100784
+Pins Tied Low:    192244
+
+----------------------------------------------------------------------
+FABRIC CELLS POWERED DOWN (sample, first 100)
+----------------------------------------------------------------------
+  T0Y0__R0_NAND_3 (sky130_fd_sc_hd__nand2_2)
+  T0Y0__R0_NAND_4 (sky130_fd_sc_hd__nand2_2)
+  T0Y0__R0_OR_0 (sky130_fd_sc_hd__or2_2)
+  T0Y0__R0_OR_1 (sky130_fd_sc_hd__or2_2)
+  T0Y0__R0_OR_2 (sky130_fd_sc_hd__or2_2)
+  T0Y0__R1_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  T0Y0__R1_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y0__R2_INV_1 (sky130_fd_sc_hd__clkinv_2)
+  T0Y0__R2_OR_1 (sky130_fd_sc_hd__or2_2)
+  T0Y0__R2_OR_2 (sky130_fd_sc_hd__or2_2)
+  T0Y0__R2_OR_3 (sky130_fd_sc_hd__or2_2)
+  T0Y0__R2_OR_4 (sky130_fd_sc_hd__or2_2)
+  T0Y0__R3_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  T0Y10__R0_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  T0Y10__R0_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R0_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R0_NAND_3 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R0_NAND_4 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R0_OR_0 (sky130_fd_sc_hd__or2_2)
+  T0Y10__R0_OR_1 (sky130_fd_sc_hd__or2_2)
+  T0Y10__R0_OR_2 (sky130_fd_sc_hd__or2_2)
+  T0Y10__R1_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  T0Y10__R1_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R1_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R1_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R2_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  T0Y10__R2_INV_1 (sky130_fd_sc_hd__clkinv_2)
+  T0Y10__R2_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R2_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R2_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R2_OR_0 (sky130_fd_sc_hd__or2_2)
+  T0Y10__R2_OR_1 (sky130_fd_sc_hd__or2_2)
+  T0Y10__R2_OR_2 (sky130_fd_sc_hd__or2_2)
+  T0Y10__R2_OR_3 (sky130_fd_sc_hd__or2_2)
+  T0Y10__R2_OR_4 (sky130_fd_sc_hd__or2_2)
+  T0Y10__R3_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  T0Y10__R3_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R3_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R3_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y10__R3_NAND_3 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R0_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  T0Y11__R0_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R0_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R0_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R0_NAND_3 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R0_NAND_4 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R0_OR_0 (sky130_fd_sc_hd__or2_2)
+  T0Y11__R0_OR_1 (sky130_fd_sc_hd__or2_2)
+  T0Y11__R0_OR_2 (sky130_fd_sc_hd__or2_2)
+  T0Y11__R1_BUF_0 (sky130_fd_sc_hd__clkbuf_4)
+  T0Y11__R1_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  T0Y11__R1_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  T0Y11__R1_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R1_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R1_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R2_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  T0Y11__R2_INV_1 (sky130_fd_sc_hd__clkinv_2)
+  T0Y11__R2_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R2_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R2_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R2_OR_0 (sky130_fd_sc_hd__or2_2)
+  T0Y11__R2_OR_1 (sky130_fd_sc_hd__or2_2)
+  T0Y11__R2_OR_2 (sky130_fd_sc_hd__or2_2)
+  T0Y11__R2_OR_3 (sky130_fd_sc_hd__or2_2)
+  T0Y11__R2_OR_4 (sky130_fd_sc_hd__or2_2)
+  T0Y11__R3_BUF_0 (sky130_fd_sc_hd__clkbuf_4)
+  T0Y11__R3_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  T0Y11__R3_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R3_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R3_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y11__R3_NAND_3 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R0_BUF_0 (sky130_fd_sc_hd__clkbuf_4)
+  T0Y12__R0_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  T0Y12__R0_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R0_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R0_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R0_NAND_3 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R0_NAND_4 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R0_OR_0 (sky130_fd_sc_hd__or2_2)
+  T0Y12__R0_OR_1 (sky130_fd_sc_hd__or2_2)
+  T0Y12__R0_OR_2 (sky130_fd_sc_hd__or2_2)
+  T0Y12__R1_BUF_0 (sky130_fd_sc_hd__clkbuf_4)
+  T0Y12__R1_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  T0Y12__R1_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  T0Y12__R1_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R1_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R1_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R2_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  T0Y12__R2_INV_1 (sky130_fd_sc_hd__clkinv_2)
+  T0Y12__R2_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R2_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R2_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  T0Y12__R2_OR_0 (sky130_fd_sc_hd__or2_2)
+  T0Y12__R2_OR_1 (sky130_fd_sc_hd__or2_2)
+  T0Y12__R2_OR_2 (sky130_fd_sc_hd__or2_2)
+  T0Y12__R2_OR_3 (sky130_fd_sc_hd__or2_2)
+  T0Y12__R2_OR_4 (sky130_fd_sc_hd__or2_2)
+  T0Y12__R3_BUF_0 (sky130_fd_sc_hd__clkbuf_4)
+  T0Y12__R3_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  T0Y12__R3_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  ... and 100684 more
+
+----------------------------------------------------------------------
+ECO CHANGES (Pin Modifications, sample first 50)
+----------------------------------------------------------------------
+
+Cell: $fabric_eco$T0Y0__R0_NAND_3 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R0_NAND_4 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R0_OR_0 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R0_OR_1 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R0_OR_2 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R1_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  CLK: 0 -> 1
+  D: 0 -> 1
+  RESET_B: 0 -> 1
+  SET_B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R1_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R2_INV_1 (sky130_fd_sc_hd__clkinv_2)
+  A: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R2_OR_1 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R2_OR_2 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R2_OR_3 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R2_OR_4 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y0__R3_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  CLK: 0 -> 1
+  D: 0 -> 1
+  RESET_B: 0 -> 1
+  SET_B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R0_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  A: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R0_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R0_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R0_NAND_3 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R0_NAND_4 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R0_OR_0 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R0_OR_1 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R0_OR_2 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R1_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  CLK: 0 -> 1
+  D: 0 -> 1
+  RESET_B: 0 -> 1
+  SET_B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R1_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R1_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R1_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R2_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  A: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R2_INV_1 (sky130_fd_sc_hd__clkinv_2)
+  A: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R2_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R2_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R2_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R2_OR_0 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R2_OR_1 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R2_OR_2 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R2_OR_3 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R2_OR_4 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R3_DFBBP_0 (sky130_fd_sc_hd__dfbbp_1)
+  CLK: 0 -> 1
+  D: 0 -> 1
+  RESET_B: 0 -> 1
+  SET_B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R3_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R3_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R3_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y10__R3_NAND_3 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y11__R0_INV_0 (sky130_fd_sc_hd__clkinv_2)
+  A: 0 -> 1
+
+Cell: $fabric_eco$T0Y11__R0_NAND_0 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y11__R0_NAND_1 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y11__R0_NAND_2 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y11__R0_NAND_3 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y11__R0_NAND_4 (sky130_fd_sc_hd__nand2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y11__R0_OR_0 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y11__R0_OR_1 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y11__R0_OR_2 (sky130_fd_sc_hd__or2_2)
+  A: 0 -> 1
+  B: 0 -> 1
+
+Cell: $fabric_eco$T0Y11__R1_BUF_0 (sky130_fd_sc_hd__clkbuf_4)
+  A: 0 -> 1
+
+... and 100734 more cells
+
+======================================================================
