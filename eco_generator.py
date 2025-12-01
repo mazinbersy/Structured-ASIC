@@ -27,6 +27,7 @@ from power_down import run_power_down_eco_from_sources
 from visualization.cts_overlay import plot_cts_tree_overlay
 from build_fabric_db import build_fabric_db
 from parse_design import parse_design_json
+import subprocess
 
 
 def generate_verilog_from_logical_db(logical_db: Dict[str, Any], design_name: str) -> str:
@@ -253,6 +254,34 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
             print(f"  Written: {verilog_file}")
             print(f"  Lines: {len(final_verilog.split(chr(10)))}")
             print()
+
+        # Run renamer to ensure final netlist uses fabric placement names
+        try:
+            if verbose:
+                print("  Running renamer to apply fabric names to final netlist...")
+            cmd = [
+                sys.executable, "tools/rename_verilog_cells.py",
+                "--verilog", verilog_file,
+                "--placement", cts_placement_file,
+                "--output", verilog_file
+            ]
+            # Run the script; allow it to overwrite the file
+            proc = subprocess.run(cmd, capture_output=not verbose, text=True)
+            if proc.returncode != 0:
+                print("Warning: renamer script exited with non-zero status")
+                if not verbose:
+                    print(proc.stdout)
+                    print(proc.stderr)
+            else:
+                if verbose:
+                    print("  Renamer completed; final netlist updated with fabric names.")
+
+            # Read back renamed netlist into memory
+            with open(verilog_file, 'r') as f:
+                final_verilog = f.read()
+
+        except Exception as e:
+            print(f"Warning: failed to run renamer: {e}")
 
     except Exception as e:
         print(f"Error generating Verilog: {e}")

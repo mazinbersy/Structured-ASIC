@@ -94,3 +94,22 @@ This setting:
 ### Overall Conclusion
 
 Across all experiments, annealing effort scales smoothly with solution quality, and no single sharp “knee” dominates the frontier. However, **α = 0.92, N = 200, T₀ = 100, and P_refine = 0.50** consistently offer the best balance of placement quality and runtime, making them the recommended default SA configuration for this flow.
+
+## Phase 3 — ECO, CTS and Verilog netlist generation
+
+Recent work focused on completing the Phase‑3 ECO flow and ensuring the final Verilog netlist uses the fabric placement names so the netlist can be used directly against the physical fabric.
+
+- Added a renaming utility: `tools/rename_verilog_cells.py` — maps logical instance names to fabric cell names using the placement `.map` file.
+- Integrated the renamer into the end-to-end generator: `eco_generator.py` now runs the renamer after producing `build/<design>/<design>_final.v` so the file contains fabric names by default.
+- Improved CTS visualization and robustness: `visualization/cts_overlay.py` now falls back to fabric DB and clock-tree coordinates if a placement entry is missing; the CTS overlay is written to `build/<design>/<design>_cts_tree.png`.
+- Added a simple validator script (`tools/validate_cts_scale.py`) to check placement and CTS coordinates against die bounds (units in µm).
+- Organized scripts: analysis helpers moved to `scripts/analysis/` and visualization helpers consolidated under `visualization/`.
+
+Build outputs (examples):
+- `build/<design>/<design>_final.v` — final Verilog netlist (fabric‑named instances)
+- `build/<design>/<design>_cts_tree.png` — CTS overlay visualization
+- `build/<design>/eco_report.txt` — ECO summary report
+
+Next recommended steps:
+- Keep the renamer integrated in the ECO flow (already applied). Optionally add a small CI check that verifies no logical placement keys remain in the final `.v`.
+- If you want to retain old experiment outputs, consider archiving `build/experiments/` before removing; otherwise the repo now only keeps the production `build/<design>/` outputs.
