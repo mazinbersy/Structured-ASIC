@@ -2,138 +2,134 @@
   "level": 0,
   "parent": "clk_root",
   "centroid": [
-    481.5406993006994,
-    79.8855944055944
+    460.888951048951,
+    105.37370629370629
   ],
-  "buffer": "T17Y7__R0_BUF_0",
+  "buffer": "T16Y9__R0_BUF_0",
   "children": [
     {
       "level": 1,
-      "parent": "T17Y7__R0_BUF_0",
+      "parent": "T16Y9__R0_BUF_0",
       "centroid": [
-        513.8084210526316,
-        116.52000000000001
+        491.8114285714286,
+        138.92761904761906
       ],
-      "buffer": "T18Y10__R0_BUF_0",
+      "buffer": "T17Y12__R0_BUF_0",
       "children": [
         {
           "level": 2,
-          "parent": "T18Y10__R0_BUF_0",
+          "parent": "T17Y12__R0_BUF_0",
+          "sinks": [
+            "T18Y12__R3_DFBBP_0",
+            "T18Y13__R1_DFBBP_0",
+            "T18Y14__R1_DFBBP_0",
+            "T18Y16__R3_DFBBP_0"
+          ],
+          "sink_logical_names": [
+            "$flatten\\CPU.$auto$ff.cc:266:slice$5228",
+            "$flatten\\CPU.$auto$ff.cc:266:slice$4932",
+            "$flatten\\CPU.$auto$ff.cc:266:slice$5198",
+            "$flatten\\CPU.$auto$ff.cc:266:slice$5172"
+          ],
           "centroid": [
-            526.64,
-            132.84
+            517.44,
+            160.04
           ],
-          "buffer": "T19Y11__R1_BUF_0",
-          "children": [
-            {
-              "level": 3,
-              "parent": "T19Y11__R1_BUF_0",
-              "sinks": [
-                "T19Y11__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$8808"
-              ],
-              "centroid": [
-                545.04,
-                132.84
-              ],
-              "buffer": "T19Y11__R3_BUF_0",
-              "buffer_pos": [
-                539.06,
-                132.84
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T19Y11__R1_BUF_0",
-              "sinks": [
-                "T18Y11__R3_DFBBP_0",
-                "T18Y12__R1_DFBBP_0",
-                "T18Y12__R3_DFBBP_0",
-                "T18Y13__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5223",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5228",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5234",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$8807"
-              ],
-              "centroid": [
-                517.44,
-                141.0
-              ],
-              "buffer": "T18Y12__R3_BUF_0",
-              "buffer_pos": [
-                511.46,
-                143.72
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T19Y11__R1_BUF_0",
-              "sinks": [
-                "T18Y10__R3_DFBBP_0",
-                "T18Y11__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5211",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5218"
-              ],
-              "centroid": [
-                517.44,
-                124.68
-              ],
-              "buffer": "T18Y11__R0_BUF_0",
-              "buffer_pos": [
-                511.0,
-                124.68
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T19Y11__R1_BUF_0",
-              "sinks": [
-                "T19Y10__R3_DFBBP_0",
-                "T19Y11__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5231",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5237"
-              ],
-              "centroid": [
-                545.04,
-                124.68
-              ],
-              "buffer": "T19Y11__R0_BUF_0",
-              "buffer_pos": [
-                538.6,
-                124.68
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            }
-          ],
+          "buffer": "T18Y14__R0_BUF_0",
           "buffer_pos": [
-            536.3,
-            127.4
+            511.0,
+            157.32
           ],
           "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
         },
         {
           "level": 2,
-          "parent": "T18Y10__R0_BUF_0",
+          "parent": "T17Y12__R0_BUF_0",
           "centroid": [
-            489.84,
-            141.0
+            475.12,
+            163.304
           ],
-          "buffer": "T17Y12__R3_BUF_0",
+          "buffer": "T17Y14__R1_BUF_0",
           "children": [
             {
               "level": 3,
-              "parent": "T17Y12__R3_BUF_0",
+              "parent": "T17Y14__R1_BUF_0",
+              "sinks": [
+                "T17Y14__R3_DFBBP_0",
+                "T17Y15__R3_DFBBP_0",
+                "T17Y16__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5223",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5170",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$8807"
+              ],
+              "centroid": [
+                489.84,
+                174.54666666666665
+              ],
+              "buffer": "T17Y15__R3_BUF_0",
+              "buffer_pos": [
+                483.86,
+                176.36
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T17Y14__R1_BUF_0",
+              "sinks": [
+                "T16Y14__R3_DFBBP_0",
+                "T16Y15__R3_DFBBP_0",
+                "T16Y16__R1_DFBBP_0",
+                "T16Y16__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5190",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5194",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5195",
+                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7684"
+              ],
+              "centroid": [
+                462.24,
+                177.72
+              ],
+              "buffer": "T16Y15__R3_BUF_0",
+              "buffer_pos": [
+                456.26,
+                176.36
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T17Y14__R1_BUF_0",
+              "sinks": [
+                "T16Y12__R3_DFBBP_0",
+                "T16Y13__R1_DFBBP_0",
+                "T16Y13__R3_DFBBP_0",
+                "T16Y14__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5233",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4934",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5227",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5151"
+              ],
+              "centroid": [
+                462.24,
+                151.88
+              ],
+              "buffer": "T16Y13__R3_BUF_0",
+              "buffer_pos": [
+                456.26,
+                154.6
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T17Y14__R1_BUF_0",
               "sinks": [
                 "T17Y12__R3_DFBBP_0",
                 "T17Y13__R1_DFBBP_0",
@@ -141,10 +137,10 @@
                 "T17Y14__R1_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5227",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5235",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5214",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5183",
                 "$flatten\\CPU.$auto$ff.cc:266:slice$8806",
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7690"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5168"
               ],
               "centroid": [
                 489.84,
@@ -156,67 +152,113 @@
                 154.6
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T17Y12__R3_BUF_0",
-              "sinks": [
-                "T17Y10__R3_DFBBP_0",
-                "T17Y11__R1_DFBBP_0",
-                "T17Y11__R3_DFBBP_0",
-                "T17Y12__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5194",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5198",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5214",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5220"
-              ],
-              "centroid": [
-                489.84,
-                130.12
-              ],
-              "buffer": "T17Y11__R3_BUF_0",
-              "buffer_pos": [
-                483.86,
-                132.84
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             }
           ],
           "buffer_pos": [
-            483.86,
-            143.72
+            481.1,
+            160.04
           ],
           "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
         },
         {
           "level": 2,
-          "parent": "T18Y10__R0_BUF_0",
+          "parent": "T17Y12__R0_BUF_0",
           "centroid": [
-            489.84,
-            100.2
+            474.97846153846154,
+            120.7046153846154
           ],
-          "buffer": "T17Y8__R3_BUF_0",
+          "buffer": "T17Y10__R1_BUF_0",
           "children": [
             {
               "level": 3,
-              "parent": "T17Y8__R3_BUF_0",
+              "parent": "T17Y10__R1_BUF_0",
+              "sinks": [
+                "T17Y10__R3_DFBBP_0",
+                "T17Y11__R1_DFBBP_0",
+                "T17Y11__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4936",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5182",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5218"
+              ],
+              "centroid": [
+                489.84,
+                127.39999999999999
+              ],
+              "buffer": "T17Y11__R0_BUF_0",
+              "buffer_pos": [
+                483.4,
+                124.68
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T17Y10__R1_BUF_0",
+              "sinks": [
+                "T16Y10__R3_DFBBP_0",
+                "T16Y11__R1_DFBBP_0",
+                "T16Y11__R3_DFBBP_0",
+                "T16Y12__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5191",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5199",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5219",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4107"
+              ],
+              "centroid": [
+                462.24,
+                130.12
+              ],
+              "buffer": "T16Y11__R3_BUF_0",
+              "buffer_pos": [
+                456.26,
+                132.84
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T17Y10__R1_BUF_0",
+              "sinks": [
+                "T16Y10__R1_DFBBP_0",
+                "T16Y9__R1_DFBBP_0",
+                "T16Y9__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5135",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5202",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5203"
+              ],
+              "centroid": [
+                462.24,
+                111.08
+              ],
+              "buffer": "T16Y9__R3_BUF_0",
+              "buffer_pos": [
+                456.26,
+                111.08
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T17Y10__R1_BUF_0",
               "sinks": [
                 "T17Y10__R1_DFBBP_0",
-                "T17Y8__R3_DFBBP_0",
                 "T17Y9__R1_DFBBP_0",
                 "T17Y9__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5190",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5155",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5159",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5178"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4912",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5204",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5145"
               ],
               "centroid": [
                 489.84,
-                108.36
+                111.08
               ],
               "buffer": "T17Y9__R3_BUF_0",
               "buffer_pos": [
@@ -224,91 +266,83 @@
                 111.08
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T17Y8__R3_BUF_0",
-              "sinks": [
-                "T17Y7__R1_DFBBP_0",
-                "T17Y7__R3_DFBBP_0",
-                "T17Y8__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5141",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5144",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5152"
-              ],
-              "centroid": [
-                489.84,
-                89.32
-              ],
-              "buffer": "T17Y7__R3_BUF_0",
-              "buffer_pos": [
-                483.86,
-                89.32
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             }
           ],
           "buffer_pos": [
-            483.86,
-            100.2
+            481.1,
+            116.52
           ],
           "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
         },
         {
           "level": 2,
-          "parent": "T18Y10__R0_BUF_0",
+          "parent": "T17Y12__R0_BUF_0",
           "centroid": [
-            531.24,
-            100.2
+            528.48,
+            117.60799999999999
           ],
-          "buffer": "T19Y8__R1_BUF_0",
+          "buffer": "T19Y10__R1_BUF_0",
           "children": [
             {
               "level": 3,
-              "parent": "T19Y8__R1_BUF_0",
+              "parent": "T19Y10__R1_BUF_0",
               "sinks": [
-                "T19Y10__R1_DFBBP_0",
-                "T19Y8__R3_DFBBP_0",
-                "T19Y9__R1_DFBBP_0",
-                "T19Y9__R3_DFBBP_0"
+                "T19Y10__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5229",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5217",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5221",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5224"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5231"
               ],
               "centroid": [
                 545.04,
-                108.36
+                121.96
               ],
-              "buffer": "T19Y9__R3_BUF_0",
+              "buffer": "T19Y10__R3_BUF_0",
               "buffer_pos": [
                 539.06,
-                111.08
+                121.96
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             },
             {
               "level": 3,
-              "parent": "T19Y8__R1_BUF_0",
+              "parent": "T19Y10__R1_BUF_0",
+              "sinks": [
+                "T18Y10__R3_DFBBP_0",
+                "T18Y11__R1_DFBBP_0",
+                "T18Y12__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5196",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4982",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5175"
+              ],
+              "centroid": [
+                517.44,
+                129.21333333333334
+              ],
+              "buffer": "T18Y11__R3_BUF_0",
+              "buffer_pos": [
+                511.46,
+                132.84
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T19Y10__R1_BUF_0",
               "sinks": [
                 "T18Y10__R1_DFBBP_0",
-                "T18Y8__R3_DFBBP_0",
                 "T18Y9__R1_DFBBP_0",
                 "T18Y9__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5200",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5193",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5195",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5196"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5230",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5138",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5177"
               ],
               "centroid": [
                 517.44,
-                108.36
+                111.08
               ],
               "buffer": "T18Y9__R3_BUF_0",
               "buffer_pos": [
@@ -319,484 +353,480 @@
             },
             {
               "level": 3,
-              "parent": "T19Y8__R1_BUF_0",
+              "parent": "T19Y10__R1_BUF_0",
               "sinks": [
-                "T18Y7__R1_DFBBP_0",
-                "T18Y7__R3_DFBBP_0",
-                "T18Y8__R1_DFBBP_0"
+                "T19Y10__R1_DFBBP_0",
+                "T19Y9__R1_DFBBP_0",
+                "T19Y9__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5142",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5153",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5156"
-              ],
-              "centroid": [
-                517.44,
-                89.32
-              ],
-              "buffer": "T18Y7__R3_BUF_0",
-              "buffer_pos": [
-                511.46,
-                89.32
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T19Y8__R1_BUF_0",
-              "sinks": [
-                "T19Y7__R1_DFBBP_0",
-                "T19Y7__R3_DFBBP_0",
-                "T19Y8__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5209",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5212",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5215"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5229",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4108",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5210"
               ],
               "centroid": [
                 545.04,
-                89.32
+                111.08
               ],
-              "buffer": "T19Y7__R3_BUF_0",
+              "buffer": "T19Y9__R3_BUF_0",
               "buffer_pos": [
                 539.06,
-                89.32
+                111.08
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             }
           ],
           "buffer_pos": [
             536.3,
-            94.76
+            116.52
           ],
           "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
         }
       ],
       "buffer_pos": [
-        511.0,
-        113.8
+        483.4,
+        135.56
       ],
       "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
     },
     {
       "level": 1,
-      "parent": "T17Y7__R0_BUF_0",
+      "parent": "T16Y9__R0_BUF_0",
       "centroid": [
-        441.54,
-        113.12
+        415.7142857142857,
+        140.76685714285713
       ],
-      "buffer": "T16Y10__R1_BUF_0",
+      "buffer": "T15Y12__R1_BUF_0",
       "children": [
         {
           "level": 2,
-          "parent": "T16Y10__R1_BUF_0",
+          "parent": "T15Y12__R1_BUF_0",
           "centroid": [
-            462.24,
-            135.56
+            434.64,
+            165.48
           ],
-          "buffer": "T16Y12__R0_BUF_0",
+          "buffer": "T15Y14__R3_BUF_0",
           "children": [
             {
               "level": 3,
-              "parent": "T16Y12__R0_BUF_0",
-              "sinks": [
-                "T16Y12__R1_DFBBP_0",
-                "T16Y12__R3_DFBBP_0",
-                "T16Y13__R1_DFBBP_0",
-                "T16Y13__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5225",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5233",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$8804",
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7682"
-              ],
+              "parent": "T15Y14__R3_BUF_0",
               "centroid": [
-                462.24,
-                146.44
+                434.64,
+                176.35999999999999
               ],
-              "buffer": "T16Y13__R0_BUF_0",
-              "buffer_pos": [
-                455.8,
-                146.44
+              "buffer": "T15Y15__R3_BUF_0",
+              "children": [
+                {
+                  "level": 4,
+                  "parent": "T15Y15__R3_BUF_0",
+                  "sinks": [
+                    "T15Y15__R3_DFBBP_0",
+                    "T15Y16__R1_DFBBP_0",
+                    "T15Y16__R3_DFBBP_0"
+                  ],
+                  "sink_logical_names": [
+                    "$flatten\\CPU.$auto$ff.cc:266:slice$5137",
+                    "$flatten\\CPU.$auto$ff.cc:266:slice$4112",
+                    "$flatten\\CPU.$auto$ff.cc:266:slice$5226"
+                  ],
+                  "centroid": [
+                    434.64000000000004,
+                    181.80000000000004
+                  ],
+                  "buffer": "T15Y16__R0_BUF_0",
+                  "buffer_pos": [
+                    428.2,
+                    179.08
+                  ],
+                  "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+                },
+                {
+                  "level": 4,
+                  "parent": "T15Y15__R3_BUF_0",
+                  "sinks": [
+                    "T15Y14__R3_DFBBP_0",
+                    "T15Y15__R1_DFBBP_0"
+                  ],
+                  "sink_logical_names": [
+                    "$flatten\\CPU.$auto$ff.cc:266:slice$5181",
+                    "$flatten\\CPU.$auto$ff.cc:266:slice$5189"
+                  ],
+                  "centroid": [
+                    434.64,
+                    168.2
+                  ],
+                  "buffer": "T15Y15__R0_BUF_0",
+                  "buffer_pos": [
+                    428.2,
+                    168.2
+                  ],
+                  "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+                }
               ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T16Y12__R0_BUF_0",
-              "sinks": [
-                "T16Y10__R1_DFBBP_0",
-                "T16Y10__R3_DFBBP_0",
-                "T16Y11__R1_DFBBP_0",
-                "T16Y11__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5181",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5191",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5199",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5219"
-              ],
-              "centroid": [
-                462.24,
-                124.68
-              ],
-              "buffer": "T16Y11__R0_BUF_0",
-              "buffer_pos": [
-                455.8,
-                124.68
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            }
-          ],
-          "buffer_pos": [
-            455.8,
-            135.56
-          ],
-          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-        },
-        {
-          "level": 2,
-          "parent": "T16Y10__R1_BUF_0",
-          "centroid": [
-            434.64000000000004,
-            130.12
-          ],
-          "buffer": "T15Y11__R3_BUF_0",
-          "children": [
-            {
-              "level": 3,
-              "parent": "T15Y11__R3_BUF_0",
-              "sinks": [
-                "T15Y11__R3_DFBBP_0",
-                "T15Y12__R1_DFBBP_0",
-                "T15Y12__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$8805",
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7456",
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7684"
-              ],
-              "centroid": [
-                434.64000000000004,
-                138.28
-              ],
-              "buffer": "T15Y12__R0_BUF_0",
-              "buffer_pos": [
-                428.2,
-                135.56
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T15Y11__R3_BUF_0",
-              "sinks": [
-                "T15Y10__R1_DFBBP_0",
-                "T15Y10__R3_DFBBP_0",
-                "T15Y11__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5201",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5226",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5236"
-              ],
-              "centroid": [
-                434.64000000000004,
-                121.96
-              ],
-              "buffer": "T15Y10__R3_BUF_0",
               "buffer_pos": [
                 428.66,
-                121.96
+                176.36
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T15Y14__R3_BUF_0",
+              "sinks": [
+                "T15Y12__R3_DFBBP_0",
+                "T15Y13__R1_DFBBP_0",
+                "T15Y13__R3_DFBBP_0",
+                "T15Y14__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$8810",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5213",
+                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7681",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4981"
+              ],
+              "centroid": [
+                434.64,
+                151.88
+              ],
+              "buffer": "T15Y13__R3_BUF_0",
+              "buffer_pos": [
+                428.66,
+                154.6
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             }
           ],
           "buffer_pos": [
             428.66,
-            132.84
+            165.48
           ],
           "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
         },
         {
           "level": 2,
-          "parent": "T16Y10__R1_BUF_0",
+          "parent": "T15Y12__R1_BUF_0",
           "centroid": [
-            420.84,
-            97.48
+            403.59000000000003,
+            158.0
           ],
-          "buffer": "T15Y8__R1_BUF_0",
+          "buffer": "T14Y14__R0_BUF_0",
           "children": [
             {
               "level": 3,
-              "parent": "T15Y8__R1_BUF_0",
+              "parent": "T14Y14__R0_BUF_0",
               "sinks": [
-                "T15Y8__R3_DFBBP_0",
-                "T15Y9__R1_DFBBP_0",
-                "T15Y9__R3_DFBBP_0"
+                "T14Y14__R1_DFBBP_0",
+                "T14Y14__R3_DFBBP_0",
+                "T14Y15__R1_DFBBP_0",
+                "T14Y15__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5180",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5189",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5192"
+                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7682",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5171",
+                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7690",
+                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7456"
               ],
               "centroid": [
-                434.64000000000004,
-                105.64
+                407.04,
+                168.2
               ],
-              "buffer": "T15Y9__R0_BUF_0",
+              "buffer": "T14Y15__R1_BUF_0",
               "buffer_pos": [
-                428.2,
-                102.92
+                398.3,
+                170.92
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             },
             {
               "level": 3,
-              "parent": "T15Y8__R1_BUF_0",
+              "parent": "T14Y14__R0_BUF_0",
               "sinks": [
-                "T14Y8__R3_DFBBP_0",
+                "T13Y12__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7685"
+              ],
+              "centroid": [
+                379.44,
+                143.72
+              ],
+              "buffer": "T13Y12__R3_BUF_0",
+              "buffer_pos": [
+                373.46,
+                143.72
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T14Y14__R0_BUF_0",
+              "sinks": [
+                "T14Y12__R3_DFBBP_0",
+                "T14Y13__R1_DFBBP_0",
+                "T14Y13__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5174",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5159",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5173"
+              ],
+              "centroid": [
+                407.04,
+                149.16
+              ],
+              "buffer": "T14Y13__R0_BUF_0",
+              "buffer_pos": [
+                400.6,
+                146.44
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            }
+          ],
+          "buffer_pos": [
+            400.6,
+            157.32
+          ],
+          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+        },
+        {
+          "level": 2,
+          "parent": "T15Y12__R1_BUF_0",
+          "centroid": [
+            397.00363636363636,
+            119.98181818181818
+          ],
+          "buffer": "T14Y10__R1_BUF_0",
+          "children": [
+            {
+              "level": 3,
+              "parent": "T14Y10__R1_BUF_0",
+              "sinks": [
+                "T14Y10__R3_DFBBP_0",
+                "T14Y11__R1_DFBBP_0",
+                "T14Y11__R3_DFBBP_0",
+                "T14Y12__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5178",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5193",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5146",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5167"
+              ],
+              "centroid": [
+                407.04,
+                130.12
+              ],
+              "buffer": "T14Y11__R3_BUF_0",
+              "buffer_pos": [
+                401.06,
+                132.84
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T14Y10__R1_BUF_0",
+              "sinks": [
+                "T13Y11__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7689"
+              ],
+              "centroid": [
+                379.44,
+                132.84
+              ],
+              "buffer": "T13Y11__R3_BUF_0",
+              "buffer_pos": [
+                373.46,
+                132.84
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T14Y10__R1_BUF_0",
+              "sinks": [
+                "T13Y10__R1_DFBBP_0",
+                "T13Y9__R1_DFBBP_0",
+                "T13Y9__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7680",
+                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7679",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5155"
+              ],
+              "centroid": [
+                379.44,
+                111.08
+              ],
+              "buffer": "T13Y9__R3_BUF_0",
+              "buffer_pos": [
+                373.46,
+                111.08
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T14Y10__R1_BUF_0",
+              "sinks": [
+                "T14Y10__R1_DFBBP_0",
                 "T14Y9__R1_DFBBP_0",
                 "T14Y9__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7683",
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7685",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5166",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$8811",
                 "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7687"
               ],
               "centroid": [
                 407.04,
-                105.64
+                111.08
               ],
-              "buffer": "T14Y9__R0_BUF_0",
-              "buffer_pos": [
-                400.6,
-                102.92
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T15Y8__R1_BUF_0",
-              "sinks": [
-                "T14Y7__R1_DFBBP_0",
-                "T14Y7__R3_DFBBP_0",
-                "T14Y8__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$8811",
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7679",
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7681"
-              ],
-              "centroid": [
-                407.04,
-                89.32
-              ],
-              "buffer": "T14Y7__R3_BUF_0",
+              "buffer": "T14Y9__R3_BUF_0",
               "buffer_pos": [
                 401.06,
-                89.32
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T15Y8__R1_BUF_0",
-              "sinks": [
-                "T15Y7__R1_DFBBP_0",
-                "T15Y7__R3_DFBBP_0",
-                "T15Y8__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5172",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5174",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5177"
-              ],
-              "centroid": [
-                434.64000000000004,
-                89.32
-              ],
-              "buffer": "T15Y7__R3_BUF_0",
-              "buffer_pos": [
-                428.66,
-                89.32
+                111.08
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             }
           ],
           "buffer_pos": [
-            425.9,
-            94.76
+            398.3,
+            116.52
           ],
           "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
         },
         {
           "level": 2,
-          "parent": "T16Y10__R1_BUF_0",
+          "parent": "T15Y12__R1_BUF_0",
           "centroid": [
-            462.24,
-            97.48
+            434.64,
+            121.96000000000001
           ],
-          "buffer": "T16Y8__R3_BUF_0",
+          "buffer": "T15Y10__R3_BUF_0",
           "children": [
             {
               "level": 3,
-              "parent": "T16Y8__R3_BUF_0",
+              "parent": "T15Y10__R3_BUF_0",
               "sinks": [
-                "T16Y8__R3_DFBBP_0",
-                "T16Y9__R1_DFBBP_0",
-                "T16Y9__R3_DFBBP_0"
+                "T15Y11__R1_DFBBP_0",
+                "T15Y11__R3_DFBBP_0",
+                "T15Y12__R1_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5167",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5171",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5176"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5236",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$8805",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$8804"
               ],
               "centroid": [
-                462.24,
-                105.64
+                434.64000000000004,
+                132.84
               ],
-              "buffer": "T16Y9__R0_BUF_0",
+              "buffer": "T15Y11__R3_BUF_0",
               "buffer_pos": [
-                455.8,
-                102.92
+                428.66,
+                132.84
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             },
             {
               "level": 3,
-              "parent": "T16Y8__R3_BUF_0",
+              "parent": "T15Y10__R3_BUF_0",
               "sinks": [
-                "T16Y7__R1_DFBBP_0",
-                "T16Y7__R3_DFBBP_0",
-                "T16Y8__R1_DFBBP_0"
+                "T15Y10__R1_DFBBP_0",
+                "T15Y10__R3_DFBBP_0",
+                "T15Y9__R1_DFBBP_0",
+                "T15Y9__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5151",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5154",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5157"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5201",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5225",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5220",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5192"
               ],
               "centroid": [
-                462.24,
-                89.32
+                434.64,
+                113.8
               ],
-              "buffer": "T16Y7__R3_BUF_0",
+              "buffer": "T15Y10__R0_BUF_0",
               "buffer_pos": [
-                456.26,
-                89.32
+                428.2,
+                113.8
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             }
           ],
           "buffer_pos": [
-            456.26,
-            100.2
+            428.66,
+            121.96
           ],
           "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
         }
       ],
       "buffer_pos": [
-        453.5,
-        116.52
+        425.9,
+        138.28
       ],
       "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
     },
     {
       "level": 1,
-      "parent": "T17Y7__R0_BUF_0",
+      "parent": "T16Y9__R0_BUF_0",
       "centroid": [
-        441.3309090909091,
-        48.10787878787879
+        421.9015384615385,
+        66.93230769230769
       ],
-      "buffer": "T16Y4__R1_BUF_0",
+      "buffer": "T15Y5__R1_BUF_0",
       "children": [
         {
           "level": 2,
-          "parent": "T16Y4__R1_BUF_0",
+          "parent": "T15Y5__R1_BUF_0",
           "centroid": [
-            462.24,
-            64.84
+            434.64,
+            83.88
           ],
-          "buffer": "T16Y5__R3_BUF_0",
+          "buffer": "T15Y7__R0_BUF_0",
           "children": [
             {
               "level": 3,
-              "parent": "T16Y5__R3_BUF_0",
+              "parent": "T15Y7__R0_BUF_0",
               "sinks": [
-                "T16Y5__R3_DFBBP_0",
-                "T16Y6__R1_DFBBP_0",
-                "T16Y6__R3_DFBBP_0"
+                "T15Y7__R1_DFBBP_0",
+                "T15Y7__R3_DFBBP_0",
+                "T15Y8__R1_DFBBP_0",
+                "T15Y8__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5136",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5143",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5145"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5140",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5215",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5156",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4105"
               ],
               "centroid": [
-                462.24,
-                73.0
+                434.64,
+                92.03999999999999
               ],
-              "buffer": "T16Y6__R0_BUF_0",
+              "buffer": "T15Y8__R0_BUF_0",
               "buffer_pos": [
-                455.8,
-                70.28
+                428.2,
+                92.04
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             },
             {
               "level": 3,
-              "parent": "T16Y5__R3_BUF_0",
-              "sinks": [
-                "T16Y4__R1_DFBBP_0",
-                "T16Y4__R3_DFBBP_0",
-                "T16Y5__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4985",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5134",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5135"
-              ],
-              "centroid": [
-                462.24,
-                56.68
-              ],
-              "buffer": "T16Y4__R3_BUF_0",
-              "buffer_pos": [
-                456.26,
-                56.68
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            }
-          ],
-          "buffer_pos": [
-            456.26,
-            67.56
-          ],
-          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-        },
-        {
-          "level": 2,
-          "parent": "T16Y4__R1_BUF_0",
-          "centroid": [
-            420.84,
-            64.84
-          ],
-          "buffer": "T15Y5__R1_BUF_0",
-          "children": [
-            {
-              "level": 3,
-              "parent": "T15Y5__R1_BUF_0",
+              "parent": "T15Y7__R0_BUF_0",
               "sinks": [
                 "T15Y5__R3_DFBBP_0",
                 "T15Y6__R1_DFBBP_0",
                 "T15Y6__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5168",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5169",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5170"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5141",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5134",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5237"
               ],
               "centroid": [
                 434.64000000000004,
@@ -808,71 +838,151 @@
                 70.28
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            }
+          ],
+          "buffer_pos": [
+            428.2,
+            81.16
+          ],
+          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+        },
+        {
+          "level": 2,
+          "parent": "T15Y5__R1_BUF_0",
+          "centroid": [
+            403.59000000000003,
+            84.56
+          ],
+          "buffer": "T14Y7__R0_BUF_0",
+          "children": [
+            {
+              "level": 3,
+              "parent": "T14Y7__R0_BUF_0",
+              "sinks": [
+                "T14Y7__R3_DFBBP_0",
+                "T14Y8__R1_DFBBP_0",
+                "T14Y8__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5235",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5209",
+                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7683"
+              ],
+              "centroid": [
+                407.04,
+                94.75999999999999
+              ],
+              "buffer": "T14Y8__R0_BUF_0",
+              "buffer_pos": [
+                400.6,
+                92.04
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             },
             {
               "level": 3,
-              "parent": "T15Y5__R1_BUF_0",
+              "parent": "T14Y7__R0_BUF_0",
+              "sinks": [
+                "T13Y7__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4937"
+              ],
+              "centroid": [
+                379.44,
+                89.32
+              ],
+              "buffer": "T13Y7__R3_BUF_0",
+              "buffer_pos": [
+                373.46,
+                89.32
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T14Y7__R0_BUF_0",
               "sinks": [
                 "T14Y5__R3_DFBBP_0",
                 "T14Y6__R1_DFBBP_0",
-                "T14Y6__R3_DFBBP_0"
+                "T14Y6__R3_DFBBP_0",
+                "T14Y7__R1_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5203",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$8810",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$8809"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5160",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5152",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$8809",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5154"
               ],
               "centroid": [
                 407.04,
-                73.0
+                75.72
               ],
-              "buffer": "T14Y6__R0_BUF_0",
-              "buffer_pos": [
-                400.6,
-                70.28
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T15Y5__R1_BUF_0",
-              "sinks": [
-                "T14Y4__R1_DFBBP_0",
-                "T14Y4__R3_DFBBP_0",
-                "T14Y5__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7689",
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7686",
-                "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7680"
-              ],
-              "centroid": [
-                407.04,
-                56.68
-              ],
-              "buffer": "T14Y4__R3_BUF_0",
+              "buffer": "T14Y6__R3_BUF_0",
               "buffer_pos": [
                 401.06,
-                56.68
+                78.44
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
+            }
+          ],
+          "buffer_pos": [
+            400.6,
+            81.16
+          ],
+          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+        },
+        {
+          "level": 2,
+          "parent": "T15Y5__R1_BUF_0",
+          "sinks": [
+            "T14Y3__R1_DFBBP_0",
+            "T14Y3__R3_DFBBP_0",
+            "T14Y5__R1_DFBBP_0"
+          ],
+          "sink_logical_names": [
+            "$flatten\\CPU.$auto$ff.cc:266:slice$5169",
+            "$flatten\\CPU.$auto$ff.cc:266:slice$5180",
+            "$flatten\\CPU.\\ALU.$auto$ff.cc:266:slice$7686"
+          ],
+          "centroid": [
+            407.04,
+            49.42666666666667
+          ],
+          "buffer": "T14Y4__R0_BUF_0",
+          "buffer_pos": [
+            400.6,
+            48.52
+          ],
+          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+        },
+        {
+          "level": 2,
+          "parent": "T15Y5__R1_BUF_0",
+          "centroid": [
+            434.64,
+            41.04
+          ],
+          "buffer": "T15Y3__R0_BUF_0",
+          "children": [
             {
               "level": 3,
-              "parent": "T15Y5__R1_BUF_0",
+              "parent": "T15Y3__R0_BUF_0",
               "sinks": [
+                "T15Y3__R3_DFBBP_0",
                 "T15Y4__R1_DFBBP_0",
                 "T15Y4__R3_DFBBP_0",
                 "T15Y5__R1_DFBBP_0"
               ],
               "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5161",
                 "$flatten\\CPU.$auto$ff.cc:266:slice$5158",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5160",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5166"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5211",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4908"
               ],
               "centroid": [
-                434.64000000000004,
-                56.68
+                434.64,
+                53.96
               ],
               "buffer": "T15Y4__R3_BUF_0",
               "buffer_pos": [
@@ -880,307 +990,259 @@
                 56.68
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            }
-          ],
-          "buffer_pos": [
-            425.9,
-            62.12
-          ],
-          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-        },
-        {
-          "level": 2,
-          "parent": "T16Y4__R1_BUF_0",
-          "centroid": [
-            434.64,
-            29.48
-          ],
-          "buffer": "T15Y2__R0_BUF_0",
-          "children": [
-            {
-              "level": 3,
-              "parent": "T15Y2__R0_BUF_0",
-              "sinks": [
-                "T15Y2__R1_DFBBP_0",
-                "T15Y2__R3_DFBBP_0",
-                "T15Y3__R1_DFBBP_0",
-                "T15Y3__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5179",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5175",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5173",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5161"
-              ],
-              "centroid": [
-                434.64,
-                37.64
-              ],
-              "buffer": "T15Y3__R0_BUF_0",
-              "buffer_pos": [
-                428.2,
-                37.64
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             },
             {
               "level": 3,
-              "parent": "T15Y2__R0_BUF_0",
+              "parent": "T15Y3__R0_BUF_0",
               "sinks": [
                 "T15Y0__R3_DFBBP_0",
-                "T15Y1__R1_DFBBP_0",
-                "T15Y1__R3_DFBBP_0"
+                "T15Y1__R3_DFBBP_0",
+                "T15Y2__R3_DFBBP_0",
+                "T15Y3__R1_DFBBP_0"
               ],
               "sink_logical_names": [
                 "$flatten\\CPU.$auto$ff.cc:266:slice$5197",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5183",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5182"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5176",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5179",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4980"
               ],
               "centroid": [
-                434.64000000000004,
-                18.599999999999998
+                434.64,
+                28.12
               ],
-              "buffer": "T15Y1__R0_BUF_0",
+              "buffer": "T15Y2__R0_BUF_0",
               "buffer_pos": [
                 428.2,
-                15.88
+                26.76
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             }
           ],
           "buffer_pos": [
             428.2,
-            26.76
-          ],
-          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-        },
-        {
-          "level": 2,
-          "parent": "T16Y4__R1_BUF_0",
-          "centroid": [
-            462.24,
-            26.76
-          ],
-          "buffer": "T16Y2__R0_BUF_0",
-          "children": [
-            {
-              "level": 3,
-              "parent": "T16Y2__R0_BUF_0",
-              "sinks": [
-                "T16Y2__R1_DFBBP_0",
-                "T16Y2__R3_DFBBP_0",
-                "T16Y3__R1_DFBBP_0",
-                "T16Y3__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4984",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4982",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4981",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4983"
-              ],
-              "centroid": [
-                462.24,
-                37.64
-              ],
-              "buffer": "T16Y3__R0_BUF_0",
-              "buffer_pos": [
-                455.8,
-                37.64
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T16Y2__R0_BUF_0",
-              "sinks": [
-                "T16Y0__R1_DFBBP_0",
-                "T16Y0__R3_DFBBP_0",
-                "T16Y1__R1_DFBBP_0",
-                "T16Y1__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5146",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5139",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5138",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4986"
-              ],
-              "centroid": [
-                462.24,
-                15.88
-              ],
-              "buffer": "T16Y1__R0_BUF_0",
-              "buffer_pos": [
-                455.8,
-                15.88
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            }
-          ],
-          "buffer_pos": [
-            455.8,
-            26.76
+            37.64
           ],
           "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
         }
       ],
       "buffer_pos": [
-        453.5,
-        51.24
+        425.9,
+        62.12
       ],
       "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
     },
     {
       "level": 1,
-      "parent": "T17Y7__R0_BUF_0",
+      "parent": "T16Y9__R0_BUF_0",
       "centroid": [
-        516.0600000000001,
-        44.712
+        493.28999999999996,
+        64.16
       ],
-      "buffer": "T18Y3__R3_BUF_0",
+      "buffer": "T17Y5__R3_BUF_0",
       "children": [
         {
           "level": 2,
-          "parent": "T18Y3__R3_BUF_0",
+          "parent": "T17Y5__R3_BUF_0",
           "centroid": [
-            531.24,
-            62.12
+            534.69,
+            85.92
           ],
-          "buffer": "T19Y5__R1_BUF_0",
+          "buffer": "T19Y7__R1_BUF_0",
           "children": [
             {
               "level": 3,
-              "parent": "T19Y5__R1_BUF_0",
+              "parent": "T19Y7__R1_BUF_0",
               "sinks": [
-                "T19Y5__R1_DFBBP_0",
-                "T19Y5__R3_DFBBP_0",
-                "T19Y6__R1_DFBBP_0",
-                "T19Y6__R3_DFBBP_0"
+                "T19Y7__R3_DFBBP_0",
+                "T19Y8__R1_DFBBP_0",
+                "T19Y8__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5204",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5202",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5205",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5212",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4931",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5217"
+              ],
+              "centroid": [
+                545.04,
+                94.75999999999999
+              ],
+              "buffer": "T19Y8__R0_BUF_0",
+              "buffer_pos": [
+                538.6,
+                92.04
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T19Y7__R1_BUF_0",
+              "sinks": [
+                "T18Y8__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5142"
+              ],
+              "centroid": [
+                517.44,
+                94.76
+              ],
+              "buffer": "T18Y8__R0_BUF_0",
+              "buffer_pos": [
+                511.0,
+                92.04
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T19Y7__R1_BUF_0",
+              "sinks": [
+                "T18Y5__R3_DFBBP_0",
+                "T18Y7__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5216",
                 "$flatten\\CPU.$auto$ff.cc:266:slice$5207"
               ],
               "centroid": [
-                545.04,
-                70.28
-              ],
-              "buffer": "T19Y6__R0_BUF_0",
-              "buffer_pos": [
-                538.6,
-                70.28
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T19Y5__R1_BUF_0",
-              "sinks": [
-                "T18Y5__R1_DFBBP_0",
-                "T18Y5__R3_DFBBP_0",
-                "T18Y6__R1_DFBBP_0",
-                "T18Y6__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4936",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4938",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4980",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5140"
-              ],
-              "centroid": [
                 517.44,
-                70.28
+                75.72
               ],
-              "buffer": "T18Y6__R0_BUF_0",
+              "buffer": "T18Y6__R3_BUF_0",
               "buffer_pos": [
-                511.0,
-                70.28
+                511.46,
+                78.44
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             },
             {
               "level": 3,
-              "parent": "T19Y5__R1_BUF_0",
+              "parent": "T19Y7__R1_BUF_0",
               "sinks": [
-                "T18Y3__R3_DFBBP_0",
-                "T18Y4__R1_DFBBP_0",
-                "T18Y4__R3_DFBBP_0"
+                "T19Y6__R1_DFBBP_0",
+                "T19Y7__R1_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4914",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4932",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4934"
-              ],
-              "centroid": [
-                517.44,
-                51.24
-              ],
-              "buffer": "T18Y4__R0_BUF_0",
-              "buffer_pos": [
-                511.0,
-                48.52
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T19Y5__R1_BUF_0",
-              "sinks": [
-                "T19Y3__R3_DFBBP_0",
-                "T19Y4__R1_DFBBP_0",
-                "T19Y4__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5210",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5208",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5206"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5205",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4907"
               ],
               "centroid": [
                 545.04,
-                51.24
+                78.44
               ],
-              "buffer": "T19Y4__R0_BUF_0",
+              "buffer": "T19Y6__R3_BUF_0",
               "buffer_pos": [
-                538.6,
-                48.52
+                539.06,
+                78.44
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             }
           ],
           "buffer_pos": [
             536.3,
-            62.12
+            83.88
           ],
           "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
         },
         {
           "level": 2,
-          "parent": "T18Y3__R3_BUF_0",
+          "parent": "T17Y5__R3_BUF_0",
           "centroid": [
-            489.84,
-            62.12
+            474.97846153846154,
+            83.88000000000001
           ],
-          "buffer": "T17Y5__R0_BUF_0",
+          "buffer": "T17Y7__R1_BUF_0",
           "children": [
             {
               "level": 3,
-              "parent": "T17Y5__R0_BUF_0",
+              "parent": "T17Y7__R1_BUF_0",
               "sinks": [
-                "T17Y5__R1_DFBBP_0",
+                "T17Y7__R3_DFBBP_0",
+                "T17Y8__R1_DFBBP_0",
+                "T17Y8__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5144",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4979",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5136"
+              ],
+              "centroid": [
+                489.84,
+                94.75999999999999
+              ],
+              "buffer": "T17Y8__R0_BUF_0",
+              "buffer_pos": [
+                483.4,
+                92.04
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T17Y7__R1_BUF_0",
+              "sinks": [
+                "T16Y7__R3_DFBBP_0",
+                "T16Y8__R1_DFBBP_0",
+                "T16Y8__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5232",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5157",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$8808"
+              ],
+              "centroid": [
+                462.24,
+                94.75999999999999
+              ],
+              "buffer": "T16Y8__R0_BUF_0",
+              "buffer_pos": [
+                455.8,
+                92.04
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T17Y7__R1_BUF_0",
+              "sinks": [
+                "T16Y5__R3_DFBBP_0",
+                "T16Y6__R1_DFBBP_0",
+                "T16Y6__R3_DFBBP_0",
+                "T16Y7__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4935",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4111",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5224",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5221"
+              ],
+              "centroid": [
+                462.24,
+                75.72
+              ],
+              "buffer": "T16Y6__R3_BUF_0",
+              "buffer_pos": [
+                456.26,
+                78.44
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T17Y7__R1_BUF_0",
+              "sinks": [
                 "T17Y5__R3_DFBBP_0",
                 "T17Y6__R1_DFBBP_0",
                 "T17Y6__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4935",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4937",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4979",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5137"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4910",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4933",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5222"
               ],
               "centroid": [
                 489.84,
-                70.28
+                73.0
               ],
               "buffer": "T17Y6__R0_BUF_0",
               "buffer_pos": [
@@ -1188,227 +1250,203 @@
                 70.28
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
+            }
+          ],
+          "buffer_pos": [
+            481.1,
+            83.88
+          ],
+          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+        },
+        {
+          "level": 2,
+          "parent": "T17Y5__R3_BUF_0",
+          "centroid": [
+            474.97846153846154,
+            41.61538461538461
+          ],
+          "buffer": "T17Y3__R1_BUF_0",
+          "children": [
             {
               "level": 3,
-              "parent": "T17Y5__R0_BUF_0",
+              "parent": "T17Y3__R1_BUF_0",
               "sinks": [
                 "T17Y3__R3_DFBBP_0",
-                "T17Y4__R1_DFBBP_0",
-                "T17Y4__R3_DFBBP_0"
+                "T17Y4__R3_DFBBP_0",
+                "T17Y5__R1_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4112",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4931",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4933"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4913",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4986",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5200"
               ],
               "centroid": [
                 489.84,
-                51.24
+                54.86666666666667
               ],
-              "buffer": "T17Y4__R0_BUF_0",
-              "buffer_pos": [
-                483.4,
-                48.52
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            }
-          ],
-          "buffer_pos": [
-            483.4,
-            59.4
-          ],
-          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-        },
-        {
-          "level": 2,
-          "parent": "T18Y3__R3_BUF_0",
-          "centroid": [
-            489.84,
-            24.04
-          ],
-          "buffer": "T17Y1__R3_BUF_0",
-          "children": [
-            {
-              "level": 3,
-              "parent": "T17Y1__R3_BUF_0",
-              "sinks": [
-                "T17Y1__R3_DFBBP_0",
-                "T17Y2__R1_DFBBP_0",
-                "T17Y2__R3_DFBBP_0",
-                "T17Y3__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4108",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4109",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4110",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4111"
-              ],
-              "centroid": [
-                489.84,
-                32.2
-              ],
-              "buffer": "T17Y2__R3_BUF_0",
+              "buffer": "T17Y4__R3_BUF_0",
               "buffer_pos": [
                 483.86,
-                34.92
+                56.68
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             },
             {
               "level": 3,
-              "parent": "T17Y1__R3_BUF_0",
+              "parent": "T17Y3__R1_BUF_0",
               "sinks": [
-                "T17Y0__R1_DFBBP_0",
-                "T17Y0__R3_DFBBP_0",
-                "T17Y1__R1_DFBBP_0"
+                "T16Y3__R3_DFBBP_0",
+                "T16Y4__R1_DFBBP_0",
+                "T16Y4__R3_DFBBP_0",
+                "T16Y5__R1_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4105",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4106",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4107"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4983",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4985",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4984",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5234"
               ],
               "centroid": [
-                489.84,
-                13.160000000000002
+                462.24,
+                53.96
               ],
-              "buffer": "T17Y0__R3_BUF_0",
+              "buffer": "T16Y4__R3_BUF_0",
               "buffer_pos": [
-                483.86,
-                13.16
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            }
-          ],
-          "buffer_pos": [
-            483.86,
-            24.04
-          ],
-          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-        },
-        {
-          "level": 2,
-          "parent": "T18Y3__R3_BUF_0",
-          "centroid": [
-            528.94,
-            26.30666666666667
-          ],
-          "buffer": "T19Y2__R1_BUF_0",
-          "children": [
-            {
-              "level": 3,
-              "parent": "T19Y2__R1_BUF_0",
-              "sinks": [
-                "T19Y2__R1_DFBBP_0",
-                "T19Y2__R3_DFBBP_0",
-                "T19Y3__R1_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5222",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5216",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5213"
-              ],
-              "centroid": [
-                545.04,
-                34.92
-              ],
-              "buffer": "T19Y2__R3_BUF_0",
-              "buffer_pos": [
-                539.06,
-                34.92
+                456.26,
+                56.68
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             },
             {
               "level": 3,
-              "parent": "T19Y2__R1_BUF_0",
+              "parent": "T17Y3__R1_BUF_0",
               "sinks": [
-                "T18Y2__R1_DFBBP_0",
-                "T18Y2__R3_DFBBP_0",
-                "T18Y3__R1_DFBBP_0"
+                "T16Y0__R3_DFBBP_0",
+                "T16Y1__R3_DFBBP_0",
+                "T16Y2__R3_DFBBP_0"
               ],
               "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4909",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4911",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4913"
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5139",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5208",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4938"
               ],
               "centroid": [
-                517.44,
-                34.92
+                462.24,
+                24.040000000000003
               ],
-              "buffer": "T18Y2__R3_BUF_0",
+              "buffer": "T16Y1__R3_BUF_0",
               "buffer_pos": [
-                511.46,
-                34.92
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T19Y2__R1_BUF_0",
-              "sinks": [
-                "T18Y0__R1_DFBBP_0",
-                "T18Y0__R3_DFBBP_0",
-                "T18Y1__R1_DFBBP_0",
-                "T18Y1__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4912",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4910",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4908",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$4907"
-              ],
-              "centroid": [
-                517.44,
-                15.88
-              ],
-              "buffer": "T18Y1__R0_BUF_0",
-              "buffer_pos": [
-                511.0,
-                15.88
-              ],
-              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
-            },
-            {
-              "level": 3,
-              "parent": "T19Y2__R1_BUF_0",
-              "sinks": [
-                "T19Y1__R1_DFBBP_0",
-                "T19Y1__R3_DFBBP_0"
-              ],
-              "sink_logical_names": [
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5232",
-                "$flatten\\CPU.$auto$ff.cc:266:slice$5230"
-              ],
-              "centroid": [
-                545.04,
-                21.32
-              ],
-              "buffer": "T19Y1__R3_BUF_0",
-              "buffer_pos": [
-                539.06,
+                456.26,
                 24.04
               ],
               "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T17Y3__R1_BUF_0",
+              "sinks": [
+                "T17Y1__R1_DFBBP_0",
+                "T17Y2__R1_DFBBP_0",
+                "T17Y3__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4106",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4109",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4110"
+              ],
+              "centroid": [
+                489.84,
+                29.48
+              ],
+              "buffer": "T17Y2__R0_BUF_0",
+              "buffer_pos": [
+                483.4,
+                26.76
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
             }
           ],
           "buffer_pos": [
-            536.3,
-            29.48
+            481.1,
+            40.36
+          ],
+          "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+        },
+        {
+          "level": 2,
+          "parent": "T17Y5__R3_BUF_0",
+          "centroid": [
+            517.44,
+            41.266666666666666
+          ],
+          "buffer": "T18Y3__R0_BUF_0",
+          "children": [
+            {
+              "level": 3,
+              "parent": "T18Y3__R0_BUF_0",
+              "sinks": [
+                "T18Y3__R3_DFBBP_0",
+                "T18Y4__R3_DFBBP_0",
+                "T18Y5__R1_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4914",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5206",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5143"
+              ],
+              "centroid": [
+                517.44,
+                54.86666666666667
+              ],
+              "buffer": "T18Y4__R3_BUF_0",
+              "buffer_pos": [
+                511.46,
+                56.68
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            },
+            {
+              "level": 3,
+              "parent": "T18Y3__R0_BUF_0",
+              "sinks": [
+                "T18Y1__R1_DFBBP_0",
+                "T18Y2__R1_DFBBP_0",
+                "T18Y2__R3_DFBBP_0"
+              ],
+              "sink_logical_names": [
+                "$flatten\\CPU.$auto$ff.cc:266:slice$5153",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4909",
+                "$flatten\\CPU.$auto$ff.cc:266:slice$4911"
+              ],
+              "centroid": [
+                517.44,
+                27.666666666666668
+              ],
+              "buffer": "T18Y2__R0_BUF_0",
+              "buffer_pos": [
+                511.0,
+                26.76
+              ],
+              "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
+            }
+          ],
+          "buffer_pos": [
+            511.0,
+            37.64
           ],
           "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
         }
       ],
       "buffer_pos": [
-        511.46,
-        45.8
+        483.86,
+        67.56
       ],
       "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
     }
   ],
   "buffer_pos": [
-    483.4,
-    81.16
+    455.8,
+    102.92
   ],
   "buffer_type": "sky130_fd_sc_hd__clkbuf_4"
 }
