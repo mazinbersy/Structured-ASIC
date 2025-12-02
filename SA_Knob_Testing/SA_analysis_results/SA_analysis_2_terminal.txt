@@ -1,0 +1,599 @@
+mostafa@Mostafas-Macbook-Pro Structured-ASIC % /Users/mostafa/.pyenv/versions/3.10.13/bin/python "/Users/mostafa/Desktop/DD II/Structured-ASIC/HPWL_Analysis2.py"
+Loading inputs...
+Processed 11 cell definitions
+Mapped 49 template names to cell types
+Computing greedy placement...
+Greedy HPWL = 466403.70
+[RUN] T0=25.0, refine=0.25, seed=0
+  T=  11.80 | Current HPWL: 441334.10 | Best: 441308.86 | Accept:  67.0%
+  T=   5.13 | Current HPWL: 423543.74 | Best: 423543.74 | Accept:  54.0%
+  T=   2.23 | Current HPWL: 407911.17 | Best: 407910.17 | Accept:  54.0%
+  T=   0.97 | Current HPWL: 395291.04 | Best: 395291.04 | Accept:  44.5%
+  T=   0.42 | Current HPWL: 384052.85 | Best: 384052.85 | Accept:  42.0%
+  T=   0.18 | Current HPWL: 371710.36 | Best: 371710.36 | Accept:  42.5%
+  T=   0.08 | Current HPWL: 360932.73 | Best: 360932.73 | Accept:  37.0%
+  T=   0.03 | Current HPWL: 350488.39 | Best: 350488.39 | Accept:  41.0%
+  T=   0.01 | Current HPWL: 341248.19 | Best: 341248.19 | Accept:  41.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       337507.17 µm
+Improvement:      27.64%
+Total Iterations: 18800
+Accepted Moves:   8936 (47.5%)
+Rejected Moves:   9864 (52.5%)
+REFINE moves:     4812
+EXPLORE moves:    13988
+Improvements:     5232
+============================================================
+
+[RUN] T0=25.0, refine=0.25, seed=1
+  T=  11.80 | Current HPWL: 443933.41 | Best: 443914.21 | Accept:  66.5%
+  T=   5.13 | Current HPWL: 426028.78 | Best: 426028.78 | Accept:  59.0%
+  T=   2.23 | Current HPWL: 406912.73 | Best: 406912.73 | Accept:  49.5%
+  T=   0.97 | Current HPWL: 392525.13 | Best: 392525.13 | Accept:  53.5%
+  T=   0.42 | Current HPWL: 376025.87 | Best: 376025.87 | Accept:  42.5%
+  T=   0.18 | Current HPWL: 358982.51 | Best: 358982.51 | Accept:  45.0%
+  T=   0.08 | Current HPWL: 344012.36 | Best: 344012.36 | Accept:  43.0%
+  T=   0.03 | Current HPWL: 329861.15 | Best: 329861.15 | Accept:  35.0%
+  T=   0.01 | Current HPWL: 321979.92 | Best: 321979.92 | Accept:  43.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       317518.92 µm
+Improvement:      31.92%
+Total Iterations: 18800
+Accepted Moves:   9248 (49.2%)
+Rejected Moves:   9552 (50.8%)
+REFINE moves:     4714
+EXPLORE moves:    14086
+Improvements:     5381
+============================================================
+
+[RUN] T0=25.0, refine=0.25, seed=2
+  T=  11.80 | Current HPWL: 445290.22 | Best: 445290.22 | Accept:  66.5%
+  T=   5.13 | Current HPWL: 424535.24 | Best: 424535.24 | Accept:  63.0%
+  T=   2.23 | Current HPWL: 405946.40 | Best: 405946.40 | Accept:  49.0%
+  T=   0.97 | Current HPWL: 390496.40 | Best: 390496.40 | Accept:  50.5%
+  T=   0.42 | Current HPWL: 375796.10 | Best: 375796.10 | Accept:  51.0%
+  T=   0.18 | Current HPWL: 362233.52 | Best: 362233.52 | Accept:  43.5%
+  T=   0.08 | Current HPWL: 350569.12 | Best: 350569.12 | Accept:  38.5%
+  T=   0.03 | Current HPWL: 339690.72 | Best: 339690.72 | Accept:  36.0%
+  T=   0.01 | Current HPWL: 327474.51 | Best: 327474.51 | Accept:  34.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       324327.21 µm
+Improvement:      30.46%
+Total Iterations: 18800
+Accepted Moves:   9133 (48.6%)
+Rejected Moves:   9667 (51.4%)
+REFINE moves:     4802
+EXPLORE moves:    13998
+Improvements:     5306
+============================================================
+
+[RUN] T0=25.0, refine=0.50, seed=0
+  T=  11.80 | Current HPWL: 449431.83 | Best: 449431.83 | Accept:  45.0%
+  T=   5.13 | Current HPWL: 431959.37 | Best: 431959.37 | Accept:  33.5%
+  T=   2.23 | Current HPWL: 415930.47 | Best: 415930.47 | Accept:  41.0%
+  T=   0.97 | Current HPWL: 399192.13 | Best: 399192.13 | Accept:  34.0%
+  T=   0.42 | Current HPWL: 379504.07 | Best: 379504.07 | Accept:  30.5%
+  T=   0.18 | Current HPWL: 363709.55 | Best: 363709.55 | Accept:  27.0%
+  T=   0.08 | Current HPWL: 348705.56 | Best: 348705.56 | Accept:  32.0%
+  T=   0.03 | Current HPWL: 335828.20 | Best: 335828.20 | Accept:  29.5%
+  T=   0.01 | Current HPWL: 325048.02 | Best: 325048.02 | Accept:  29.5%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       320751.04 µm
+Improvement:      31.23%
+Total Iterations: 18800
+Accepted Moves:   6494 (34.5%)
+Rejected Moves:   12306 (65.5%)
+REFINE moves:     9435
+EXPLORE moves:    9365
+Improvements:     4021
+============================================================
+
+[RUN] T0=25.0, refine=0.50, seed=1
+  T=  11.80 | Current HPWL: 450776.86 | Best: 450776.86 | Accept:  46.5%
+  T=   5.13 | Current HPWL: 432063.97 | Best: 432063.97 | Accept:  42.0%
+  T=   2.23 | Current HPWL: 416825.40 | Best: 416825.40 | Accept:  37.5%
+  T=   0.97 | Current HPWL: 399583.47 | Best: 399583.47 | Accept:  38.0%
+  T=   0.42 | Current HPWL: 383184.72 | Best: 383184.72 | Accept:  36.5%
+  T=   0.18 | Current HPWL: 367220.21 | Best: 367220.21 | Accept:  28.0%
+  T=   0.08 | Current HPWL: 352012.11 | Best: 352012.11 | Accept:  25.0%
+  T=   0.03 | Current HPWL: 338854.95 | Best: 338854.95 | Accept:  31.0%
+  T=   0.01 | Current HPWL: 328372.85 | Best: 328372.85 | Accept:  29.5%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       324477.95 µm
+Improvement:      30.43%
+Total Iterations: 18800
+Accepted Moves:   6652 (35.4%)
+Rejected Moves:   12148 (64.6%)
+REFINE moves:     9235
+EXPLORE moves:    9565
+Improvements:     4127
+============================================================
+
+[RUN] T0=25.0, refine=0.50, seed=2
+  T=  11.80 | Current HPWL: 447945.99 | Best: 447945.99 | Accept:  44.5%
+  T=   5.13 | Current HPWL: 428148.42 | Best: 428148.42 | Accept:  36.0%
+  T=   2.23 | Current HPWL: 409406.15 | Best: 409406.15 | Accept:  36.5%
+  T=   0.97 | Current HPWL: 391661.16 | Best: 391661.16 | Accept:  32.5%
+  T=   0.42 | Current HPWL: 374818.13 | Best: 374818.13 | Accept:  35.0%
+  T=   0.18 | Current HPWL: 358003.71 | Best: 358003.71 | Accept:  34.5%
+  T=   0.08 | Current HPWL: 345784.09 | Best: 345784.09 | Accept:  33.5%
+  T=   0.03 | Current HPWL: 330541.22 | Best: 330541.22 | Accept:  25.5%
+  T=   0.01 | Current HPWL: 318990.51 | Best: 318990.51 | Accept:  34.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       315793.55 µm
+Improvement:      32.29%
+Total Iterations: 18800
+Accepted Moves:   6493 (34.5%)
+Rejected Moves:   12307 (65.5%)
+REFINE moves:     9434
+EXPLORE moves:    9366
+Improvements:     4044
+============================================================
+
+[RUN] T0=25.0, refine=0.70, seed=0
+^CTraceback (most recent call last):
+  File "/Users/mostafa/Desktop/DD II/Structured-ASIC/HPWL_Analysis2.py", line 121, in <module>
+    best_place, stats = simulated_annealing(
+  File "/Users/mostafa/Desktop/DD II/Structured-ASIC/optimized.py", line 262, in simulated_annealing
+    move_type, move_data = generate_move(current_placement, fabric_db, logical_db, netlist_graph, config)
+  File "/Users/mostafa/Desktop/DD II/Structured-ASIC/optimized.py", line 150, in generate_move
+    move_data = explore_move(placement_dict, fabric_db, logical_db, netlist_graph)
+  File "/Users/mostafa/Desktop/DD II/Structured-ASIC/optimized.py", line 121, in explore_move
+    available_sorted = sorted(available, key=distance)
+KeyboardInterrupt
+/Users/mostafa/.pyenv/versions/3.10.13/bin/python "/Users/mostafa/Desktop/DD II/Structured-ASIC/HPWL_Analysis2.py"
+
+mostafa@Mostafas-Macbook-Pro Structured-ASIC % /Users/mostafa/.pyenv/versions/3.10.13/bin/python "/Users/mostafa/Desktop/DD II/Structured-ASIC/HPWL_Analysis2.py"
+Loading inputs...
+Processed 11 cell definitions
+Mapped 49 template names to cell types
+Computing greedy placement...
+Greedy HPWL = 466403.70
+[RUN] T0=25.0, refine=0.25, seed=0
+  T=  11.80 | Current HPWL: 445316.71 | Best: 445316.71 | Accept:  66.5%
+  T=   5.13 | Current HPWL: 423693.78 | Best: 423693.78 | Accept:  62.5%
+  T=   2.23 | Current HPWL: 406051.91 | Best: 406051.91 | Accept:  55.5%
+  T=   0.97 | Current HPWL: 385920.92 | Best: 385920.92 | Accept:  44.5%
+  T=   0.42 | Current HPWL: 370471.92 | Best: 370471.92 | Accept:  37.0%
+  T=   0.18 | Current HPWL: 353006.94 | Best: 353006.94 | Accept:  50.0%
+  T=   0.08 | Current HPWL: 340045.78 | Best: 340045.78 | Accept:  39.0%
+  T=   0.03 | Current HPWL: 325730.51 | Best: 325730.51 | Accept:  42.0%
+  T=   0.01 | Current HPWL: 313577.04 | Best: 313577.04 | Accept:  43.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       309503.62 µm
+Improvement:      33.64%
+Total Iterations: 18800
+Accepted Moves:   9193 (48.9%)
+Rejected Moves:   9607 (51.1%)
+REFINE moves:     4759
+EXPLORE moves:    14041
+Improvements:     5367
+============================================================
+
+[RUN] T0=25.0, refine=0.50, seed=0
+  T=  11.80 | Current HPWL: 448581.27 | Best: 448580.81 | Accept:  41.5%
+  T=   5.13 | Current HPWL: 432190.22 | Best: 432190.22 | Accept:  38.5%
+  T=   2.23 | Current HPWL: 413648.06 | Best: 413648.06 | Accept:  39.0%
+  T=   0.97 | Current HPWL: 399829.40 | Best: 399829.40 | Accept:  28.0%
+  T=   0.42 | Current HPWL: 387326.65 | Best: 387326.65 | Accept:  27.5%
+  T=   0.18 | Current HPWL: 372705.61 | Best: 372705.61 | Accept:  36.0%
+  T=   0.08 | Current HPWL: 357301.93 | Best: 357301.93 | Accept:  28.5%
+  T=   0.03 | Current HPWL: 344172.03 | Best: 344172.03 | Accept:  38.5%
+  T=   0.01 | Current HPWL: 332214.95 | Best: 332214.95 | Accept:  29.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       327605.31 µm
+Improvement:      29.76%
+Total Iterations: 18800
+Accepted Moves:   6502 (34.6%)
+Rejected Moves:   12298 (65.4%)
+REFINE moves:     9451
+EXPLORE moves:    9349
+Improvements:     4080
+============================================================
+
+[RUN] T0=25.0, refine=0.70, seed=0
+  T=  11.80 | Current HPWL: 453906.91 | Best: 453906.91 | Accept:  30.5%
+  T=   5.13 | Current HPWL: 440106.87 | Best: 440106.87 | Accept:  23.5%
+  T=   2.23 | Current HPWL: 423802.00 | Best: 423802.00 | Accept:  27.0%
+  T=   0.97 | Current HPWL: 408994.38 | Best: 408994.38 | Accept:  21.0%
+  T=   0.42 | Current HPWL: 392754.29 | Best: 392754.29 | Accept:  21.0%
+  T=   0.18 | Current HPWL: 378972.47 | Best: 378972.47 | Accept:  20.0%
+  T=   0.08 | Current HPWL: 368015.61 | Best: 368015.57 | Accept:  20.5%
+  T=   0.03 | Current HPWL: 358574.33 | Best: 358574.33 | Accept:  23.5%
+  T=   0.01 | Current HPWL: 350947.93 | Best: 350947.93 | Accept:  14.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       346615.69 µm
+Improvement:      25.68%
+Total Iterations: 18800
+Accepted Moves:   4377 (23.3%)
+Rejected Moves:   14423 (76.7%)
+REFINE moves:     13219
+EXPLORE moves:    5581
+Improvements:     2864
+============================================================
+
+[RUN] T0=25.0, refine=0.85, seed=0
+  T=  11.80 | Current HPWL: 459344.40 | Best: 459344.40 | Accept:  18.0%
+  T=   5.13 | Current HPWL: 449987.16 | Best: 449987.16 | Accept:  11.5%
+  T=   2.23 | Current HPWL: 438522.79 | Best: 438522.79 | Accept:  15.0%
+  T=   0.97 | Current HPWL: 427036.70 | Best: 427036.70 | Accept:  11.5%
+  T=   0.42 | Current HPWL: 418250.72 | Best: 418250.72 | Accept:  13.0%
+  T=   0.18 | Current HPWL: 408777.43 | Best: 408777.43 | Accept:  14.5%
+  T=   0.08 | Current HPWL: 399624.29 | Best: 399624.29 | Accept:  15.0%
+  T=   0.03 | Current HPWL: 393311.70 | Best: 393311.70 | Accept:  13.0%
+  T=   0.01 | Current HPWL: 385738.77 | Best: 385738.77 | Accept:  13.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       383393.97 µm
+Improvement:      17.80%
+Total Iterations: 18800
+Accepted Moves:   2588 (13.8%)
+Rejected Moves:   16212 (86.2%)
+REFINE moves:     15973
+EXPLORE moves:    2827
+Improvements:     1831
+============================================================
+
+[RUN] T0=50.0, refine=0.25, seed=0
+  T=  23.61 | Current HPWL: 445497.56 | Best: 445482.88 | Accept:  69.5%
+  T=  10.26 | Current HPWL: 426379.65 | Best: 426379.19 | Accept:  62.0%
+  T=   4.45 | Current HPWL: 413179.95 | Best: 413179.95 | Accept:  58.5%
+  T=   1.94 | Current HPWL: 398631.36 | Best: 398631.36 | Accept:  46.5%
+  T=   0.84 | Current HPWL: 382709.04 | Best: 382709.04 | Accept:  41.0%
+  T=   0.37 | Current HPWL: 367888.90 | Best: 367888.90 | Accept:  43.0%
+  T=   0.16 | Current HPWL: 353674.11 | Best: 353674.11 | Accept:  39.0%
+  T=   0.07 | Current HPWL: 340350.13 | Best: 340350.13 | Accept:  42.0%
+  T=   0.03 | Current HPWL: 326126.19 | Best: 326126.19 | Accept:  42.5%
+  T=   0.01 | Current HPWL: 315876.93 | Best: 315876.93 | Accept:  35.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       313093.53 µm
+Improvement:      32.87%
+Total Iterations: 20600
+Accepted Moves:   10370 (50.3%)
+Rejected Moves:   10230 (49.7%)
+REFINE moves:     5111
+EXPLORE moves:    15489
+Improvements:     5957
+============================================================
+
+[RUN] T0=50.0, refine=0.50, seed=0
+  T=  23.61 | Current HPWL: 449467.73 | Best: 449467.73 | Accept:  45.5%
+  T=  10.26 | Current HPWL: 428053.41 | Best: 428053.41 | Accept:  48.5%
+  T=   4.45 | Current HPWL: 407134.77 | Best: 407134.77 | Accept:  42.0%
+  T=   1.94 | Current HPWL: 388926.20 | Best: 388923.48 | Accept:  39.0%
+  T=   0.84 | Current HPWL: 374118.21 | Best: 374118.21 | Accept:  27.5%
+  T=   0.37 | Current HPWL: 357948.41 | Best: 357948.41 | Accept:  33.5%
+  T=   0.16 | Current HPWL: 345061.72 | Best: 345061.72 | Accept:  30.0%
+  T=   0.07 | Current HPWL: 335194.47 | Best: 335194.47 | Accept:  28.5%
+  T=   0.03 | Current HPWL: 323862.97 | Best: 323862.97 | Accept:  30.0%
+  T=   0.01 | Current HPWL: 314050.73 | Best: 314050.73 | Accept:  28.5%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       311730.41 µm
+Improvement:      33.16%
+Total Iterations: 20600
+Accepted Moves:   7249 (35.2%)
+Rejected Moves:   13351 (64.8%)
+REFINE moves:     10386
+EXPLORE moves:    10214
+Improvements:     4300
+============================================================
+
+[RUN] T0=50.0, refine=0.70, seed=0
+  T=  23.61 | Current HPWL: 457154.00 | Best: 457154.00 | Accept:  32.0%
+  T=  10.26 | Current HPWL: 441892.67 | Best: 441892.67 | Accept:  30.0%
+  T=   4.45 | Current HPWL: 424794.46 | Best: 424794.46 | Accept:  26.5%
+  T=   1.94 | Current HPWL: 407074.28 | Best: 407074.28 | Accept:  18.5%
+  T=   0.84 | Current HPWL: 391893.85 | Best: 391893.85 | Accept:  22.5%
+  T=   0.37 | Current HPWL: 379388.99 | Best: 379388.99 | Accept:  16.0%
+  T=   0.16 | Current HPWL: 368589.90 | Best: 368589.90 | Accept:  23.5%
+  T=   0.07 | Current HPWL: 354895.62 | Best: 354895.62 | Accept:  22.0%
+  T=   0.03 | Current HPWL: 345379.24 | Best: 345379.24 | Accept:  14.0%
+  T=   0.01 | Current HPWL: 336766.00 | Best: 336766.00 | Accept:  19.5%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       334368.07 µm
+Improvement:      28.31%
+Total Iterations: 20600
+Accepted Moves:   4772 (23.2%)
+Rejected Moves:   15828 (76.8%)
+REFINE moves:     14392
+EXPLORE moves:    6208
+Improvements:     3044
+============================================================
+
+[RUN] T0=50.0, refine=0.85, seed=0
+  T=  23.61 | Current HPWL: 458410.46 | Best: 458390.74 | Accept:  18.0%
+  T=  10.26 | Current HPWL: 446117.66 | Best: 446117.20 | Accept:  11.5%
+  T=   4.45 | Current HPWL: 432930.78 | Best: 432930.78 | Accept:  16.0%
+  T=   1.94 | Current HPWL: 423573.04 | Best: 423573.04 | Accept:  15.5%
+  T=   0.84 | Current HPWL: 411211.16 | Best: 411211.16 | Accept:   9.5%
+  T=   0.37 | Current HPWL: 402543.06 | Best: 402543.06 | Accept:  12.5%
+  T=   0.16 | Current HPWL: 394683.39 | Best: 394683.39 | Accept:  12.0%
+  T=   0.07 | Current HPWL: 385169.67 | Best: 385169.67 | Accept:  12.0%
+  T=   0.03 | Current HPWL: 377803.71 | Best: 377803.71 | Accept:  10.0%
+  T=   0.01 | Current HPWL: 367387.11 | Best: 367387.11 | Accept:   8.5%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       364559.39 µm
+Improvement:      21.84%
+Total Iterations: 20600
+Accepted Moves:   2909 (14.1%)
+Rejected Moves:   17691 (85.9%)
+REFINE moves:     17596
+EXPLORE moves:    3004
+Improvements:     1991
+============================================================
+
+[RUN] T0=100.0, refine=0.25, seed=0
+  T=  47.22 | Current HPWL: 449253.32 | Best: 449250.60 | Accept:  69.0%
+  T=  20.51 | Current HPWL: 428238.75 | Best: 428238.75 | Accept:  68.5%
+  T=   8.91 | Current HPWL: 411117.35 | Best: 411117.35 | Accept:  62.5%
+  T=   3.87 | Current HPWL: 393918.83 | Best: 393918.83 | Accept:  58.5%
+  T=   1.68 | Current HPWL: 376654.27 | Best: 376654.27 | Accept:  54.0%
+  T=   0.73 | Current HPWL: 360991.29 | Best: 360991.29 | Accept:  53.5%
+  T=   0.32 | Current HPWL: 346105.01 | Best: 346105.01 | Accept:  41.0%
+  T=   0.14 | Current HPWL: 333187.65 | Best: 333187.65 | Accept:  42.5%
+  T=   0.06 | Current HPWL: 320652.79 | Best: 320652.79 | Accept:  44.5%
+  T=   0.03 | Current HPWL: 309008.27 | Best: 309008.27 | Accept:  40.0%
+  T=   0.01 | Current HPWL: 298610.49 | Best: 298610.49 | Accept:  30.5%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       298030.05 µm
+Improvement:      36.10%
+Total Iterations: 22200
+Accepted Moves:   11611 (52.3%)
+Rejected Moves:   10589 (47.7%)
+REFINE moves:     5454
+EXPLORE moves:    16746
+Improvements:     6540
+============================================================
+
+[RUN] T0=100.0, refine=0.50, seed=0
+  T=  47.22 | Current HPWL: 453227.97 | Best: 453225.25 | Accept:  45.5%
+  T=  20.51 | Current HPWL: 427636.75 | Best: 427636.75 | Accept:  52.0%
+  T=   8.91 | Current HPWL: 407811.57 | Best: 407751.71 | Accept:  43.5%
+  T=   3.87 | Current HPWL: 389047.34 | Best: 389047.34 | Accept:  38.0%
+  T=   1.68 | Current HPWL: 372159.77 | Best: 372159.77 | Accept:  36.0%
+  T=   0.73 | Current HPWL: 358550.81 | Best: 358550.81 | Accept:  26.5%
+  T=   0.32 | Current HPWL: 343815.87 | Best: 343815.87 | Accept:  25.0%
+  T=   0.14 | Current HPWL: 331107.11 | Best: 331107.11 | Accept:  28.0%
+  T=   0.06 | Current HPWL: 320452.23 | Best: 320452.23 | Accept:  26.5%
+  T=   0.03 | Current HPWL: 312401.03 | Best: 312401.03 | Accept:  29.5%
+  T=   0.01 | Current HPWL: 305531.25 | Best: 305531.25 | Accept:  24.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       304945.89 µm
+Improvement:      34.62%
+Total Iterations: 22200
+Accepted Moves:   8142 (36.7%)
+Rejected Moves:   14058 (63.3%)
+REFINE moves:     10997
+EXPLORE moves:    11203
+Improvements:     4858
+============================================================
+
+[RUN] T0=100.0, refine=0.70, seed=0
+  T=  47.22 | Current HPWL: 456733.55 | Best: 456733.55 | Accept:  31.0%
+  T=  20.51 | Current HPWL: 442087.10 | Best: 442084.96 | Accept:  31.0%
+  T=   8.91 | Current HPWL: 421652.56 | Best: 421652.56 | Accept:  31.0%
+  T=   3.87 | Current HPWL: 403269.06 | Best: 403269.06 | Accept:  22.5%
+  T=   1.68 | Current HPWL: 392165.09 | Best: 392165.09 | Accept:  23.0%
+  T=   0.73 | Current HPWL: 378420.97 | Best: 378420.97 | Accept:  23.5%
+  T=   0.32 | Current HPWL: 363793.50 | Best: 363793.50 | Accept:  30.5%
+  T=   0.14 | Current HPWL: 349929.68 | Best: 349929.68 | Accept:  18.5%
+  T=   0.06 | Current HPWL: 341478.62 | Best: 341478.62 | Accept:  22.5%
+  T=   0.03 | Current HPWL: 332943.36 | Best: 332943.36 | Accept:  19.5%
+  T=   0.01 | Current HPWL: 325572.87 | Best: 325572.87 | Accept:  17.5%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       324959.23 µm
+Improvement:      30.33%
+Total Iterations: 22200
+Accepted Moves:   5432 (24.5%)
+Rejected Moves:   16768 (75.5%)
+REFINE moves:     15578
+EXPLORE moves:    6622
+Improvements:     3395
+============================================================
+
+[RUN] T0=100.0, refine=0.85, seed=0
+  T=  47.22 | Current HPWL: 463134.97 | Best: 463081.01 | Accept:  19.5%
+  T=  20.51 | Current HPWL: 446906.57 | Best: 446906.57 | Accept:  20.0%
+  T=   8.91 | Current HPWL: 435104.49 | Best: 435104.49 | Accept:  16.0%
+  T=   3.87 | Current HPWL: 424486.19 | Best: 424486.19 | Accept:  13.0%
+  T=   1.68 | Current HPWL: 410154.64 | Best: 410154.64 | Accept:  12.0%
+  T=   0.73 | Current HPWL: 399361.51 | Best: 399361.51 | Accept:  14.0%
+  T=   0.32 | Current HPWL: 390818.07 | Best: 390818.07 | Accept:  13.0%
+  T=   0.14 | Current HPWL: 382421.03 | Best: 382421.03 | Accept:  12.0%
+  T=   0.06 | Current HPWL: 375875.95 | Best: 375875.95 | Accept:  10.0%
+  T=   0.03 | Current HPWL: 368774.77 | Best: 368774.77 | Accept:   8.5%
+  T=   0.01 | Current HPWL: 360087.29 | Best: 360087.29 | Accept:  14.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       359687.67 µm
+Improvement:      22.88%
+Total Iterations: 22200
+Accepted Moves:   3420 (15.4%)
+Rejected Moves:   18780 (84.6%)
+REFINE moves:     18722
+EXPLORE moves:    3478
+Improvements:     2290
+============================================================
+
+[RUN] T0=200.0, refine=0.25, seed=0
+  T=  94.43 | Current HPWL: 446841.03 | Best: 446841.03 | Accept:  77.0%
+  T=  41.02 | Current HPWL: 428413.74 | Best: 428413.74 | Accept:  71.0%
+  T=  17.82 | Current HPWL: 402897.43 | Best: 402897.43 | Accept:  65.5%
+  T=   7.74 | Current HPWL: 381436.43 | Best: 381436.43 | Accept:  57.5%
+  T=   3.36 | Current HPWL: 360102.37 | Best: 360102.37 | Accept:  55.5%
+  T=   1.46 | Current HPWL: 343283.24 | Best: 343283.24 | Accept:  47.5%
+  T=   0.63 | Current HPWL: 329313.30 | Best: 329313.30 | Accept:  43.5%
+  T=   0.28 | Current HPWL: 317515.25 | Best: 317515.25 | Accept:  43.0%
+  T=   0.12 | Current HPWL: 306646.63 | Best: 306646.63 | Accept:  41.0%
+  T=   0.05 | Current HPWL: 297032.27 | Best: 297032.27 | Accept:  38.0%
+  T=   0.02 | Current HPWL: 289206.20 | Best: 289206.20 | Accept:  32.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       284722.10 µm
+Improvement:      38.95%
+Total Iterations: 23800
+Accepted Moves:   12427 (52.2%)
+Rejected Moves:   11373 (47.8%)
+REFINE moves:     5948
+EXPLORE moves:    17852
+Improvements:     6759
+============================================================
+
+[RUN] T0=200.0, refine=0.50, seed=0
+  T=  94.43 | Current HPWL: 460111.87 | Best: 460102.87 | Accept:  55.0%
+  T=  41.02 | Current HPWL: 438975.57 | Best: 438972.85 | Accept:  46.5%
+  T=  17.82 | Current HPWL: 415136.66 | Best: 415136.66 | Accept:  41.5%
+  T=   7.74 | Current HPWL: 394572.06 | Best: 394572.06 | Accept:  37.5%
+  T=   3.36 | Current HPWL: 372810.21 | Best: 372810.21 | Accept:  40.0%
+  T=   1.46 | Current HPWL: 355841.94 | Best: 355841.94 | Accept:  38.0%
+  T=   0.63 | Current HPWL: 340532.66 | Best: 340532.66 | Accept:  33.0%
+  T=   0.28 | Current HPWL: 327326.76 | Best: 327326.76 | Accept:  32.0%
+  T=   0.12 | Current HPWL: 317636.67 | Best: 317636.67 | Accept:  33.5%
+  T=   0.05 | Current HPWL: 308415.83 | Best: 308415.83 | Accept:  25.0%
+  T=   0.02 | Current HPWL: 300541.59 | Best: 300541.59 | Accept:  21.0%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       294570.65 µm
+Improvement:      36.84%
+Total Iterations: 23800
+Accepted Moves:   9038 (38.0%)
+Rejected Moves:   14762 (62.0%)
+REFINE moves:     11879
+EXPLORE moves:    11921
+Improvements:     5274
+============================================================
+
+[RUN] T0=200.0, refine=0.70, seed=0
+  T=  94.43 | Current HPWL: 464958.89 | Best: 464689.55 | Accept:  39.5%
+  T=  41.02 | Current HPWL: 449034.23 | Best: 449034.23 | Accept:  30.0%
+  T=  17.82 | Current HPWL: 429516.15 | Best: 429516.15 | Accept:  26.0%
+  T=   7.74 | Current HPWL: 404982.45 | Best: 404982.45 | Accept:  26.0%
+  T=   3.36 | Current HPWL: 386469.39 | Best: 386469.39 | Accept:  23.5%
+  T=   1.46 | Current HPWL: 369693.02 | Best: 369693.02 | Accept:  21.0%
+  T=   0.63 | Current HPWL: 352753.22 | Best: 352753.22 | Accept:  19.5%
+  T=   0.28 | Current HPWL: 338520.82 | Best: 338520.82 | Accept:  22.5%
+  T=   0.12 | Current HPWL: 325249.98 | Best: 325249.98 | Accept:  20.0%
+  T=   0.05 | Current HPWL: 313752.34 | Best: 313752.34 | Accept:  21.0%
+  T=   0.02 | Current HPWL: 305470.12 | Best: 305470.12 | Accept:  13.5%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       296433.92 µm
+Improvement:      36.44%
+Total Iterations: 23800
+Accepted Moves:   6094 (25.6%)
+Rejected Moves:   17706 (74.4%)
+REFINE moves:     16746
+EXPLORE moves:    7054
+Improvements:     3765
+============================================================
+
+[RUN] T0=200.0, refine=0.85, seed=0
+  T=  94.43 | Current HPWL: 476935.88 | Best: 466370.02 | Accept:  26.5%
+  T=  41.02 | Current HPWL: 462795.86 | Best: 462785.82 | Accept:  21.5%
+  T=  17.82 | Current HPWL: 448635.39 | Best: 448635.39 | Accept:  20.5%
+  T=   7.74 | Current HPWL: 434451.25 | Best: 434451.25 | Accept:  18.5%
+  T=   3.36 | Current HPWL: 419865.21 | Best: 419861.07 | Accept:  18.5%
+  T=   1.46 | Current HPWL: 406059.04 | Best: 406059.04 | Accept:  17.5%
+  T=   0.63 | Current HPWL: 391083.06 | Best: 391083.06 | Accept:   8.0%
+  T=   0.28 | Current HPWL: 381295.83 | Best: 381295.83 | Accept:  13.0%
+  T=   0.12 | Current HPWL: 372794.06 | Best: 372794.06 | Accept:  11.5%
+  T=   0.05 | Current HPWL: 363340.16 | Best: 363340.16 | Accept:   7.5%
+  T=   0.02 | Current HPWL: 354940.28 | Best: 354940.28 | Accept:  13.5%
+
+============================================================
+OPTIMIZATION COMPLETE
+============================================================
+Initial HPWL:     466403.70 µm
+Final HPWL:       349277.90 µm
+Improvement:      25.11%
+Total Iterations: 23800
+Accepted Moves:   3912 (16.4%)
+Rejected Moves:   19888 (83.6%)
+REFINE moves:     20249
+EXPLORE moves:    3551
+Improvements:     2543
+============================================================
+
+
+Full sweep finished!
+Results saved to: build/refine_temp_experiments/sa_refine_temp_results.csv
+mostafa@Mostafas-Macbook-Pro Structured-ASIC % 

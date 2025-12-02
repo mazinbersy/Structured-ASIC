@@ -5,3 +5,4 @@ build/window_cooling_experiments
 
 __pycache__/
 .DS_Store
+.venv/
