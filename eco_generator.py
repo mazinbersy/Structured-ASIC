@@ -259,13 +259,15 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
         try:
             if verbose:
                 print("  Running renamer to apply fabric names to final netlist...")
+            
+            renamed_verilog_file = os.path.join(output_dir, f"{design_name}_renamed.v")
             cmd = [
-                sys.executable, "tools/rename_verilog_cells.py",
+                sys.executable, "tools/rename.py",
                 "--verilog", verilog_file,
                 "--placement", cts_placement_file,
-                "--output", verilog_file
+                "--output", renamed_verilog_file
             ]
-            # Run the script; allow it to overwrite the file
+            # Run the script to create the renamed file
             proc = subprocess.run(cmd, capture_output=not verbose, text=True)
             if proc.returncode != 0:
                 print("Warning: renamer script exited with non-zero status")
@@ -274,10 +276,10 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
                     print(proc.stderr)
             else:
                 if verbose:
-                    print("  Renamer completed; final netlist updated with fabric names.")
+                    print(f"  Renamer completed; output: {renamed_verilog_file}")
 
             # Read back renamed netlist into memory
-            with open(verilog_file, 'r') as f:
+            with open(renamed_verilog_file, 'r') as f:
                 final_verilog = f.read()
 
         except Exception as e:
@@ -332,7 +334,9 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
         print("=" * 70)
         print()
         print("Outputs:")
-        print(f"  - {verilog_file}")
+        print(f"  - {verilog_file} (un-renamed)")
+        renamed_verilog_file = os.path.join(output_dir, f"{design_name}_renamed.v")
+        print(f"  - {renamed_verilog_file} (fabric-named instances)")
         print(f"  - {cts_png}")
         print(f"  - {os.path.join(output_dir, 'eco_report.txt')}")
         print()
