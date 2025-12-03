@@ -262,7 +262,7 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
             
             renamed_verilog_file = os.path.join(output_dir, f"{design_name}_renamed.v")
             cmd = [
-                sys.executable, "tools/rename_verilog_cells.py",
+                sys.executable, "tools/rename.py",
                 "--verilog", verilog_file,
                 "--placement", cts_placement_file,
                 "--output", renamed_verilog_file
