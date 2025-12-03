@@ -22,8 +22,8 @@ import copy
 from typing import Dict, Any, Tuple
 
 # Import local modules
-from cts_htree import HTreeCTS
-from power_down import run_power_down_eco_from_sources
+from cts_htree import HTreeCTS, parse_placement_map
+from power_down import run_power_down_eco, load_placement_mapping
 from visualization.cts_overlay import plot_cts_tree_overlay
 from build_fabric_db import build_fabric_db
 from parse_design import parse_design_json
@@ -90,8 +90,6 @@ def generate_verilog_from_logical_db(logical_db: Dict[str, Any], design_name: st
 
         if connections:
             conn_str = ", ".join(connections)
-            # Use fabric name if available in placement_map, otherwise use original name
-            lines.append(f"  {cell_type} {cell_name} ({conn_str});")
             lines.append(f"  {cell_type} {cell_name} ({conn_str});")
 
     lines.append("")
@@ -101,14 +99,29 @@ def generate_verilog_from_logical_db(logical_db: Dict[str, Any], design_name: st
     return "\n".join(lines)
 
 
-def run_eco_generator(design_name: str, placement_file: str = None, output_dir: str = None, verbose: bool = True):
+def run_eco_generator(
+        io_ports: Dict,
+        fabric_cells: Dict,
+        fabric_db: Dict,
+        logical_db: Dict,
+        netlist_graph: Any,
+        placement_file: str,
+        output_dir: str,
+        design_name: str,
+        verbose: bool = True
+) -> Tuple[str, str]:
     """
     Run full ECO flow: CTS + Power-Down ECO + Verilog generation.
 
     Args:
+        io_ports: I/O port positions from placement
+        fabric_cells: Fabric cell info from placement
+        fabric_db: Pre-built fabric database
+        logical_db: Pre-built logical database
+        netlist_graph: Pre-built netlist graph
+        placement_file: Path to original placement.map file
+        output_dir: Output directory
         design_name: Design name (e.g., '6502')
-        placement_file: Path to placement.map (default: build/[design]/[design]_sa_optimized.map)
-        output_dir: Output directory (default: build/[design]/)
         verbose: Print progress messages
 
     Returns:
@@ -119,34 +132,6 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
         print(f"ECO GENERATOR: {design_name}")
         print("=" * 70)
         print()
-
-    # Setup paths
-    if output_dir is None:
-        output_dir = f"build/{design_name}"
-    os.makedirs(output_dir, exist_ok=True)
-
-    if placement_file is None:
-        # Try common placement file names
-        for candidate in [
-            f"{output_dir}/{design_name}_sa_optimized.map",
-            f"{output_dir}/{design_name}.map",
-            "placement_sa_optimized.map",
-            "placement.map"
-        ]:
-            if os.path.exists(candidate):
-                placement_file = candidate
-                break
-        if not placement_file:
-            print(f"Error: No placement file found. Please specify --placement")
-            return None, None
-
-    design_json = f"designs/{design_name}_mapped.json"
-    if not os.path.exists(design_json):
-        print(f"Error: Design JSON not found: {design_json}")
-        return None, None
-
-    if verbose:
-        print(f"Design: {design_name}")
         print(f"Placement: {placement_file}")
         print(f"Output directory: {output_dir}")
         print()
@@ -160,7 +145,9 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
         print("=" * 70)
 
     try:
-        cts = HTreeCTS(placement_file, design_json)
+        # Initialize CTS with pre-built databases and placement data
+        cts = HTreeCTS(io_ports, fabric_cells, fabric_db, logical_db, netlist_graph)
+
         cts.find_clock_net()
         cts.find_sinks()
         cts.find_resources()
@@ -199,12 +186,14 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
         print("=" * 70)
 
     try:
-        updated_logical_db, eco_report = run_power_down_eco_from_sources(
-            design_json=design_json,
-            fabric_cells_yaml="fabric/fabric_cells.yaml",
-            pins_yaml="fabric/pins.yaml",
-            fabric_def_yaml="fabric/fabric.yaml",
-            placement_map_file=cts_placement_file,
+        # Load placement mapping for ECO
+        placement_map = load_placement_mapping(cts_placement_file)
+
+        # Run ECO with pre-built databases
+        updated_logical_db, eco_report = run_power_down_eco(
+            logical_db=logical_db_cts,
+            fabric_db=fabric_db,
+            placement_map=placement_map,
             output_dir=output_dir,
             verbose=verbose
         )
@@ -227,7 +216,7 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
         print("STEP 3: Merging CTS and ECO modifications")
         print("=" * 70)
 
-    # Start from ECO-modified logical_db (which includes CTS buffers already added)
+    # The updated_logical_db from ECO already includes CTS buffers
     merged_logical_db = copy.deepcopy(updated_logical_db)
 
     if verbose:
@@ -245,7 +234,7 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
 
     try:
         final_verilog = generate_verilog_from_logical_db(merged_logical_db, design_name)
-        
+
         verilog_file = os.path.join(output_dir, f"{design_name}_final.v")
         with open(verilog_file, 'w') as f:
             f.write(final_verilog)
@@ -299,12 +288,6 @@ def run_eco_generator(design_name: str, placement_file: str = None, output_dir: 
         print("=" * 70)
 
     try:
-        fabric_db = build_fabric_db(
-            "fabric/fabric_cells.yaml",
-            "fabric/pins.yaml",
-            "fabric/fabric.yaml"
-        )
-
         cts_png = os.path.join(output_dir, f"{design_name}_cts_tree.png")
         plot_cts_tree_overlay(
             merged_logical_db,
@@ -354,10 +337,84 @@ def main():
     parser.add_argument("--output", default=None, help="Output directory (default: build/[design]/)")
     args = parser.parse_args()
 
+    design_name = args.design
+
+    # Setup paths
+    output_dir = args.output
+    if output_dir is None:
+        output_dir = f"build/{design_name}"
+    os.makedirs(output_dir, exist_ok=True)
+
+    placement_file = args.placement
+    if placement_file is None:
+        # Try common placement file names
+        for candidate in [
+            f"{output_dir}/{design_name}_sa_optimized.map",
+            f"{output_dir}/{design_name}.map",
+            "placement_sa_optimized.map",
+            "placement.map"
+        ]:
+            if os.path.exists(candidate):
+                placement_file = candidate
+                break
+        if not placement_file:
+            print(f"Error: No placement file found. Please specify --placement")
+            sys.exit(1)
+
+    design_json = f"designs/{design_name}_mapped.json"
+    if not os.path.exists(design_json):
+        print(f"Error: Design JSON not found: {design_json}")
+        sys.exit(1)
+
+    print(f"Design: {design_name}")
+    print(f"Design JSON: {design_json}")
+    print(f"Placement: {placement_file}")
+    print(f"Output directory: {output_dir}")
+    print()
+
+    # ========================================
+    # Build databases (once, upfront)
+    # ========================================
+    print("=" * 70)
+    print("Building databases...")
+    print("=" * 70)
+
+    try:
+        # Build fabric database
+        print("Building fabric database from YAML files...")
+        fabric_db = build_fabric_db(
+            'fabric/fabric_cells.yaml',
+            'fabric/pins.yaml',
+            'fabric/fabric.yaml'
+        )
+
+        # Parse design netlist
+        print(f"Loading design netlist: {design_json}")
+        logical_db, netlist_graph = parse_design_json(design_json)
+        print(f"Loaded logical_db with {len(logical_db['cells'])} cells")
+        print(f"Loaded netlist_graph with {len(netlist_graph.nodes())} nodes")
+
+        # Parse placement map
+        io_ports, fabric_cells = parse_placement_map(placement_file)
+        print(f"Loaded {len(io_ports)} I/O ports and {len(fabric_cells)} fabric cells")
+        print()
+
+    except Exception as e:
+        print(f"Error building databases: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+    # Run ECO generator with pre-built databases
     final_verilog, eco_report = run_eco_generator(
-        design_name=args.design,
-        placement_file=args.placement,
-        output_dir=args.output,
+        io_ports=io_ports,
+        fabric_cells=fabric_cells,
+        fabric_db=fabric_db,
+        logical_db=logical_db,
+        netlist_graph=netlist_graph,
+        placement_file=placement_file,
+        output_dir=output_dir,
+        design_name=design_name,
         verbose=True
     )
 
