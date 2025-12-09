@@ -975,24 +975,27 @@ def write_def_file(design_name: str,
                 # Fallback to Sky130 defaults
                 site_width_dbu, site_height_dbu, site_name = 460, 2720, 'unithd'
             
-            # Generate ROWs from fabric layout if available, otherwise use simple grid
-            rows_list = []
-            if fabric_db:
-                rows_list = generate_rows_from_fabric_layout(fabric_db, die_area, site_width_dbu, site_height_dbu, site_name)
+            # Extract unique Y coordinates from placed components for ROW generation
+            unique_y_coords = sorted(set(c.get('y', 0) for c in components if c.get('status') != 'UNPLACED'))
             
-            # If we couldn't generate rows from fabric layout, use simple grid
-            if not rows_list:
-                print(f"[DEBUG] Using grid-based ROW generation")
-                row_y = lly
-                row_num = 0
-                num_cols = (urx - llx) // site_width_dbu
-                
-                while row_y < ury:
-                    rows_list.append((f"ROW_{row_num}", llx, row_y, num_cols, site_width_dbu))
-                    row_y += site_height_dbu
-                    row_num += 1
-                
-                print(f"[DEBUG] Generated {len(rows_list)} grid-based ROWs")
+            # Generate ROWs at regular grid intervals for better routing capacity
+            rows_list = []
+            num_cols = (urx - llx) // site_width_dbu
+            row_num = 0
+            
+            # Use maximum row density for maximum routing tracks
+            # 1/16 of site height for ultra-dense routing
+            row_spacing = site_height_dbu // 16  # Use 1/16 site height for ultra-dense routing
+            
+            # Create rows at regular intervals across the entire die
+            # This provides maximum routing tracks between placements
+            row_y = lly
+            while row_y < ury:
+                rows_list.append((f"ROW_{row_num}", llx, row_y, num_cols, site_width_dbu))
+                row_y += row_spacing
+                row_num += 1
+            
+            print(f"[INFO] Generated {len(rows_list)} ROWs at {row_spacing} DBU spacing ({row_spacing/1000:.3f}µm) for ultra-dense routing capacity")
             
             # Write all ROW statements
             for row_name, row_x, row_y, num_cols, step_x in rows_list:
@@ -1006,11 +1009,28 @@ def write_def_file(design_name: str,
         # TRACKS defines the routing grid for each layer
         # Format: TRACKS {X|Y} start DO count STEP pitch [LAYER layer ...] ;
         
-        # X and Y tracks for each layer
+        # Extract unique X and Y coordinates from placed components for track generation
+        placed_components = [c for c in components if c.get('status') != 'UNPLACED']
+        unique_x_coords = sorted(set(c.get('x', 0) for c in placed_components))
+        unique_y_coords = sorted(set(c.get('y', 0) for c in placed_components))
+        
+        # X and Y tracks for each layer - use actual placement coordinates for better alignment
         x_pitch = site_width_dbu  # Same as site width for grid alignment
-        x_do = (urx - llx) // x_pitch
         y_pitch = site_height_dbu // 2  # Typically half the site height for better coverage
-        y_do = (ury - lly) // y_pitch
+        
+        if unique_x_coords and unique_y_coords:
+            # Generate tracks based on actual placement ranges
+            x_min = min(unique_x_coords)
+            x_max = max(unique_x_coords)
+            y_min = min(unique_y_coords)
+            y_max = max(unique_y_coords)
+            
+            x_do = max(1, (x_max - x_min) // x_pitch + 10)  # Add some margin
+            y_do = max(1, (y_max - y_min) // y_pitch + 10)  # Add some margin
+        else:
+            # Fallback to full die area
+            x_do = (urx - llx) // x_pitch
+            y_do = (ury - lly) // y_pitch
         
         for layer in ['li1', 'met1', 'met2', 'met3', 'met4', 'met5']:
             f.write(f"TRACKS X {llx} DO {x_do} STEP {x_pitch} LAYER {layer} ;\n")
@@ -1072,67 +1092,61 @@ def write_def_file(design_name: str,
             # Convert net ID to net name
             net_id = str(pin['net'])
             net_name = net_id_to_name.get(net_id, net_id)
+            
+            # Use fabric coordinates directly (no offset)
+            x_coord = pin['x']
+            y_coord = pin['y']
+            
+            # Use layer from fabric_db if available, otherwise default to met2
+            pin_layer = pin.get('layer', 'met2')
+            
+            # Get minimum width from layer definition (for access point sizing)
+            min_width = 100  # Default 0.1µm
+            min_height = 100  # Default 0.1µm
+            
+            if tlef_data and 'layers' in tlef_data:
+                layer_info = tlef_data['layers'].get(pin_layer, {})
+                # Extract minimum width from layer if available
+                if 'width' in layer_info:
+                    min_width = int(layer_info['width'] * units)
+                if 'height' in layer_info:
+                    min_height = int(layer_info['height'] * units)
+            
+            # Create rectangular geometry with pin coordinate as center
+            # but ensure rectangle stays within die bounds
+            die_x_max = urx  # From DIEAREA
+            die_y_max = ury  # From DIEAREA
+            
+            x1 = x_coord - min_width // 2
+            x2 = x_coord + min_width // 2
+            y1 = y_coord - min_height // 2
+            y2 = y_coord + min_height // 2
+            
+            # Clamp rectangle to die bounds to ensure pins are inside
+            x1 = max(llx, x1)
+            x2 = min(die_x_max, x2)
+            y1 = max(lly, y1)
+            y2 = min(die_y_max, y2)
+            
+            # Ensure minimum size
+            if x2 - x1 < min_width:
+                if x_coord < die_x_max // 2:
+                    x2 = min(die_x_max, x1 + min_width)
+                else:
+                    x1 = max(llx, x2 - min_width)
+            if y2 - y1 < min_height:
+                if y_coord < die_y_max // 2:
+                    y2 = min(die_y_max, y1 + min_height)
+                else:
+                    y1 = max(lly, y2 - min_height)
+            
             f.write(f"  - {pin['name']} + NET {net_name}\n")
             f.write(f"    + DIRECTION {pin['direction']}\n")
             f.write(f"    + USE {pin.get('use', 'SIGNAL')}\n")
-            # PORT with LAYER and rectangular geometry
             f.write(f"    + PORT\n")
-            f.write(f"      + LAYER {pin['layer']}\n")
-            
-            # Calculate rectangle coordinates based on pin side
-            # For edge pins, extend inward from the edge
-            x_center = pin['x']
-            y_center = pin['y']
-            width = pin['width']
-            height = pin['height']
-            side = pin.get('side', 'south')
-            
-            # Inset pins from die boundary (minimum 100 DBU inset)
-            # This prevents pins from being at or outside the die area boundary
-            inset_distance = max(100, width // 2, height // 2)
-            
-            # Clamp coordinates to be strictly inside die area
-            llx_boundary = llx + inset_distance
-            lly_boundary = lly + inset_distance
-            urx_boundary = urx - inset_distance
-            ury_boundary = ury - inset_distance
-            
-            # Adjust center positions if they're too close to boundary
-            if x_center < llx_boundary:
-                x_center = llx_boundary
-            if x_center > urx_boundary:
-                x_center = urx_boundary
-            if y_center < lly_boundary:
-                y_center = lly_boundary
-            if y_center > ury_boundary:
-                y_center = ury_boundary
-            
-            half_width = width // 2
-            half_height = height // 2
-            
-            # Create bounding box centered around the pin position
-            # Formula: (center - width/2, center - height/2) to (center + width/2, center + height/2)
-            x1 = x_center - half_width
-            y1 = y_center - half_height
-            x2 = x_center + half_width
-            y2 = y_center + half_height
-            
-            # Clamp final bounding box to be strictly inside die area
-            # Ensure all pin geometry is within die boundaries
-            x1 = max(llx + 1, min(x1, urx_boundary))
-            y1 = max(lly + 1, min(y1, ury_boundary))
-            x2 = max(llx + 1, min(x2, urx - 1))
-            y2 = max(lly + 1, min(y2, ury - 1))
-            
-            # Ensure x1 < x2 and y1 < y2
-            if x1 >= x2:
-                x1, x2 = x2 - width, x2
-            if y1 >= y2:
-                y1, y2 = y2 - height, y2
-            
+            f.write(f"      + LAYER {pin_layer}\n")
             f.write(f"        ( {x1} {y1} ) ( {x2} {y2} )\n")
-            f.write(f"      + FIXED ( {x_center} {y_center} ) {pin.get('orient', 'N')}\n")
-            f.write(f"    ;\n")
+            f.write(f"      + FIXED ( {x_coord} {y_coord} ) {pin.get('orient', 'N')} ;\n")
         f.write("END PINS\n")
         f.write("\n")
 
