@@ -19,18 +19,68 @@ import os
 import sys
 import json
 import copy
-from typing import Dict, Any, Tuple
+import re
+from typing import Dict, Any, Tuple, Set
 
 # Import local modules
 from cts_htree import HTreeCTS, parse_placement_map
 from power_down import run_power_down_eco, load_placement_mapping
+from parse_lib import parse_liberty_leakage
 from visualization.cts_overlay import plot_cts_tree_overlay
 from build_fabric_db import build_fabric_db
 from parse_design import parse_design_json
 import subprocess
 
 
-def generate_verilog_from_logical_db(logical_db: Dict[str, Any], design_name: str) -> str:
+def parse_lef_for_pins(lef_file: str) -> Dict[str, Set[str]]:
+    """
+    Parse LEF file to extract pin names for each cell type.
+    
+    Args:
+        lef_file: Path to LEF file
+        
+    Returns:
+        Dict mapping cell type names to sets of pin names
+        Example: {'sky130_fd_sc_hd__clkbuf_4': {'A', 'X', 'VDD', 'VSS'}}
+    """
+    cell_pins = {}
+    
+    if not os.path.exists(lef_file):
+        print(f"[WARN] LEF file not found: {lef_file}")
+        return cell_pins
+    
+    try:
+        with open(lef_file, 'r') as f:
+            content = f.read()
+    except IOError as e:
+        print(f"[WARN] Cannot read LEF file: {e}")
+        return cell_pins
+    
+    # Extract MACRO definitions and their PINs
+    macro_pattern = r'MACRO\s+(\S+)\s*\n(.*?)END\s+\1'
+    
+    for macro_match in re.finditer(macro_pattern, content, re.DOTALL | re.IGNORECASE):
+        macro_name = macro_match.group(1)
+        macro_body = macro_match.group(2)
+        
+        # Find all PIN statements within this MACRO
+        pin_pattern = r'PIN\s+(\S+)\s*\n(.*?)END\s+\1'
+        pins = set()
+        
+        for pin_match in re.finditer(pin_pattern, macro_body, re.DOTALL | re.IGNORECASE):
+            pin_name = pin_match.group(1)
+            pins.add(pin_name)
+        
+        if pins:
+            cell_pins[macro_name] = pins
+    
+    if cell_pins:
+        print(f"[INFO] Extracted pin definitions for {len(cell_pins)} cell types from LEF")
+    
+    return cell_pins
+
+
+def generate_verilog_from_logical_db(logical_db: Dict[str, Any], design_name: str, cell_pins: Dict[str, Set[str]] = None) -> str:
     """
     Generate a minimal Verilog netlist from logical_db.
 
@@ -76,17 +126,48 @@ def generate_verilog_from_logical_db(logical_db: Dict[str, Any], design_name: st
         lines.append("")
 
     # Cell instantiations
+    if cell_pins is None:
+        cell_pins = {}
+    
     cells = logical_db.get("cells", {})
     for cell_name, cell_info in sorted(cells.items()):
         cell_type = cell_info.get("type", "")
         pins = cell_info.get("pins", {})
 
-        # Build port connections
+        # Get valid pins for this cell type from LEF
+        valid_pins = cell_pins.get(cell_type, set())
+
+        # Build port connections - only include pins that exist in the cell definition
         connections = []
         for pin_name, net_id in pins.items():
+            # Skip pins not in LEF definition (use case-insensitive matching)
+            valid_pin_name = None
+            for vpin in valid_pins:
+                if pin_name.upper() == vpin.upper():
+                    valid_pin_name = vpin
+                    break
+            
+            if valid_pin_name is None:
+                # Pin not found in LEF - try common mappings
+                pin_mapping = {
+                    'Y': ['X', 'Y', 'Q'],  # Try X for output pins
+                    'A': ['A', 'I', 'IN'],
+                    'B': ['B', 'IN2'],
+                }
+                for mapped_pin in pin_mapping.get(pin_name, []):
+                    if mapped_pin.upper() in {p.upper() for p in valid_pins}:
+                        valid_pin_name = mapped_pin
+                        break
+                
+                if valid_pin_name is None:
+                    # Still not found - warn and skip
+                    if valid_pins:
+                        print(f"[WARN] Pin '{pin_name}' not found in LEF for cell type '{cell_type}' (available: {', '.join(sorted(valid_pins))})")
+                    continue
+            
             net_info = nets.get(net_id, {})
             net_name = net_info.get("name", f"net_{net_id}")
-            connections.append(f".{pin_name}({net_name})")
+            connections.append(f".{valid_pin_name}({net_name})")
 
         if connections:
             conn_str = ", ".join(connections)
@@ -186,13 +267,20 @@ def run_eco_generator(
         print("=" * 70)
 
     try:
+        # Parse Liberty file for leakage data
+        liberty_file = "tech/sky130_fd_sc_hd__tt_025C_1v80.lib"
+        if verbose:
+            print(f"Loading leakage data from: {liberty_file}")
+        leakage_db = parse_liberty_leakage(liberty_file, verbose=False)
+        
         # Load placement mapping for ECO
         placement_map = load_placement_mapping(cts_placement_file)
 
-        # Run ECO with pre-built databases
+        # Run ECO with per-input tie selection
         updated_logical_db, eco_report = run_power_down_eco(
             logical_db=logical_db_cts,
             fabric_db=fabric_db,
+            leakage_db=leakage_db,
             placement_map=placement_map,
             output_dir=output_dir,
             verbose=verbose
@@ -225,6 +313,28 @@ def run_eco_generator(
         print()
 
     # ========================================
+    # Step 3.5: Parse LEF for cell pin definitions
+    # ========================================
+    if verbose:
+        print("=" * 70)
+        print("STEP 3.5: Parsing LEF file for pin definitions")
+        print("=" * 70)
+
+    cell_pins = {}
+    for lef_file in ['tech/sky130_fd_sc_hd.lef', 'tech/fabric_cells.lef']:
+        if os.path.exists(lef_file):
+            if verbose:
+                print(f"  Reading: {lef_file}")
+            lef_pins = parse_lef_for_pins(lef_file)
+            cell_pins.update(lef_pins)
+            if verbose:
+                print(f"    Found pins for {len(lef_pins)} cell types")
+
+    if verbose:
+        print(f"  Total: {len(cell_pins)} cell types with pin definitions")
+        print()
+
+    # ========================================
     # Step 4: Generate final Verilog
     # ========================================
     if verbose:
@@ -233,7 +343,7 @@ def run_eco_generator(
         print("=" * 70)
 
     try:
-        final_verilog = generate_verilog_from_logical_db(merged_logical_db, design_name)
+        final_verilog = generate_verilog_from_logical_db(merged_logical_db, design_name, cell_pins)
 
         verilog_file = os.path.join(output_dir, f"{design_name}_final.v")
         with open(verilog_file, 'w') as f:
