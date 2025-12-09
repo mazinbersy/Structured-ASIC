@@ -365,16 +365,18 @@ def identify_unused_cells(logical_db: Dict[str, Any],
 
 def claim_tie_cells(fabric_db: Dict[str, Any],
                     unused_by_tile: Dict[str, List],
-                    logical_db: Dict[str, Any] = None) -> Dict[str, Dict[str, str]]:
+                    logical_db: Dict[str, Any] = None,
+                    placement_map: Dict[str, str] = None) -> Dict[str, Dict[str, str]]:
     """
     Claim TWO sky130_fd_sc_hd__conb_1 cells per tile: one for HI, one for LO.
     Search ALL cells in fabric (not just unused_by_tile since we filtered out CONBs).
-    Skip CONB cells that are already used in the logical netlist.
+    Skip CONB cells that are already used in the logical netlist or already placed in the placement map.
 
     Args:
         fabric_db: Fabric database with available cells
         unused_by_tile: Dict of unused cells per tile
         logical_db: Logical netlist database to check for already-used CONB cells
+        placement_map: Dict mapping logical_instance -> fabric_cell_name (used cells from placement)
 
     Returns:
         Dict[tile_key, {"HI": cell_name, "LO": cell_name}]
@@ -384,6 +386,12 @@ def claim_tie_cells(fabric_db: Dict[str, Any],
     
     # Get set of cells already used in logical netlist
     used_cells = set(logical_db.get("cells", {}).keys()) if logical_db else set()
+    
+    # Get set of fabric cells already placed via placement map
+    placed_fabric_cells = set(placement_map.values()) if placement_map else set()
+    
+    # Combined set of unavailable cells (both in netlist and physically placed)
+    unavailable_cells = used_cells | placed_fabric_cells
 
     # Only claim tie cells for tiles that have unused logic cells
     for tile_key in unused_by_tile.keys():
@@ -398,11 +406,11 @@ def claim_tie_cells(fabric_db: Dict[str, Any],
             cell_name = cell.get("name", "")
             
             if "conb_1" in cell_type.lower():
-                # Check if this CONB cell is already used in the netlist
-                if cell_name in used_cells:
+                # Check if this CONB cell is unavailable (used in netlist OR already placed in fabric)
+                if cell_name in unavailable_cells:
                     continue
                 
-                # This CONB cell is not used - add to available list
+                # This CONB cell is available - add to available list
                 available_conb.append(cell_name)
                 
                 if len(available_conb) >= 2:
@@ -807,7 +815,7 @@ def run_power_down_eco(
     # Step 3: Claim tie cells
     if verbose:
         print("Step 3: Claiming tie cells (conb_1 for HI and LO)...")
-    tie_cells = claim_tie_cells(fabric_db, unused_by_tile, logical_db)
+    tie_cells = claim_tie_cells(fabric_db, unused_by_tile, logical_db, placement_map)
     if verbose:
         print()
 
