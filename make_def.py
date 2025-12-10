@@ -1034,21 +1034,22 @@ def write_def_file(design_name: str,
             y_do = (ury - lly) // y_pitch
         
         # Layer-specific track configuration
-        # Keep normal density on all layers to maintain routing resources
+        # Increase met1 track density to compensate for 54% blockage
+        # Keep normal density on upper layers (met2-met5) which have <1% reduction
         # li1: local interconnect (minimal)
-        # met1: horizontal signal routing - use normal Y pitch for more tracks
-        # met2: vertical signal routing
-        # met3: horizontal clock routing
-        # met4: vertical signal routing
-        # met5: horizontal top-level routing
+        # met1: horizontal signal routing - DOUBLE track density (half the pitch)
+        # met2: vertical signal routing - normal density
+        # met3: horizontal clock routing - normal density
+        # met4: vertical signal routing - normal density
+        # met5: horizontal top-level routing - normal density
         
         layer_configs = {
-            'li1': {'x_pitch': x_pitch * 4, 'y_pitch': y_pitch * 4},  # Very sparse for local use
-            'met1': {'x_pitch': x_pitch, 'y_pitch': y_pitch},         # Normal pitches for met1
-            'met2': {'x_pitch': x_pitch, 'y_pitch': y_pitch},         # Normal vertical tracks
-            'met3': {'x_pitch': x_pitch, 'y_pitch': y_pitch},         # Normal horizontal (clock)
-            'met4': {'x_pitch': x_pitch, 'y_pitch': y_pitch},         # Normal vertical tracks
-            'met5': {'x_pitch': x_pitch, 'y_pitch': y_pitch},         # Normal horizontal tracks
+            'li1': {'x_pitch': x_pitch * 4, 'y_pitch': y_pitch * 4},      # Very sparse for local use
+            'met1': {'x_pitch': x_pitch // 2, 'y_pitch': y_pitch // 2},   # DOUBLE density to offset blockages
+            'met2': {'x_pitch': x_pitch, 'y_pitch': y_pitch},             # Normal vertical tracks
+            'met3': {'x_pitch': x_pitch, 'y_pitch': y_pitch},             # Normal horizontal (clock)
+            'met4': {'x_pitch': x_pitch, 'y_pitch': y_pitch},             # Normal vertical tracks
+            'met5': {'x_pitch': x_pitch, 'y_pitch': y_pitch},             # Normal horizontal tracks
         }
         
         for layer in ['li1', 'met1', 'met2', 'met3', 'met4', 'met5']:
