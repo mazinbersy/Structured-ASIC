@@ -957,9 +957,8 @@ def write_def_file(design_name: str,
         f.write(f"UNITS DISTANCE {coords} 1000 ;\n")
         f.write("\n")
 
-        # Die area
+        # Die area - use full coordinates (pins will be halved separately)
         llx, lly, urx, ury = die_area
-        # Do NOT halve - components use original coordinates
         f.write(f"DIEAREA ( {llx} {lly} ) ( {urx} {ury} ) ;\n")
         f.write("\n")
 
@@ -1111,71 +1110,96 @@ def write_def_file(design_name: str,
                 net_id_to_name[str(net_id)] = str(net_name)
         
         f.write(f"PINS {len(pins)} ;\n")
+        
+        # Debug: log pin coordinates and die area
+        print(f"\n[DEBUG] PIN COORDINATE ANALYSIS:")
+        print(f"  DIEAREA (from coordinates): ( {llx} {lly} ) ( {urx} {ury} )")
+        print(f"  Die width: {urx - llx} DBU ({(urx - llx) / 1000:.1f}µm)")
+        print(f"  Die height: {ury - lly} DBU ({(ury - lly) / 1000:.1f}µm)")
+        print(f"  Total pins: {len(pins)}\n")
+        
+        pin_debug_count = 0
         for pin in sorted(pins, key=lambda p: p['name']):
             # Convert net ID to net name
             net_id = str(pin['net'])
             net_name = net_id_to_name.get(net_id, net_id)
             
-            # Use fabric coordinates directly (no offset)
-            # Divide by 2 to account for DBU scaling (OpenROAD uses 2000 DBU/µm internally)
-            # PINs are the only coordinates that should be halved
-            x_coord = pin['x'] // 2
-            y_coord = pin['y'] // 2
+            # Use fabric coordinates divided by 2 to match OpenROAD's 2000 DBU/µm expectation
+            x_raw = pin['x']
+            y_raw = pin['y']
+            x_coord = x_raw // 2
+            y_coord = y_raw // 2
             
             # Use layer from fabric_db if available, otherwise default to met2
             pin_layer = pin.get('layer', 'met2')
-            
-            # Get minimum width from layer definition (for access point sizing)
-            min_width = 100  # Default 0.1µm
-            
-            if tlef_data and 'layers' in tlef_data:
-                layer_info = tlef_data['layers'].get(pin_layer, {})
-                # Extract minimum width from layer if available
-                if 'width' in layer_info:
-                    min_width = int(layer_info['width'] * units)
-            
+
             # Get pin side from fabric_db to determine extension direction
             pin_side = pin.get('side', 'south')
+
+            # Clamp to die bounds
+            x_clamped = max(llx, min(urx, x_coord))
+            y_clamped = max(lly, min(ury, y_coord))
+            
+            # Log first 5 pins for debugging
+            if pin_debug_count < 5:
+                print(f"  PIN {pin['name']}:")
+                print(f"    Raw coords: ({x_raw}, {y_raw})")
+                print(f"    After halve: ({x_coord}, {y_coord})")
+                if x_clamped != x_coord or y_clamped != y_coord:
+                    print(f"    After clamp: ({x_clamped}, {y_clamped}) [CLAMPED]")
+                print(f"    Side: {pin_side}, Layer: {pin_layer}")
+                pin_debug_count += 1
+            
+            x_coord = x_clamped
+            y_coord = y_clamped
+            
+            # Get minimum width from layer definition (for access point sizing)
+            # CRITICAL: Expand rectangles to guarantee intersection with track grid
+            # Track pitches: X=460 DBU, Y=1360 DBU (met1-met5)
+            # Use 1.5x track pitch to ensure overlap with multiple tracks
+            min_width = 690  # 1.5 * 460 DBU for X direction
+            min_height = 2040  # 1.5 * 1360 DBU for Y direction
             
             die_x_max = urx  # From DIEAREA
             die_y_max = ury  # From DIEAREA
             
             # Create rectangular geometry based on pin side:
-            # - east: extend to the left only (x1 = x_coord - min_width, x2 = x_coord)
-            # - west: extend to the right only (x1 = x_coord, x2 = x_coord + min_width)
-            # - south: extend upward only (y1 = y_coord, y2 = y_coord + min_width)
-            # - north: extend downward only (y1 = y_coord - min_width, y2 = y_coord)
+            # Expanded to guarantee track grid intersection (1.5x track pitch)
+            # - east: extend left and up/down significantly
+            # - west: extend right and up/down significantly  
+            # - south: extend upward significantly (and left/right)
+            # - north: extend downward significantly (and left/right)
             
             if pin_side == 'east':
                 # East side: extend left from the pin point
                 x1 = x_coord - min_width
                 x2 = x_coord
-                y1 = y_coord - min_width // 2
-                y2 = y_coord + min_width // 2
+                y1 = y_coord - min_height // 2
+                y2 = y_coord + min_height // 2
             elif pin_side == 'west':
                 # West side: extend right from the pin point
                 x1 = x_coord
                 x2 = x_coord + min_width
-                y1 = y_coord - min_width // 2
-                y2 = y_coord + min_width // 2
+                y1 = y_coord - min_height // 2
+                y2 = y_coord + min_height // 2
             elif pin_side == 'south':
                 # South side: extend upward from the pin point
                 x1 = x_coord - min_width // 2
                 x2 = x_coord + min_width // 2
                 y1 = y_coord
-                y2 = y_coord + min_width
+                y2 = y_coord + min_height
             elif pin_side == 'north':
                 # North side: extend downward from the pin point
                 x1 = x_coord - min_width // 2
                 x2 = x_coord + min_width // 2
-                y1 = y_coord - min_width
+                y1 = y_coord - min_height
                 y2 = y_coord
             else:
-                # Default: center around pin point
+                # Default: expand symmetrically around pin point
                 x1 = x_coord - min_width // 2
                 x2 = x_coord + min_width // 2
-                y1 = y_coord - min_width // 2
-                y2 = y_coord + min_width // 2
+                y1 = y_coord - min_height // 2
+                y2 = y_coord + min_height // 2
             
             # Clamp rectangle to die bounds to ensure pins are inside
             x1 = max(llx, x1)
