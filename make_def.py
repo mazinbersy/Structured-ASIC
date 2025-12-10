@@ -581,11 +581,11 @@ def get_site_dimensions(tlef_data: Dict[str, Any], dbu_per_micron: int = 1000) -
     
     Returns:
         Tuple of (site_width_dbu, site_height_dbu, site_name)
-        Falls back to Sky130 defaults (460, 2710) if not found
+        Falls back to Sky130 defaults (460, 2720) if not found
     """
     if not tlef_data or 'sites' not in tlef_data:
         print(f"[WARN] No sites found in TLEF, using Sky130 defaults")
-        return 460, 2710, 'unithd'
+        return 460, 2720, 'unithd'
     
     # Look for CORE class sites, prefer unithd first
     sites = tlef_data['sites']
@@ -612,7 +612,7 @@ def get_site_dimensions(tlef_data: Dict[str, Any], dbu_per_micron: int = 1000) -
     
     # Fallback to Sky130 defaults
     print(f"[WARN] No CORE sites found in TLEF, using Sky130 defaults")
-    return 460, 2710, 'unithd'
+    return 460, 2720, 'unithd'
 
 
 def generate_rows_from_fabric_layout(fabric_db: Dict[str, Any],
@@ -953,12 +953,13 @@ def write_def_file(design_name: str,
         f.write(f"DESIGN {design_name} ;\n")
         f.write("\n")
 
-        # Units specification
-        f.write(f"UNITS DISTANCE {coords} {units} ;\n")
+        # Units specification - Use 1000 DBU/micron (standard for DEF files)
+        f.write(f"UNITS DISTANCE {coords} 1000 ;\n")
         f.write("\n")
 
         # Die area
         llx, lly, urx, ury = die_area
+        # Do NOT halve - components use original coordinates
         f.write(f"DIEAREA ( {llx} {lly} ) ( {urx} {ury} ) ;\n")
         f.write("\n")
 
@@ -972,13 +973,14 @@ def write_def_file(design_name: str,
             if tlef_data and 'sites' in tlef_data:
                 site_width_dbu, site_height_dbu, site_name = get_site_dimensions(tlef_data, units)
             else:
-                # Fallback to Sky130 defaults
+                # Fallback to Sky130 defaults (do NOT halve - components use original coords)
                 site_width_dbu, site_height_dbu, site_name = 460, 2720, 'unithd'
             
             # Extract unique Y coordinates from placed components for ROW generation
             unique_y_coords = sorted(set(c.get('y', 0) for c in components if c.get('status') != 'UNPLACED'))
             
             # Generate ROWs at regular grid intervals for better routing capacity
+            # Need to use halved coordinates to match the halved DIEAREA and PIN coordinates
             rows_list = []
             num_cols = (urx - llx) // site_width_dbu
             row_num = 0
@@ -1032,9 +1034,30 @@ def write_def_file(design_name: str,
             x_do = (urx - llx) // x_pitch
             y_do = (ury - lly) // y_pitch
         
+        # Layer-specific track configuration
+        # Keep normal density on all layers to maintain routing resources
+        # li1: local interconnect (minimal)
+        # met1: horizontal signal routing - use normal Y pitch for more tracks
+        # met2: vertical signal routing
+        # met3: horizontal clock routing
+        # met4: vertical signal routing
+        # met5: horizontal top-level routing
+        
+        layer_configs = {
+            'li1': {'x_pitch': x_pitch * 4, 'y_pitch': y_pitch * 4},  # Very sparse for local use
+            'met1': {'x_pitch': x_pitch, 'y_pitch': y_pitch},         # Normal pitches for met1
+            'met2': {'x_pitch': x_pitch, 'y_pitch': y_pitch},         # Normal vertical tracks
+            'met3': {'x_pitch': x_pitch, 'y_pitch': y_pitch},         # Normal horizontal (clock)
+            'met4': {'x_pitch': x_pitch, 'y_pitch': y_pitch},         # Normal vertical tracks
+            'met5': {'x_pitch': x_pitch, 'y_pitch': y_pitch},         # Normal horizontal tracks
+        }
+        
         for layer in ['li1', 'met1', 'met2', 'met3', 'met4', 'met5']:
-            f.write(f"TRACKS X {llx} DO {x_do} STEP {x_pitch} LAYER {layer} ;\n")
-            f.write(f"TRACKS Y {lly} DO {y_do} STEP {y_pitch} LAYER {layer} ;\n")
+            config = layer_configs[layer]
+            x_do_layer = (urx - llx) // config['x_pitch']
+            y_do_layer = (ury - lly) // config['y_pitch']
+            f.write(f"TRACKS X {llx} DO {x_do_layer} STEP {config['x_pitch']} LAYER {layer} ;\n")
+            f.write(f"TRACKS Y {lly} DO {y_do_layer} STEP {config['y_pitch']} LAYER {layer} ;\n")
         f.write("\n")
 
         # ======================================
@@ -1094,51 +1117,71 @@ def write_def_file(design_name: str,
             net_name = net_id_to_name.get(net_id, net_id)
             
             # Use fabric coordinates directly (no offset)
-            x_coord = pin['x']
-            y_coord = pin['y']
+            # Divide by 2 to account for DBU scaling (OpenROAD uses 2000 DBU/µm internally)
+            # PINs are the only coordinates that should be halved
+            x_coord = pin['x'] // 2
+            y_coord = pin['y'] // 2
             
             # Use layer from fabric_db if available, otherwise default to met2
             pin_layer = pin.get('layer', 'met2')
             
             # Get minimum width from layer definition (for access point sizing)
             min_width = 100  # Default 0.1µm
-            min_height = 100  # Default 0.1µm
             
             if tlef_data and 'layers' in tlef_data:
                 layer_info = tlef_data['layers'].get(pin_layer, {})
                 # Extract minimum width from layer if available
                 if 'width' in layer_info:
                     min_width = int(layer_info['width'] * units)
-                if 'height' in layer_info:
-                    min_height = int(layer_info['height'] * units)
             
-            # Create rectangular geometry with pin coordinate as center
-            # but ensure rectangle stays within die bounds
+            # Get pin side from fabric_db to determine extension direction
+            pin_side = pin.get('side', 'south')
+            
             die_x_max = urx  # From DIEAREA
             die_y_max = ury  # From DIEAREA
             
-            x1 = x_coord - min_width // 2
-            x2 = x_coord + min_width // 2
-            y1 = y_coord - min_height // 2
-            y2 = y_coord + min_height // 2
+            # Create rectangular geometry based on pin side:
+            # - east: extend to the left only (x1 = x_coord - min_width, x2 = x_coord)
+            # - west: extend to the right only (x1 = x_coord, x2 = x_coord + min_width)
+            # - south: extend upward only (y1 = y_coord, y2 = y_coord + min_width)
+            # - north: extend downward only (y1 = y_coord - min_width, y2 = y_coord)
+            
+            if pin_side == 'east':
+                # East side: extend left from the pin point
+                x1 = x_coord - min_width
+                x2 = x_coord
+                y1 = y_coord - min_width // 2
+                y2 = y_coord + min_width // 2
+            elif pin_side == 'west':
+                # West side: extend right from the pin point
+                x1 = x_coord
+                x2 = x_coord + min_width
+                y1 = y_coord - min_width // 2
+                y2 = y_coord + min_width // 2
+            elif pin_side == 'south':
+                # South side: extend upward from the pin point
+                x1 = x_coord - min_width // 2
+                x2 = x_coord + min_width // 2
+                y1 = y_coord
+                y2 = y_coord + min_width
+            elif pin_side == 'north':
+                # North side: extend downward from the pin point
+                x1 = x_coord - min_width // 2
+                x2 = x_coord + min_width // 2
+                y1 = y_coord - min_width
+                y2 = y_coord
+            else:
+                # Default: center around pin point
+                x1 = x_coord - min_width // 2
+                x2 = x_coord + min_width // 2
+                y1 = y_coord - min_width // 2
+                y2 = y_coord + min_width // 2
             
             # Clamp rectangle to die bounds to ensure pins are inside
             x1 = max(llx, x1)
             x2 = min(die_x_max, x2)
             y1 = max(lly, y1)
             y2 = min(die_y_max, y2)
-            
-            # Ensure minimum size
-            if x2 - x1 < min_width:
-                if x_coord < die_x_max // 2:
-                    x2 = min(die_x_max, x1 + min_width)
-                else:
-                    x1 = max(llx, x2 - min_width)
-            if y2 - y1 < min_height:
-                if y_coord < die_y_max // 2:
-                    y2 = min(die_y_max, y1 + min_height)
-                else:
-                    y1 = max(lly, y2 - min_height)
             
             f.write(f"  - {pin['name']} + NET {net_name}\n")
             f.write(f"    + DIRECTION {pin['direction']}\n")
@@ -1344,9 +1387,9 @@ def main():
         fabric_yaml = "fabric/fabric.yaml"
 
     if placement_map_file is None:
-        design_specific_map = os.path.join("build", design_name, "placement.map")
-        placement_map_file = design_specific_map if os.path.exists(design_specific_map) else "placement_cts.map"
-
+        #design_specific_map = os.path.join("build", design_name, "placement.map")
+        #placement_map_file = design_specific_map if os.path.exists(design_specific_map) else "placement_cts.map"
+        placement_map_file = f"build/{design_name}/{design_name}_cts.map"
     if output_dir is None:
         output_dir = f"build/{design_name}"
 
