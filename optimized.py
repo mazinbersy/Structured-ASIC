@@ -33,8 +33,7 @@ from placer import (
 
 class SAConfig:
     """Configuration parameters for Simulated Annealing."""
-    def __init__(self): 
-        # Updated default parameters, based on experimental results, and dr.Shalan's feedback
+    def __init__(self):
         self.initial_temp = 1000.0       # Starting temperature
         self.final_temp = 0.01          # Stopping temperature
         self.cooling_rate = 0.97        # Slower cooling for better exploration

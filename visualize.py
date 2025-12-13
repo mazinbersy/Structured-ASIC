@@ -17,16 +17,15 @@ This file consolidates the previous `visualization/visualize.py` and
 an opinionated CLI to generate all visualization layers for a given design.
 """
 
-import os
-import argparse
-from typing import Dict, Any, Tuple, Optional
-
+from build_fabric_db import build_fabric_db
+from typing import Dict, Any, Tuple, Optional, List
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import math
 import numpy as np
-
-from build_fabric_db import build_fabric_db
-from parse_design import parse_design_json
+import re
+import argparse
+import os
 
 
 # ---------------------------
@@ -398,5 +397,319 @@ def main():
     generate_all_visualizations(args.design, map_path=args.map, show=args.show)
 
 
+# ---------------------------------------------------------------------
+# Congestion / STA parsing and visualization utilities
+# ---------------------------------------------------------------------
+
+
+def _get_fabric_bounds(fabric_db: Dict[str, Any]) -> Tuple[float, float]:
+    """Return approximate fabric extent (max_x, max_y) in microns."""
+    xs = []
+    ys = []
+    for _, cx, cy, w, h, _ in _normalize_cells_by_tile(fabric_db):
+        if cx is None or cy is None:
+            continue
+        xs.append(cx)
+        ys.append(cy)
+        if w:
+            xs.append(cx + w)
+        if h:
+            ys.append(cy + h)
+    if not xs or not ys:
+        return 1.0, 1.0
+    return max(xs), max(ys)
+
+
+def generate_congestion_heatmap_from_report(report_path: str,
+                                            fabric_db: Dict[str, Any],
+                                            outpath: str,
+                                            bins: Tuple[int, int] = (200, 200)) -> None:
+    """
+    Parse a congestion report (best-effort) and render a heatmap.
+
+    The parser attempts to find lines containing X, Y and a congestion value
+    (percentage or float). If that fails it falls back to extracting all
+    numeric blocks and producing a 2D histogram.
+    """
+    if not os.path.exists(report_path):
+        raise FileNotFoundError(report_path)
+
+    xs = []
+    ys = []
+    vals = []
+
+    float_re = r"([-+]?[0-9]*\.?[0-9]+)"
+    coord_val_re = re.compile(rf"\b{float_re}\s+{float_re}\s+{float_re}%?\b")
+
+    with open(report_path, 'r') as f:
+        for line in f:
+            m = coord_val_re.search(line)
+            if m:
+                x = float(m.group(1))
+                y = float(m.group(2))
+                v = float(m.group(3))
+                xs.append(x)
+                ys.append(y)
+                vals.append(v)
+
+    # If we found explicit x,y,value triples, rasterize them
+    if xs and ys and vals:
+        extent_x = max(xs) - min(xs) if max(xs) != min(xs) else 1.0
+        extent_y = max(ys) - min(ys) if max(ys) != min(ys) else 1.0
+        # Use histogram weighted by congestion value
+        H, xedges, yedges = np.histogram2d(xs, ys, bins=bins, weights=vals,
+                                           range=[[min(xs), max(xs)], [min(ys), max(ys)]])
+        # Normalize by counts to get average congestion per bin
+        counts, _, _ = np.histogram2d(xs, ys, bins=bins, range=[[min(xs), max(xs)], [min(ys), max(ys)]])
+        with np.errstate(divide='ignore', invalid='ignore'):
+            H = np.divide(H, counts)
+            H[np.isnan(H)] = 0.0
+
+        plt.figure(figsize=(8, 6))
+        plt.imshow(np.flipud(H), extent=[min(xs), max(xs), min(ys), max(ys)], cmap='hot', aspect='auto')
+        plt.colorbar(label='Congestion (avg %)')
+        plt.title(os.path.basename(report_path))
+        plt.xlabel('X (um)')
+        plt.ylabel('Y (um)')
+        plt.tight_layout()
+        plt.savefig(outpath, dpi=200)
+        plt.close()
+        print(f"Saved congestion heatmap -> {outpath}")
+        return
+
+    # Fallback: try to parse grid of floats in the file
+    matrix = []
+    with open(report_path, 'r') as f:
+        for line in f:
+            parts = re.findall(float_re, line)
+            if parts:
+                row = [float(p) for p in parts]
+                matrix.append(row)
+
+    if matrix:
+        # Convert ragged rows to rectangular by padding with zeros
+        maxlen = max(len(r) for r in matrix)
+        M = np.zeros((len(matrix), maxlen))
+        for i, r in enumerate(matrix):
+            M[i, :len(r)] = r
+
+        plt.figure(figsize=(8, 6))
+        plt.imshow(M, cmap='hot', aspect='auto')
+        plt.colorbar(label='Congestion (arb)')
+        plt.title(os.path.basename(report_path))
+        plt.tight_layout()
+        plt.savefig(outpath, dpi=200)
+        plt.close()
+        print(f"Saved congestion heatmap -> {outpath} (from numeric grid)")
+        return
+
+    raise ValueError(f"Could not parse congestion report: {report_path}")
+
+
+def parse_setup_report_for_slacks(report_path: str) -> List[float]:
+    """
+    Extract endpoint slacks from an OpenSTA or report_timing-style setup report.
+
+    Heuristics: looks for patterns like 'slack = -0.123', 'slack -0.123', or
+    numeric fields next to the word 'slack'. Returns a list of slack floats.
+    """
+    if not os.path.exists(report_path):
+        raise FileNotFoundError(report_path)
+
+    slacks = []
+    slack_re = re.compile(r"slack\s*[=:\s]\s*([-+]?[0-9]*\.?[0-9]+)", re.IGNORECASE)
+    float_re = re.compile(r"([-+]?[0-9]*\.?[0-9]+)")
+
+    with open(report_path, 'r') as f:
+        for line in f:
+            m = slack_re.search(line)
+            if m:
+                try:
+                    slacks.append(float(m.group(1)))
+                    continue
+                except Exception:
+                    pass
+
+            # If line contains 'endpoint' or 'slack' and a float, try to extract last float
+            if 'slack' in line.lower() or 'endpoint' in line.lower() or 'endpoint slack' in line.lower():
+                floats = float_re.findall(line)
+                if floats:
+                    try:
+                        slacks.append(float(floats[-1]))
+                    except Exception:
+                        pass
+
+    return slacks
+
+
+def plot_slack_histogram(slacks: List[float], outpath: str, bins: int = 100) -> None:
+    if not slacks:
+        raise ValueError("No slacks provided to plot")
+    plt.figure(figsize=(6, 4))
+    plt.hist(slacks, bins=bins)
+    plt.xlabel('Slack (ns)')
+    plt.ylabel('Count')
+    plt.title('Endpoint Slack Histogram')
+    plt.tight_layout()
+    plt.savefig(outpath, dpi=200)
+    plt.close()
+    print(f"Saved slack histogram -> {outpath}")
+
+
+def parse_setup_report_for_worst_path(report_path: str, fabric_cell_names: List[str]) -> List[str]:
+    """
+    Attempt to extract a sequence of instance names forming the worst path from a setup report.
+
+    Strategy:
+      - Look for lines containing arrows (-> or -->) and collect tokens that match known cell names.
+      - Fallback: scan the file for tokens that match fabric cell names and return the longest ordered sequence found.
+    """
+    if not os.path.exists(report_path):
+        raise FileNotFoundError(report_path)
+
+    fabric_set = set(fabric_cell_names)
+    candidates = []
+
+    arrow_re = re.compile(r'([A-Za-z0-9_\.]+)\s*(?:->|-->|→)\s*([A-Za-z0-9_\.]+)')
+
+    with open(report_path, 'r') as f:
+        lines = f.readlines()
+
+    # First pass: look for arrow-containing lines
+    for line in lines:
+        for m in arrow_re.finditer(line):
+            left = m.group(1).split('.')[-1]
+            right = m.group(2).split('.')[-1]
+            seq = []
+            if left in fabric_set:
+                seq.append(left)
+            if right in fabric_set:
+                seq.append(right)
+            if seq:
+                candidates.append(seq)
+
+    # If found candidate pairs, try to stitch them in order of appearance
+    if candidates:
+        path = []
+        for pair in candidates:
+            for name in pair:
+                if not path or path[-1] != name:
+                    path.append(name)
+        # Deduplicate while preserving order
+        seen = set()
+        ordered = [x for x in path if not (x in seen or seen.add(x))]
+        return ordered
+
+    # Fallback: collect any token that matches fabric cell names in file order
+    token_re = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*)\b")
+    path = []
+    for line in lines:
+        for t in token_re.findall(line):
+            if t in fabric_set:
+                if not path or path[-1] != t:
+                    path.append(t)
+
+    # Return the path (may be long); caller can trim to reasonable length
+    return path
+
+
+def draw_critical_path_overlay(fabric_db: Dict[str, Any], path_cells: List[str], outpath: str,
+                               base_figsize=(12, 12), show: bool = False) -> None:
+    """
+    Draw the fabric layout and overlay a bright red polyline connecting the centers of
+    the cells listed in `path_cells` (which are fabric cell names).
+    """
+    fig, ax = plot_fabric_ground_truth(fabric_db, show=False, savepath=None, figsize=base_figsize, slot_default_size=(1.0, 1.0), alpha=0.3)
+
+    # Build a mapping from cell name -> center coordinates
+    name_to_center = {}
+    for tile_name, cx, cy, w, h, cell in _normalize_cells_by_tile(fabric_db):
+        cell_name = cell.get('name')
+        if not cell_name:
+            continue
+        if w is None or h is None:
+            w = 1.0
+            h = 1.0
+        cx_center = cx + w / 2.0
+        cy_center = cy + h / 2.0
+        name_to_center[cell_name] = (cx_center, cy_center)
+
+    pts_x = []
+    pts_y = []
+    for name in path_cells:
+        if name in name_to_center:
+            x, y = name_to_center[name]
+            pts_x.append(x)
+            pts_y.append(y)
+
+    if len(pts_x) >= 2:
+        ax.plot(pts_x, pts_y, color='red', linewidth=3.0, alpha=0.95, zorder=20)
+        ax.scatter(pts_x, pts_y, color='red', s=30, zorder=21)
+
+    plt.title('Critical Path Overlay')
+    fig.savefig(outpath, dpi=300, bbox_inches='tight')
+    print(f"Saved critical path overlay -> {outpath}")
+    if show:
+        plt.show()
+    plt.close(fig)
+
+
+def _collect_all_fabric_cell_names(fabric_db: Dict[str, Any]) -> List[str]:
+    names = []
+    for _, _, _, _, _, cell in _normalize_cells_by_tile(fabric_db):
+        n = cell.get('name')
+        if n:
+            names.append(n)
+    return names
+
+
+def _ensure_build_dir(design: str) -> str:
+    build_dir = os.path.join('build', design)
+    os.makedirs(build_dir, exist_ok=True)
+    return build_dir
+
+
+def main_cli():
+    parser = argparse.ArgumentParser(description='Fabric visualizations: layout, congestion, slack, critical path')
+    parser.add_argument('--design', required=False, help='Design name (used to write into build/<design>/)')
+    parser.add_argument('--congestion', help='Path to congestion report (.rpt)')
+    parser.add_argument('--setup', help='Path to setup report (.rpt)')
+    parser.add_argument('--fabric-cells', default='fabric/fabric_cells.yaml')
+    parser.add_argument('--pins', default='fabric/pins.yaml')
+    parser.add_argument('--fabric', default='fabric/fabric.yaml')
+    parser.add_argument('--layout-out', help='Output PNG for layout (default: build/<design>/_layout.png)')
+    args = parser.parse_args()
+
+    fabric_db = build_fabric_db(args.fabric_cells, args.pins, args.fabric)
+
+    design = args.design or 'design'
+    build_dir = _ensure_build_dir(design)
+
+    # 1) Layout
+    layout_out = args.layout_out or os.path.join(build_dir, f"{design}_layout.png")
+    plot_fabric_ground_truth(fabric_db, show=False, savepath=layout_out)
+
+    # 2) Congestion
+    if args.congestion:
+        cong_out = os.path.join(build_dir, f"{design}_congestion.png")
+        generate_congestion_heatmap_from_report(args.congestion, fabric_db, cong_out)
+
+    # 3) STA: slack histogram and critical path
+    if args.setup:
+        slacks = parse_setup_report_for_slacks(args.setup)
+        slack_out = os.path.join(build_dir, f"{design}_slack.png")
+        try:
+            plot_slack_histogram(slacks, slack_out)
+        except Exception as e:
+            print(f"Could not plot slack histogram: {e}")
+
+        # Critical path
+        fabric_names = _collect_all_fabric_cell_names(fabric_db)
+        path_cells = parse_setup_report_for_worst_path(args.setup, fabric_names)
+        if path_cells:
+            crit_out = os.path.join(build_dir, f"{design}_critical_path.png")
+            draw_critical_path_overlay(fabric_db, path_cells, crit_out)
+
+
 if __name__ == "__main__":
-    main()
+    main_cli()
