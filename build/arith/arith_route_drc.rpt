@@ -1,0 +1,129 @@
+violation type: Short
+	srcs: net:in_20 net:out_20
+	bbox = (4.7600, 988.0500) - (4.9000, 989.2000) on Layer met2
+violation type: Short
+	srcs: net:in_39 net:out_39
+	bbox = (0.0000, 982.7900) - (1.7000, 983.0900) on Layer met3
+violation type: Short
+	srcs: net:in_8 net:out_8
+	bbox = (887.5000, 0.0000) - (887.6400, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_0 net:out_0
+	bbox = (4.7600, 0.0000) - (4.9000, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_0 net:out_0
+	bbox = (4.7600, 1.1200) - (4.9000, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_0 net:out_0
+	bbox = (4.7150, 1.1200) - (5.4050, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_30 net:out_30
+	bbox = (0.0000, 4.2700) - (1.7000, 4.5700) on Layer met3
+violation type: Short
+	srcs: net:in_35 net:out_35
+	bbox = (0.0000, 548.2700) - (1.7000, 548.5700) on Layer met3
+violation type: Short
+	srcs: net:in_36 net:out_36
+	bbox = (0.0000, 657.0700) - (1.7000, 657.3700) on Layer met3
+violation type: Short
+	srcs: net:in_37 net:out_37
+	bbox = (0.0000, 765.8700) - (1.7000, 766.1700) on Layer met3
+violation type: Short
+	srcs: net:in_38 net:out_38
+	bbox = (0.0000, 874.6700) - (1.7000, 874.9700) on Layer met3
+violation type: Short
+	srcs: net:in_4 net:out_4
+	bbox = (445.9000, 0.0000) - (446.0400, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_5 net:out_5
+	bbox = (556.3000, 0.0000) - (556.4400, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_6 net:out_6
+	bbox = (666.7000, 0.0000) - (666.8400, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_7 net:out_7
+	bbox = (777.1000, 0.0000) - (777.2400, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_31 net:out_31
+	bbox = (0.0000, 113.0700) - (1.7000, 113.3700) on Layer met3
+violation type: Short
+	srcs: net:in_32 net:out_32
+	bbox = (0.0000, 221.8700) - (1.7000, 222.1700) on Layer met3
+violation type: Short
+	srcs: net:oeb_33 net:out_33
+	bbox = (0.0000, 331.3500) - (1.7000, 331.6500) on Layer met3
+violation type: Short
+	srcs: net:in_33 net:out_33
+	bbox = (0.0000, 331.3500) - (1.7000, 331.6500) on Layer met3
+violation type: Short
+	srcs: net:in_34 net:out_34
+	bbox = (0.0000, 439.4700) - (1.7000, 439.7700) on Layer met3
+violation type: Short
+	srcs: net:in_24 net:out_24
+	bbox = (445.9000, 988.0500) - (446.0400, 989.2000) on Layer met2
+violation type: Short
+	srcs: net:in_25 net:out_25
+	bbox = (556.3000, 988.0500) - (556.4400, 989.2000) on Layer met2
+violation type: Short
+	srcs: net:in_26 net:out_26
+	bbox = (666.7000, 988.0500) - (666.8400, 989.2000) on Layer met2
+violation type: Short
+	srcs: net:in_27 net:out_27
+	bbox = (777.1000, 988.0500) - (777.2400, 989.2000) on Layer met2
+violation type: Short
+	srcs: net:in_1 net:out_1
+	bbox = (114.7000, 0.0000) - (114.8400, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_2 net:out_2
+	bbox = (225.1000, 0.0000) - (225.2400, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_3 net:out_3
+	bbox = (335.5000, 0.0000) - (335.6400, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:in_9 net:out_9
+	bbox = (997.9000, 0.0000) - (998.0400, 1.1500) on Layer met2
+violation type: Short
+	srcs: net:oeb_10 net:out_10
+	bbox = (1001.9000, 5.6300) - (1003.6000, 5.9300) on Layer met3
+violation type: Short
+	srcs: net:in_15 net:out_15
+	bbox = (1001.9000, 548.2700) - (1003.6000, 548.5700) on Layer met3
+violation type: Short
+	srcs: net:in_16 net:out_16
+	bbox = (1001.9000, 657.0700) - (1003.6000, 657.3700) on Layer met3
+violation type: Short
+	srcs: net:in_17 net:out_17
+	bbox = (1001.9000, 765.8700) - (1003.6000, 766.1700) on Layer met3
+violation type: Short
+	srcs: net:in_18 net:out_18
+	bbox = (1001.9000, 874.6700) - (1003.6000, 874.9700) on Layer met3
+violation type: Short
+	srcs: net:in_21 net:out_21
+	bbox = (114.7000, 988.0500) - (114.8400, 989.2000) on Layer met2
+violation type: Short
+	srcs: net:oeb_22 net:out_22
+	bbox = (226.0200, 988.0500) - (226.1600, 989.2000) on Layer met2
+violation type: Short
+	srcs: net:in_23 net:out_23
+	bbox = (335.5000, 988.0500) - (335.6400, 989.2000) on Layer met2
+violation type: Short
+	srcs: net:in_28 net:out_28
+	bbox = (887.5000, 988.0500) - (887.6400, 989.2000) on Layer met2
+violation type: Short
+	srcs: net:in_11 net:out_11
+	bbox = (1001.9000, 113.0700) - (1003.6000, 113.3700) on Layer met3
+violation type: Short
+	srcs: net:in_12 net:out_12
+	bbox = (1001.9000, 221.8700) - (1003.6000, 222.1700) on Layer met3
+violation type: Short
+	srcs: net:oeb_13 net:out_13
+	bbox = (1001.9000, 332.0300) - (1003.6000, 332.3300) on Layer met3
+violation type: Short
+	srcs: net:in_14 net:out_14
+	bbox = (1001.9000, 439.4700) - (1003.6000, 439.7700) on Layer met3
+violation type: Short
+	srcs: net:in_29 net:out_29
+	bbox = (997.9000, 988.0500) - (998.0400, 989.2000) on Layer met2
+violation type: Short
+	srcs: net:oeb_19 net:out_19
+	bbox = (1001.9000, 984.1500) - (1003.6000, 984.4500) on Layer met3
