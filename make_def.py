@@ -133,22 +133,24 @@ def parse_lef_file(lef_file: str) -> Dict[str, Any]:
         macro_content = macro_match.group(2)
 
         size_match = re.search(r'SIZE\s+([\d.]+)\s+BY\s+([\d.]+)\s*;', macro_content)
-        pins = []
         
-        # Extract all PIN names from this macro
-        pin_pattern = r'PIN\s+(\w+)\s*\n'
+        macro_info = {}
+        if size_match:
+            macro_info['width'] = float(size_match.group(1))
+            macro_info['height'] = float(size_match.group(2))
+        
+        # Extract PIN names from this macro
+        pin_pattern = r'PIN\s+(\w+)'
+        pins = set()
         for pin_match in re.finditer(pin_pattern, macro_content):
             pin_name = pin_match.group(1)
-            pins.append(pin_name)
+            pins.add(pin_name)
         
-        if size_match:
-            lef_data['macros'][macro_name] = {
-                'width': float(size_match.group(1)),
-                'height': float(size_match.group(2)),
-                'pins': pins
-            }
-        elif pins:
-            lef_data['macros'][macro_name] = {'pins': pins}
+        if pins:
+            macro_info['pins'] = list(pins)
+        
+        if macro_info:
+            lef_data['macros'][macro_name] = macro_info
 
     lef_data['parse_status'] = 'success'
     return lef_data
@@ -231,6 +233,7 @@ def parse_tlef_file(tlef_file: str) -> Dict[str, Any]:
         'units': {'database_units': 1000},
         'sites': {},
         'layers': {},
+        'vias': {},
         'manufacturing_grid': 0.005,
         'parse_status': 'default'
     }
@@ -311,6 +314,213 @@ def parse_tlef_file(tlef_file: str) -> Dict[str, Any]:
             layer_info['width'] = float(width_match.group(1))
 
         tlef_data['layers'][layer_name] = layer_info
+
+    # Extract VIARULE GENERATE definitions for DEF via generation
+    # These define the parameterized via rules that can be instantiated
+    viarule_pattern = r'VIARULE\s+(\w+)\s+GENERATE(.*?)END\s+\1'
+    viarules = {}
+    for viarule_match in re.finditer(viarule_pattern, content, re.DOTALL):
+        rule_name = viarule_match.group(1)
+        rule_content = viarule_match.group(2)
+        
+        rule_info = {'name': rule_name}
+        
+        # Extract layers in order (lower, cut, upper)
+        # First extract all layer names to get complete list including the cut layer
+        layers_list = []
+        layer_name_pattern = r'LAYER\s+(\w+)\s*;'
+        for layer_name_match in re.finditer(layer_name_pattern, rule_content):
+            layers_list.append(layer_name_match.group(1))
+        
+        if layers_list:
+            rule_info['layers'] = layers_list
+        
+        # Now extract enclosures - find each enclosure and map to its layer
+        if 'enclosure' not in rule_info:
+            rule_info['enclosure'] = {}
+        
+        # For each layer, find its enclosure value (if present)
+        for layer_name in layers_list:
+            # Create a pattern to find this specific layer's enclosure
+            # Match from "LAYER layer_name ;" until the next LAYER or END
+            layer_specific_pattern = rf'LAYER\s+{re.escape(layer_name)}\s*;(.*?)(?=LAYER|END)'
+            layer_match = re.search(layer_specific_pattern, rule_content, re.DOTALL)
+            if layer_match:
+                layer_content = layer_match.group(1)
+                enclosure_match = re.search(r'ENCLOSURE\s+([\d.]+)\s+([\d.]+)', layer_content)
+                if enclosure_match:
+                    rule_info['enclosure'][layer_name] = [
+                        float(enclosure_match.group(1)),
+                        float(enclosure_match.group(2))
+                    ]
+        
+        # Extract RECT (cutsize) from via layer
+        rect_match = re.search(r'RECT\s+-([\d.]+)\s+-([\d.]+)\s+([\d.]+)\s+([\d.]+)', rule_content)
+        if rect_match:
+            # RECT is -x -y +x +y, so cutsize is 2*x and 2*y
+            cutsize_x = float(rect_match.group(1)) * 2
+            cutsize_y = float(rect_match.group(2)) * 2
+            rule_info['cutsize_x'] = cutsize_x
+            rule_info['cutsize_y'] = cutsize_y
+        
+        # Extract SPACING (cutspacing)
+        spacing_match = re.search(r'SPACING\s+([\d.]+)\s+BY\s+([\d.]+)', rule_content)
+        if spacing_match:
+            rule_info['cutspacing_x'] = float(spacing_match.group(1))
+            rule_info['cutspacing_y'] = float(spacing_match.group(2))
+        
+        viarules[rule_name] = rule_info
+    
+    # Extract VIA cell definitions (static via definitions from TLEF)
+    # These define concrete via shapes that can be used directly in DEF files
+    # Format: VIA via_name DEFAULT/RULE_REF
+    #   LAYER layer_name ;
+    #   RECT x1 y1 x2 y2 ;
+    #   ... (multiple layers and rects)
+    #   SPACING x BY y ;
+    # END via_name
+    via_pattern = r'VIA\s+(\w+)\s+(\w+)(.*?)END\s+\1'
+    for via_match in re.finditer(via_pattern, content, re.DOTALL):
+        via_name = via_match.group(1)
+        via_type = via_match.group(2)  # Usually 'DEFAULT' or a rule reference
+        via_content = via_match.group(3)
+        
+        via_info = {
+            'name': via_name,
+        }
+        
+        # Map via name to corresponding VIARULE
+        # Convention: via_name structure often includes rule name
+        # e.g., L1M1_PR -> VIARULE L1M1_PR, M1M2_PR -> VIARULE M1M2_PR, etc.
+        matching_viarule = None
+        for rule_name in viarules.keys():
+            if rule_name in via_name or via_name.startswith(rule_name):
+                matching_viarule = rule_name
+                break
+        
+        if matching_viarule:
+            via_info['viarule'] = matching_viarule
+            # Use VIARULE info as template
+            rule = viarules[matching_viarule]
+            if 'cutsize_x' in rule:
+                via_info['cutsize_x'] = rule['cutsize_x']
+            if 'cutsize_y' in rule:
+                via_info['cutsize_y'] = rule['cutsize_y']
+            if 'layers' in rule:
+                via_info['layers'] = rule['layers']
+            if 'cutspacing_x' in rule:
+                via_info['cutspacing_x'] = rule['cutspacing_x']
+            if 'cutspacing_y' in rule:
+                via_info['cutspacing_y'] = rule['cutspacing_y']
+            if 'enclosure' in rule and isinstance(rule['enclosure'], dict):
+                # Convert dict format to list format [bottom, top, left, right]
+                enc_dict = rule['enclosure']
+                enc_list = [0, 0, 0, 0]
+                if 'layers' in rule and len(rule['layers']) >= 2:
+                    # Layer structure: [lower_metal, cut, upper_metal] OR [lower_metal, upper_metal]
+                    # Always: layers[0] = lower metal, layers[-2] or layers[1] = upper metal (before cut layer if 3 layers)
+                    lower_layer = rule['layers'][0]
+                    # Upper metal is either index 1 (for 2-layer) or index 1 (for 3-layer, middle is cut)
+                    upper_layer_idx = 1 if len(rule['layers']) >= 3 else -1
+                    upper_layer = rule['layers'][upper_layer_idx]
+                    
+                    # Lower layer enclosure: left and right
+                    if lower_layer in enc_dict:
+                        enc = enc_dict[lower_layer]
+                        enc_list[2] = enc[0]  # left
+                        enc_list[3] = enc[1]  # right
+                    
+                    # Upper layer enclosure: bottom and top
+                    if upper_layer in enc_dict:
+                        enc = enc_dict[upper_layer]
+                        enc_list[0] = enc[0]  # bottom
+                        enc_list[1] = enc[1]  # top
+                    
+                    # If we found values, use them; otherwise leave as [0,0,0,0]
+                    via_info['enclosure'] = enc_list
+            elif 'enclosure' in rule:
+                via_info['enclosure'] = rule['enclosure']
+        else:
+            # Fall back to extracting from VIA definition itself
+            # Extract layers and their RECTs from the via definition
+            layers_list = []
+            rect_by_layer = {}
+            
+            layer_pattern = r'LAYER\s+(\w+)\s*;'
+            for layer_match in re.finditer(layer_pattern, via_content):
+                layer_name = layer_match.group(1)
+                layers_list.append(layer_name)
+            
+            # Extract RECT values for each layer
+            # RECT statements follow LAYER statements
+            rect_pattern = r'LAYER\s+(\w+)\s*;.*?RECT\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)'
+            for rect_match in re.finditer(rect_pattern, via_content, re.DOTALL):
+                layer_name = rect_match.group(1)
+                x1 = float(rect_match.group(2))
+                y1 = float(rect_match.group(3))
+                x2 = float(rect_match.group(4))
+                y2 = float(rect_match.group(5))
+                # RECT format is typically -x -y +x +y, so size is 2*x and 2*y
+                rect_by_layer[layer_name] = (abs(x2 - x1), abs(y2 - y1))
+            
+            if layers_list:
+                via_info['layers'] = layers_list
+            
+            # Extract cutsize from the first RECT (typically the cut layer)
+            # For most vias, the cut layer is second (index 1)
+            if len(layers_list) >= 2 and layers_list[1] in rect_by_layer:
+                cutsize = rect_by_layer[layers_list[1]]
+                via_info['cutsize_x'] = cutsize[0]
+                via_info['cutsize_y'] = cutsize[1]
+            
+            # Extract SPACING (cutspacing)
+            spacing_match = re.search(r'SPACING\s+([\d.]+)\s+BY\s+([\d.]+)', via_content)
+            if spacing_match:
+                via_info['cutspacing_x'] = float(spacing_match.group(1))
+                via_info['cutspacing_y'] = float(spacing_match.group(2))
+            
+            # Extract ENCLOSURE from via layer (lower/upper metals) if available
+            # For now, compute from rect geometries
+            if layers_list and len(layers_list) >= 3:
+                lower_layer = layers_list[0]
+                upper_layer = layers_list[2]
+                cut_layer = layers_list[1]
+                
+                # Compute enclosure: how much the metal extends beyond the cut
+                enclosure_vals = [0, 0, 0, 0]  # bottom, top, left, right
+                
+                if cut_layer in rect_by_layer and lower_layer in rect_by_layer:
+                    cut_size = rect_by_layer[cut_layer]
+                    lower_size = rect_by_layer[lower_layer]
+                    # Enclosure = (metal_size - cut_size) / 2
+                    lower_enc_x = (lower_size[0] - cut_size[0]) / 2 if lower_size[0] > cut_size[0] else 0
+                    lower_enc_y = (lower_size[1] - cut_size[1]) / 2 if lower_size[1] > cut_size[1] else 0
+                    enclosure_vals[2] = lower_enc_x  # left
+                    enclosure_vals[3] = lower_enc_y  # right
+                
+                if cut_layer in rect_by_layer and upper_layer in rect_by_layer:
+                    cut_size = rect_by_layer[cut_layer]
+                    upper_size = rect_by_layer[upper_layer]
+                    # Enclosure = (metal_size - cut_size) / 2
+                    upper_enc_x = (upper_size[0] - cut_size[0]) / 2 if upper_size[0] > cut_size[0] else 0
+                    upper_enc_y = (upper_size[1] - cut_size[1]) / 2 if upper_size[1] > cut_size[1] else 0
+                    enclosure_vals[0] = upper_enc_x  # bottom
+                    enclosure_vals[1] = upper_enc_y  # top
+                
+                if any(e != 0 for e in enclosure_vals):
+                    via_info['enclosure'] = enclosure_vals
+        
+        # Extract ROWCOL from via cell definition if present
+        rowcol_match = re.search(r'ROWCOL\s+(\d+)\s+(\d+)', via_content)
+        if rowcol_match:
+            via_info['rowcol'] = [int(rowcol_match.group(1)), int(rowcol_match.group(2))]
+        else:
+            # Default ROWCOL (assume 1x1 for simple vias)
+            via_info['rowcol'] = [1, 1]
+        
+        # Only add if we have essential via data (viarule, cutsize, layers)
+        if 'viarule' in via_info and 'cutsize_x' in via_info and 'layers' in via_info:
+            tlef_data['vias'][via_name] = via_info
 
     tlef_data['parse_status'] = 'success'
     return tlef_data
@@ -444,16 +654,15 @@ def get_die_area(fabric_db: Dict[str, Any]) -> Tuple[int, int, int, int]:
 
 def extract_io_pins(logical_db: Dict[str, Any],
                     fabric_db: Dict[str, Any],
-                    tlef_data: Dict[str, Any] = None) -> List[Dict[str, Any]]:
+                    lef_data: Dict[str, Any] = None) -> List[Dict[str, Any]]:
     """
-    Extract I/O pin information from logical database and fabric.
+    Extract I/O pin information from fabric database.
 
-    This function extracts all I/O ports from the logical design and maps them to
-    physical pin locations in the fabric. Each pin is configured with DEF 5.8 compliant
-    attributes including direction, use, and placement layer with rectangular geometry.
+    This function extracts all I/O ports from the fabric_db pin_placement data.
+    Each pin is configured with DEF 5.8 compliant attributes including direction,
+    use, and placement layer with rectangular geometry.
     
-    Pin dimensions are determined by the minimum metal width from the technology file
-    (TLEF) for each layer. This ensures DRC compliance.
+    Pin dimensions are based on track pitches from the technology layer specifications.
 
     DEF 5.8 PINS Section Syntax:
         - pinName + NET netName
@@ -462,13 +671,18 @@ def extract_io_pins(logical_db: Dict[str, Any],
           + PORT
             + LAYER layerName
               ( x1 y1 ) ( x2 y2 )
-            + FIXED ( x y ) orient
+            + PLACED ( x y ) orient
           ;
+
+    Args:
+        logical_db: Logical database (used for validation)
+        fabric_db: Fabric database containing pin placement information
+        lef_data: Parsed LEF/TLEF data for pin validation (optional)
 
     Returns:
         List[Dict[str, Any]]: Pin definitions with keys:
-            - name (str): Pin name from logical design
-            - net (str): Associated net name or ID
+            - name (str): Pin name from fabric database
+            - net (str): Associated net name 
             - direction (str): INPUT, OUTPUT, INOUT, or FEEDTHRU
             - use (str): SIGNAL (default), POWER, GROUND, or CLOCK
             - x (int): X coordinate center in database units
@@ -482,79 +696,52 @@ def extract_io_pins(logical_db: Dict[str, Any],
     DEF 5.8 Compliance:
         - All pins include DIRECTION attribute (mandatory)
         - All pins include USE attribute (mandatory)
-        - All pins marked as FIXED (standard for structured ASIC)
+        - All pins marked as PLACED (standard for structured ASIC)
         - Proper PORT structure with LAYER and rectangular geometry
-        - Pin dimensions based on minimum metal width from technology
+        - Pin dimensions based on layer track pitches
     """
     pins = []
 
-    # Get I/O ports from logical_db
-    input_ports = logical_db.get('ports', {}).get('inputs', {})
-    output_ports = logical_db.get('ports', {}).get('outputs', {})
+    # Track pitches from technology (user-specified)
+    track_pitches = {
+        'li1': 0.46, 'met1': 0.34, 'met2': 0.46,
+        'met3': 0.68, 'met4': 0.92, 'met5': 3.40
+    }
 
-    # Get pin list from fabric_db
+    # Get pin list from fabric_db - this is the authoritative source
     fabric_info = fabric_db.get('fabric', {})
     pin_placement_info = fabric_info.get('pin_placement', {})
-    pin_list = pin_placement_info.get('pins', [])
+    pin_list = pin_placement_info.get('pins', []) if pin_placement_info else []
     
-    # Get database units per micron
+    # Get database units per micron from pin_placement_info
     dbu_per_micron = pin_placement_info.get('units', {}).get('dbu_per_micron', 1000)
 
-    # Create a mapping from pin name to pin info for quick lookup
-    pin_info_map = {pin['name']: pin for pin in pin_list}
-
-    # Process input ports
-    for port_name, net_id in input_ports.items():
-        pin_info = pin_info_map.get(port_name, {})
-
-        # Extract pin position and dimensions as-is from fabric_db
+    # Process pins from fabric_db directly (these are I/O port names)
+    for pin_info in pin_list:
+        pin_name = pin_info.get('name', '')
+        if not pin_name:
+            continue
+        
+        # Get pin position from fabric_db
         x_um = pin_info.get('x_um', 0)
         y_um = pin_info.get('y_um', 0)
         layer = pin_info.get('layer', 'met2')
         side = pin_info.get('side', 'south')
-        
-        # Use pin dimensions from fabric_db directly; small default if not specified
-        width_um = pin_info.get('width_um', 0.14)
-        height_um = pin_info.get('height_um', 0.14)
+        direction = pin_info.get('direction', 'INPUT').upper()
         
         # Determine USE attribute (CLOCK for clk pin, SIGNAL for others)
-        use_attr = 'CLOCK' if port_name == 'clk' else 'SIGNAL'
+        use_attr = 'CLOCK' if 'clk' in pin_name.lower() else 'SIGNAL'
+
+        # Calculate pin dimensions based on layer track pitch
+        # Pin should span 2.5x the track pitch of its layer
+        pitch_um = track_pitches.get(layer, 0.46)
+        width_um = pitch_um * 2.5
+        height_um = pitch_um * 2.5
 
         pins.append({
-            'name': port_name,
-            'net': net_id,
-            'direction': 'INPUT',
-            'use': use_attr,
-            'x': int(x_um * dbu_per_micron),
-            'y': int(y_um * dbu_per_micron),
-            'width': int(width_um * dbu_per_micron),
-            'height': int(height_um * dbu_per_micron),
-            'layer': layer,
-            'orient': pin_info.get('orient', 'N'),
-            'side': side
-        })
-
-    # Process output ports
-    for port_name, net_id in output_ports.items():
-        pin_info = pin_info_map.get(port_name, {})
-
-        # Extract pin position and dimensions as-is from fabric_db
-        x_um = pin_info.get('x_um', 0)
-        y_um = pin_info.get('y_um', 0)
-        layer = pin_info.get('layer', 'met2')
-        side = pin_info.get('side', 'south')
-        
-        # Use pin dimensions from fabric_db directly; small default if not specified
-        width_um = pin_info.get('width_um', 0.14)
-        height_um = pin_info.get('height_um', 0.14)
-        
-        # Determine USE attribute (CLOCK for clk pin, SIGNAL for others)
-        use_attr = 'CLOCK' if port_name == 'clk' else 'SIGNAL'
-
-        pins.append({
-            'name': port_name,
-            'net': net_id,
-            'direction': 'OUTPUT',
+            'name': pin_name,
+            'net': pin_name,  # Use pin name as net name (will be connected by netlist)
+            'direction': direction,
             'use': use_attr,
             'x': int(x_um * dbu_per_micron),
             'y': int(y_um * dbu_per_micron),
@@ -963,101 +1150,79 @@ def write_def_file(design_name: str,
         f.write("\n")
 
         # ======================================
-        # Rows Section - DEF 5.8 Format (for placement grid)
+        # ROWS Section - DEF 5.8 Format
         # ======================================
-        # ROW defines placement rows for the standard cells
-        # For structured ASIC with pre-placed cells, we create rows across the die
-        if llx < urx and lly < ury:
-            # Get standard cell height and site width from TLEF if available
-            if tlef_data and 'sites' in tlef_data:
-                site_width_dbu, site_height_dbu, site_name = get_site_dimensions(tlef_data, units)
-            else:
-                # Fallback to Sky130 defaults (do NOT halve - components use original coords)
-                site_width_dbu, site_height_dbu, site_name = 460, 2720, 'unithd'
+        # ROWS define the standard cell placement rows
+        if tlef_data and 'sites' in tlef_data:
+            sites = tlef_data['sites']
+            # Find the core site (typically 'unithd' for sky130)
+            core_site = None
+            for site_name, site_info in sites.items():
+                if 'class' in site_info and site_info['class'].upper() == 'CORE':
+                    core_site = site_name
+                    site_width = site_info.get('width', 0.46)
+                    site_height = site_info.get('height', 2.72)
+                    break
             
-            # Extract unique Y coordinates from placed components for ROW generation
-            unique_y_coords = sorted(set(c.get('y', 0) for c in components if c.get('status') != 'UNPLACED'))
-            
-            # Generate ROWs at regular grid intervals for better routing capacity
-            # Need to use halved coordinates to match the halved DIEAREA and PIN coordinates
-            rows_list = []
-            num_cols = (urx - llx) // site_width_dbu
-            row_num = 0
-            
-            # Use maximum row density for maximum routing tracks
-            # 1/16 of site height for ultra-dense routing
-            row_spacing = site_height_dbu // 16  # Use 1/16 site height for ultra-dense routing
-            
-            # Create rows at regular intervals across the entire die
-            # This provides maximum routing tracks between placements
-            row_y = lly
-            while row_y < ury:
-                rows_list.append((f"ROW_{row_num}", llx, row_y, num_cols, site_width_dbu))
-                row_y += row_spacing
-                row_num += 1
-            
-            print(f"[INFO] Generated {len(rows_list)} ROWs at {row_spacing} DBU spacing ({row_spacing/1000:.3f}µm) for ultra-dense routing capacity")
-            
-            # Write all ROW statements
-            for row_name, row_x, row_y, num_cols, step_x in rows_list:
-                f.write(f"ROW {row_name} {site_name} {row_x} {row_y} N DO {num_cols} BY 1 STEP {step_x} 0 ;\n")
-            
-            f.write("\n")
+            if core_site:
+                site_width_dbu = int(site_width * units)
+                site_height_dbu = int(site_height * units)
+                
+                # Generate individual rows for each Y position across the die
+                # Format: ROW row_name site_name x y orient DO num_sites BY 1 STEP x_step 0 ;
+                num_rows_y = (ury - lly) // site_height_dbu
+                num_sites_x = (urx - llx) // site_width_dbu
+                
+                # ENHANCED: Increase row density to address routing congestion (15k violations)
+                # Double the number of rows by reducing row spacing for better met1 routing capacity
+                enhanced_row_height = site_height_dbu // 2
+                enhanced_num_rows_y = (ury - lly) // enhanced_row_height
+                
+                print(f"[INFO] ROW generation enhanced:")
+                print(f"       Original rows: {num_rows_y}")
+                print(f"       Enhanced rows: {enhanced_num_rows_y} (2x density)")
+                print(f"       Original row height: {site_height_dbu} DBU")
+                print(f"       Enhanced row height: {enhanced_row_height} DBU")
+                
+                for row_idx in range(enhanced_num_rows_y):
+                    y_pos = lly + row_idx * enhanced_row_height
+                    f.write(f"ROW ROW_{row_idx} {core_site} {llx} {y_pos} N DO {num_sites_x} BY 1 STEP {site_width_dbu} 0 ;\n")
+        
+        f.write("\n")
 
         # ======================================
-        # Tracks Section - DEF 5.8 Format (for routing grid)
+        # VIAS Section - DEF 5.8 Format
         # ======================================
-        # TRACKS defines the routing grid for each layer
-        # Format: TRACKS {X|Y} start DO count STEP pitch [LAYER layer ...] ;
-        
-        # Extract unique X and Y coordinates from placed components for track generation
-        placed_components = [c for c in components if c.get('status') != 'UNPLACED']
-        unique_x_coords = sorted(set(c.get('x', 0) for c in placed_components))
-        unique_y_coords = sorted(set(c.get('y', 0) for c in placed_components))
-        
-        # X and Y tracks for each layer - use actual placement coordinates for better alignment
-        x_pitch = site_width_dbu  # Same as site width for grid alignment
-        y_pitch = site_height_dbu // 2  # Typically half the site height for better coverage
-        
-        if unique_x_coords and unique_y_coords:
-            # Generate tracks based on actual placement ranges
-            x_min = min(unique_x_coords)
-            x_max = max(unique_x_coords)
-            y_min = min(unique_y_coords)
-            y_max = max(unique_y_coords)
-            
-            x_do = max(1, (x_max - x_min) // x_pitch + 10)  # Add some margin
-            y_do = max(1, (y_max - y_min) // y_pitch + 10)  # Add some margin
-        else:
-            # Fallback to full die area
-            x_do = (urx - llx) // x_pitch
-            y_do = (ury - lly) // y_pitch
-        
-        # Layer-specific track configuration
-        # Increase met1 track density to compensate for 54% blockage
-        # Keep normal density on upper layers (met2-met5) which have <1% reduction
-        # li1: local interconnect (minimal)
-        # met1: horizontal signal routing - DOUBLE track density (half the pitch)
-        # met2: vertical signal routing - normal density
-        # met3: horizontal clock routing - normal density
-        # met4: vertical signal routing - normal density
-        # met5: horizontal top-level routing - normal density
-        
-        layer_configs = {
-            'li1': {'x_pitch': x_pitch * 4, 'y_pitch': y_pitch * 4},      # Very sparse for local use
-            'met1': {'x_pitch': x_pitch // 2, 'y_pitch': y_pitch // 2},   # DOUBLE density to offset blockages
-            'met2': {'x_pitch': x_pitch, 'y_pitch': y_pitch},             # Normal vertical tracks
-            'met3': {'x_pitch': x_pitch, 'y_pitch': y_pitch},             # Normal horizontal (clock)
-            'met4': {'x_pitch': x_pitch, 'y_pitch': y_pitch},             # Normal vertical tracks
-            'met5': {'x_pitch': x_pitch, 'y_pitch': y_pitch},             # Normal horizontal tracks
-        }
-        
-        for layer in ['li1', 'met1', 'met2', 'met3', 'met4', 'met5']:
-            config = layer_configs[layer]
-            x_do_layer = (urx - llx) // config['x_pitch']
-            y_do_layer = (ury - lly) // config['y_pitch']
-            f.write(f"TRACKS X {llx} DO {x_do_layer} STEP {config['x_pitch']} LAYER {layer} ;\n")
-            f.write(f"TRACKS Y {lly} DO {y_do_layer} STEP {config['y_pitch']} LAYER {layer} ;\n")
+        if tlef_data and 'vias' in tlef_data and tlef_data['vias']:
+            vias = tlef_data['vias']
+            f.write(f"VIAS {len(vias)} ;\n")
+            for via_name, via_info in sorted(vias.items()):
+                f.write(f"    - {via_name}")
+                if 'viarule' in via_info:
+                    f.write(f" + VIARULE {via_info['viarule']}")
+                if 'cutsize_x' in via_info and 'cutsize_y' in via_info:
+                    f.write(f" + CUTSIZE {int(via_info['cutsize_x'] * units)} {int(via_info['cutsize_y'] * units)}")
+                if 'layers' in via_info:
+                    f.write(f"  + LAYERS {' '.join(via_info['layers'])}")
+                if 'cutspacing_x' in via_info and 'cutspacing_y' in via_info:
+                    f.write(f"  + CUTSPACING {int(via_info['cutspacing_x'] * units)} {int(via_info['cutspacing_y'] * units)}")
+                if 'enclosure' in via_info:
+                    enc = via_info['enclosure']
+                    # Handle both list and dict formats for enclosure
+                    if isinstance(enc, list):
+                        f.write(f"  + ENCLOSURE {int(enc[0] * units)} {int(enc[1] * units)} {int(enc[2] * units)} {int(enc[3] * units)}")
+                    elif isinstance(enc, dict):
+                        # Convert dict format to DEF format if needed
+                        # For now, skip dict format
+                        pass
+                if 'rowcol' in via_info:
+                    f.write(f"  + ROWCOL {via_info['rowcol'][0]} {via_info['rowcol'][1]}")
+                f.write("  ;\n")
+            f.write("END VIAS\n")
+            f.write("\n")
+
+        # TRACKS Section intentionally omitted per request.
+        # Routing grids will be inferred from technology files or set in OpenROAD.
         f.write("\n")
 
         # ======================================
@@ -1125,11 +1290,9 @@ def write_def_file(design_name: str,
             net_id = str(pin['net'])
             net_name = net_id_to_name.get(net_id, net_id)
             
-            # Use fabric coordinates divided by 2 to match OpenROAD's 2000 DBU/µm expectation
-            x_raw = pin['x']
-            y_raw = pin['y']
-            x_coord = x_raw // 2
-            y_coord = y_raw // 2
+            # Use fabric coordinates directly; do not divide by 2
+            x_coord = int(pin['x'])
+            y_coord = int(pin['y'])
             
             # Use layer from fabric_db if available, otherwise default to met2
             pin_layer = pin.get('layer', 'met2')
@@ -1137,76 +1300,78 @@ def write_def_file(design_name: str,
             # Get pin side from fabric_db to determine extension direction
             pin_side = pin.get('side', 'south')
 
-            # Clamp to die bounds
-            x_clamped = max(llx, min(urx, x_coord))
-            y_clamped = max(lly, min(ury, y_coord))
-            
-            # Log first 5 pins for debugging
+            # Log first 5 pins for debugging (no snapping/clamping)
             if pin_debug_count < 5:
                 print(f"  PIN {pin['name']}:")
-                print(f"    Raw coords: ({x_raw}, {y_raw})")
-                print(f"    After halve: ({x_coord}, {y_coord})")
-                if x_clamped != x_coord or y_clamped != y_coord:
-                    print(f"    After clamp: ({x_clamped}, {y_clamped}) [CLAMPED]")
+                print(f"    Raw coords: ({x_coord}, {y_coord})")
                 print(f"    Side: {pin_side}, Layer: {pin_layer}")
                 pin_debug_count += 1
             
-            x_coord = x_clamped
-            y_coord = y_clamped
             
-            # Get minimum width from layer definition (for access point sizing)
-            # CRITICAL: Expand rectangles to guarantee intersection with track grid
-            # Track pitches: X=460 DBU, Y=1360 DBU (met1-met5)
-            # Use 1.5x track pitch to ensure overlap with multiple tracks
-            min_width = 690  # 1.5 * 460 DBU for X direction
-            min_height = 2040  # 1.5 * 1360 DBU for Y direction
+            # Get minimum width from TLEF layer definition for pin bbox thickness
+            min_width = 100
+            if tlef_data and 'layers' in tlef_data:
+                layer_info = tlef_data['layers'].get(pin_layer)
+                if layer_info and 'width' in layer_info:
+                    # TLEF width in microns -> convert to DBU
+                    min_width = int(layer_info['width'] * units)
             
             die_x_max = urx  # From DIEAREA
             die_y_max = ury  # From DIEAREA
             
-            # Create rectangular geometry based on pin side:
-            # Expanded to guarantee track grid intersection (1.5x track pitch)
-            # - east: extend left and up/down significantly
-            # - west: extend right and up/down significantly  
-            # - south: extend upward significantly (and left/right)
-            # - north: extend downward significantly (and left/right)
+            # Create rectangular geometry based on pin side and die boundary.
+            # Rule: use minimum layer width for bbox thickness; if the pin lies on
+            # a die boundary, extend only inward on that axis; otherwise center.
+
+            # Determine if the pin is on any die boundary
+            on_west_edge = (x_coord == llx)
+            on_east_edge = (x_coord == die_x_max)
+            on_south_edge = (y_coord == lly)
+            on_north_edge = (y_coord == die_y_max)
+
+            # Track pitch information (from make_tracks commands in microns)
+            track_pitches = {
+                'li1': {'x': 0.46, 'y': 0.34},
+                'met1': {'x': 0.34, 'y': 0.34},
+                'met2': {'x': 0.46, 'y': 0.46},
+                'met3': {'x': 0.68, 'y': 0.68},
+                'met4': {'x': 0.92, 'y': 0.92},
+                'met5': {'x': 3.40, 'y': 3.40}
+            }
             
-            if pin_side == 'east':
-                # East side: extend left from the pin point
-                x1 = x_coord - min_width
-                x2 = x_coord
-                y1 = y_coord - min_height // 2
-                y2 = y_coord + min_height // 2
-            elif pin_side == 'west':
-                # West side: extend right from the pin point
-                x1 = x_coord
-                x2 = x_coord + min_width
-                y1 = y_coord - min_height // 2
-                y2 = y_coord + min_height // 2
-            elif pin_side == 'south':
-                # South side: extend upward from the pin point
-                x1 = x_coord - min_width // 2
-                x2 = x_coord + min_width // 2
-                y1 = y_coord
-                y2 = y_coord + min_height
-            elif pin_side == 'north':
-                # North side: extend downward from the pin point
-                x1 = x_coord - min_width // 2
-                x2 = x_coord + min_width // 2
-                y1 = y_coord - min_height
-                y2 = y_coord
-            else:
-                # Default: expand symmetrically around pin point
-                x1 = x_coord - min_width // 2
-                x2 = x_coord + min_width // 2
-                y1 = y_coord - min_height // 2
-                y2 = y_coord + min_height // 2
+            # Pin height should span at least 2-3 track pitches of its layer
+            track_info = track_pitches.get(pin_layer, {'x': 0.46, 'y': 0.46})
+            pin_height_um = track_info['y'] * 2.5  # 2.5x track pitch for good coverage
+            pin_width_um = track_info['x'] * 2.5
             
-            # Clamp rectangle to die bounds to ensure pins are inside
-            x1 = max(llx, x1)
-            x2 = min(die_x_max, x2)
-            y1 = max(lly, y1)
-            y2 = min(die_y_max, y2)
+            pin_height = int(pin_height_um * units)
+            pin_width = int(pin_width_um * units)
+            
+            half_width = pin_width // 2
+            half_height = pin_height // 2
+            
+            # Default centered bbox: -width/2 to +width/2
+            x1 = -half_width
+            x2 = +half_width
+            y1 = -half_height
+            y2 = +half_height
+
+            # Adjust for boundary conditions: extend inward only
+            if on_east_edge:
+                x1 = -pin_width
+                x2 = 0
+            elif on_west_edge:
+                x1 = 0
+                x2 = +pin_width
+
+            if on_north_edge:
+                y1 = -pin_height
+                y2 = 0
+            elif on_south_edge:
+                y1 = 0
+                y2 = +pin_height
+            
+            # No clamping/snapping: keep rectangle as computed
             
             f.write(f"  - {pin['name']} + NET {net_name}\n")
             f.write(f"    + DIRECTION {pin['direction']}\n")
@@ -1214,7 +1379,8 @@ def write_def_file(design_name: str,
             f.write(f"    + PORT\n")
             f.write(f"      + LAYER {pin_layer}\n")
             f.write(f"        ( {x1} {y1} ) ( {x2} {y2} )\n")
-            f.write(f"      + FIXED ( {x_coord} {y_coord} ) {pin.get('orient', 'N')} ;\n")
+            # Use PLACED for pins as requested
+            f.write(f"      + PLACED ( {x_coord} {y_coord} ) {pin.get('orient', 'N')} ;\n")
         f.write("END PINS\n")
         f.write("\n")
 
@@ -1579,7 +1745,7 @@ def main():
     # ========================================
     print("\n[4/6] Extracting design information...")
     die_area = get_die_area(fabric_db)
-    pins = extract_io_pins(logical_db, fabric_db, tlef_data)
+    pins = extract_io_pins(logical_db, fabric_db, lef_data)
     
     # Get database units from fabric_db
     units = fabric_db.get('fabric', {}).get('pin_placement', {}).get('units', {}).get('dbu_per_micron', 1000)
