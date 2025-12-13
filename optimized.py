@@ -34,10 +34,10 @@ from placer import (
 class SAConfig:
     """Configuration parameters for Simulated Annealing."""
     def __init__(self):
-        self.initial_temp = 100.0       # Starting temperature
+        self.initial_temp = 1000.0       # Starting temperature
         self.final_temp = 0.01          # Stopping temperature
         self.cooling_rate = 0.97        # Slower cooling for better exploration
-        self.moves_per_temp = 100       # More moves per temperature
+        self.moves_per_temp = 4000       # More moves per temperature
         self.max_iterations = 15000     # Safety limit
         
         # Move type probabilities
