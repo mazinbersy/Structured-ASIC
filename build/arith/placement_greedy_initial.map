@@ -1,0 +1,585 @@
+clk  501.63  0.00
+in_0  4.83  0.00
+in_1  114.77  0.00
+in_10  1003.60  4.42
+in_11  1003.60  113.22
+in_12  1003.60  222.02
+in_13  1003.60  330.82
+in_14  1003.60  439.62
+in_15  1003.60  548.42
+in_16  1003.60  657.22
+in_17  1003.60  766.02
+in_18  1003.60  874.82
+in_19  1003.60  982.94
+in_2  225.17  0.00
+in_20  4.83  989.20
+in_21  114.77  989.20
+in_22  225.17  989.20
+in_23  335.57  989.20
+in_24  445.97  989.20
+in_25  556.37  989.20
+in_26  666.77  989.20
+in_27  777.17  989.20
+in_28  887.57  989.20
+in_29  997.97  989.20
+in_3  335.57  0.00
+in_30  0.00  4.42
+in_31  0.00  113.22
+in_32  0.00  222.02
+in_33  0.00  330.82
+in_34  0.00  439.62
+in_35  0.00  548.42
+in_36  0.00  657.22
+in_37  0.00  766.02
+in_38  0.00  874.82
+in_39  0.00  982.94
+in_4  445.97  0.00
+in_5  556.37  0.00
+in_6  666.77  0.00
+in_7  777.17  0.00
+in_8  887.57  0.00
+in_9  997.97  0.00
+oeb_0  5.75  0.00
+oeb_1  115.69  0.00
+oeb_10  1003.60  5.78
+oeb_11  1003.60  114.58
+oeb_12  1003.60  223.38
+oeb_13  1003.60  332.18
+oeb_14  1003.60  440.98
+oeb_15  1003.60  549.78
+oeb_16  1003.60  658.58
+oeb_17  1003.60  767.38
+oeb_18  1003.60  876.18
+oeb_19  1003.60  984.30
+oeb_2  226.09  0.00
+oeb_20  5.75  989.20
+oeb_21  115.69  989.20
+oeb_22  226.09  989.20
+oeb_23  336.49  989.20
+oeb_24  446.89  989.20
+oeb_25  557.29  989.20
+oeb_26  667.69  989.20
+oeb_27  778.09  989.20
+oeb_28  888.49  989.20
+oeb_29  998.89  989.20
+oeb_3  336.49  0.00
+oeb_30  0.00  5.78
+oeb_31  0.00  114.58
+oeb_32  0.00  223.38
+oeb_33  0.00  332.18
+oeb_34  0.00  440.98
+oeb_35  0.00  549.78
+oeb_36  0.00  658.58
+oeb_37  0.00  767.38
+oeb_38  0.00  876.18
+oeb_39  0.00  984.30
+oeb_4  446.89  0.00
+oeb_5  557.29  0.00
+oeb_6  667.69  0.00
+oeb_7  778.09  0.00
+oeb_8  888.49  0.00
+oeb_9  998.89  0.00
+out_0  5.29  0.00
+out_1  115.23  0.00
+out_10  1003.60  5.10
+out_11  1003.60  113.90
+out_12  1003.60  222.70
+out_13  1003.60  331.50
+out_14  1003.60  440.30
+out_15  1003.60  549.10
+out_16  1003.60  657.90
+out_17  1003.60  766.70
+out_18  1003.60  875.50
+out_19  1003.60  983.62
+out_2  225.63  0.00
+out_20  5.29  989.20
+out_21  115.23  989.20
+out_22  225.63  989.20
+out_23  336.03  989.20
+out_24  446.43  989.20
+out_25  556.83  989.20
+out_26  667.23  989.20
+out_27  777.63  989.20
+out_28  888.03  989.20
+out_29  998.43  989.20
+out_3  336.03  0.00
+out_30  0.00  5.10
+out_31  0.00  113.90
+out_32  0.00  222.70
+out_33  0.00  331.50
+out_34  0.00  440.30
+out_35  0.00  549.10
+out_36  0.00  657.90
+out_37  0.00  766.70
+out_38  0.00  875.50
+out_39  0.00  983.62
+out_4  446.43  0.00
+out_5  556.83  0.00
+out_6  667.23  0.00
+out_7  777.63  0.00
+out_8  888.03  0.00
+out_9  998.43  0.00
+rst_n  502.09  0.00
+T0Y0__R0_INV_0  sky130_fd_sc_hd__clkinv_2  12.36  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2102
+T0Y0__R0_NAND_0  sky130_fd_sc_hd__nand2_2  5.46  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2177
+T0Y0__R2_CONB_0  sky130_fd_sc_hd__conb_1  16.04  10.44  ->  $auto$hilomap.cc:40:hilomap_worker$2060
+T0Y10__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  119.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2223
+T0Y15__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  173.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2459
+T0Y20__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  228.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2262
+T0Y20__R2_OR_1  sky130_fd_sc_hd__or2_2  21.56  228.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2261
+T0Y25__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  282.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2460
+T0Y30__R0_NAND_0  sky130_fd_sc_hd__nand2_2  5.46  331.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2300
+T0Y30__R1_INV_0  sky130_fd_sc_hd__clkinv_2  10.06  334.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2299
+T0Y35__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  391.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2461
+T0Y40__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  445.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2340
+T0Y45__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  500.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2462
+T0Y50__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  554.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2379
+T0Y55__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  608.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2463
+T0Y5__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  64.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2458
+T0Y60__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  663.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2420
+T0Y65__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  717.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2464
+T0Y70__R2_OR_0  sky130_fd_sc_hd__or2_2  19.26  772.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2457
+T0Y77__R2_INV_1  sky130_fd_sc_hd__clkinv_2  7.30  848.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2465
+T0Y80__R2_INV_0  sky130_fd_sc_hd__clkinv_2  5.46  880.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2478
+T0Y89__R2_INV_0  sky130_fd_sc_hd__clkinv_2  5.46  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2097
+T0Y89__R2_NAND_2  sky130_fd_sc_hd__nand2_2  13.74  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2126
+T0Y89__R3_NAND_0  sky130_fd_sc_hd__nand2_2  5.46  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2109
+T0Y89__R3_NAND_3  sky130_fd_sc_hd__nand2_2  12.36  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2129
+T10Y0__R0_NAND_4  sky130_fd_sc_hd__nand2_2  297.56  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2165
+T10Y0__R0_OR_1  sky130_fd_sc_hd__or2_2  302.16  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2159
+T10Y0__R0_OR_2  sky130_fd_sc_hd__or2_2  304.46  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2281
+T10Y77__R2_NAND_2  sky130_fd_sc_hd__nand2_2  289.74  848.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2158
+T11Y0__R0_OR_2  sky130_fd_sc_hd__or2_2  332.06  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2254
+T11Y17__R2_OR_0  sky130_fd_sc_hd__or2_2  322.86  195.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2260
+T11Y52__R1_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  324.24  573.48  ->  $flatten\A.\gray_inst.$auto$ff.cc:266:slice$1422
+T11Y71__R2_OR_1  sky130_fd_sc_hd__or2_2  325.16  782.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2138
+T11Y71__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  318.26  785.64  ->  $auto$insbuf.cc:97:execute$2484
+T11Y72__R0_NAND_4  sky130_fd_sc_hd__nand2_2  325.16  788.36  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2137
+T11Y75__R0_NAND_4  sky130_fd_sc_hd__nand2_2  325.16  821.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2135
+T11Y79__R1_NAND_1  sky130_fd_sc_hd__nand2_2  311.36  867.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2151
+T11Y81__R0_OR_2  sky130_fd_sc_hd__or2_2  332.06  886.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2134
+T11Y89__R2_OR_4  sky130_fd_sc_hd__or2_2  332.06  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2116
+T12Y0__R0_INV_0  sky130_fd_sc_hd__clkinv_2  343.56  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2104
+T12Y0__R0_NAND_3  sky130_fd_sc_hd__nand2_2  350.46  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2193
+T12Y0__R0_NAND_4  sky130_fd_sc_hd__nand2_2  352.76  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2252
+T12Y0__R0_OR_2  sky130_fd_sc_hd__or2_2  359.66  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2251
+T12Y0__R1_NAND_2  sky130_fd_sc_hd__nand2_2  345.86  7.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2277
+T12Y0__R2_OR_0  sky130_fd_sc_hd__or2_2  350.46  10.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2278
+T12Y16__R0_OR_0  sky130_fd_sc_hd__or2_2  355.06  179.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2206
+T12Y24__R0_INV_0  sky130_fd_sc_hd__clkinv_2  343.56  266.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2234
+T12Y41__R0_NAND_4  sky130_fd_sc_hd__nand2_2  352.76  451.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2222
+T12Y56__R0_INV_0  sky130_fd_sc_hd__clkinv_2  343.56  614.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2311
+T12Y62__R0_INV_0  sky130_fd_sc_hd__clkinv_2  343.56  679.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2350
+T12Y63__R3_NAND_3  sky130_fd_sc_hd__nand2_2  343.56  698.60  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2139
+T12Y66__R0_INV_0  sky130_fd_sc_hd__clkinv_2  343.56  723.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2390
+T12Y71__R0_INV_0  sky130_fd_sc_hd__clkinv_2  343.56  777.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2455
+T12Y71__R1_NAND_2  sky130_fd_sc_hd__nand2_2  345.86  780.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2456
+T12Y89__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  343.10  976.04  ->  $auto$insbuf.cc:97:execute$2479
+T12Y89__R3_NAND_0  sky130_fd_sc_hd__nand2_2  336.66  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2114
+T13Y0__R0_NAND_0  sky130_fd_sc_hd__nand2_2  364.26  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2250
+T13Y0__R0_NAND_4  sky130_fd_sc_hd__nand2_2  380.36  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2279
+T13Y17__R0_NAND_4  sky130_fd_sc_hd__nand2_2  380.36  189.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2170
+T13Y26__R0_INV_0  sky130_fd_sc_hd__clkinv_2  371.16  287.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2176
+T13Y36__R0_INV_0  sky130_fd_sc_hd__clkinv_2  371.16  396.68  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2338
+T13Y36__R0_NAND_4  sky130_fd_sc_hd__nand2_2  380.36  396.68  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2339
+T13Y48__R1_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  379.44  529.96  ->  $flatten\A.\gray_inst.$auto$ff.cc:266:slice$1425
+T13Y59__R3_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  379.44  655.08  ->  $flatten\A.\counter_inst.$auto$ff.cc:266:slice$1481
+T13Y75__R0_INV_0  sky130_fd_sc_hd__clkinv_2  371.16  821.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2118
+T13Y89__R3_NAND_0  sky130_fd_sc_hd__nand2_2  364.26  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2117
+T13Y89__R3_NAND_3  sky130_fd_sc_hd__nand2_2  371.16  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2157
+T14Y0__R0_OR_2  sky130_fd_sc_hd__or2_2  414.86  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2323
+T14Y19__R0_NAND_4  sky130_fd_sc_hd__nand2_2  407.96  211.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2183
+T14Y1__R0_OR_0  sky130_fd_sc_hd__or2_2  410.26  15.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2331
+T14Y33__R0_INV_0  sky130_fd_sc_hd__clkinv_2  398.76  364.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2240
+T14Y38__R0_INV_0  sky130_fd_sc_hd__clkinv_2  398.76  418.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2297
+T14Y38__R0_NAND_3  sky130_fd_sc_hd__nand2_2  405.66  418.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2298
+T14Y41__R1_INV_0  sky130_fd_sc_hd__clkinv_2  396.46  453.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2377
+T14Y41__R1_NAND_1  sky130_fd_sc_hd__nand2_2  394.16  453.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2378
+T14Y47__R1_INV_0  sky130_fd_sc_hd__clkinv_2  396.46  519.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2418
+T14Y47__R1_NAND_1  sky130_fd_sc_hd__nand2_2  394.16  519.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2419
+T14Y4__R2_INV_0  sky130_fd_sc_hd__clkinv_2  391.86  53.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2179
+T14Y55__R3_CONB_0  sky130_fd_sc_hd__conb_1  405.66  611.56  ->  $auto$hilomap.cc:40:hilomap_worker$2547
+T14Y56__R2_INV_0  sky130_fd_sc_hd__clkinv_2  391.86  619.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2436
+T14Y62__R0_NAND_3  sky130_fd_sc_hd__nand2_2  405.66  679.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2477
+T14Y63__R2_INV_1  sky130_fd_sc_hd__clkinv_2  393.70  695.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2136
+T14Y79__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  398.30  867.24  ->  $auto$insbuf.cc:97:execute$2508
+T14Y80__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  400.60  875.40  ->  $auto$insbuf.cc:97:execute$2524
+T14Y80__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  398.30  878.12  ->  $auto$insbuf.cc:97:execute$2509
+T14Y80__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  401.06  883.56  ->  $auto$insbuf.cc:97:execute$2510
+T14Y81__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  400.60  886.28  ->  $auto$insbuf.cc:97:execute$2525
+T14Y81__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  398.30  889.00  ->  $auto$insbuf.cc:97:execute$2511
+T14Y81__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  401.06  894.44  ->  $auto$insbuf.cc:97:execute$2536
+T14Y82__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  398.30  899.88  ->  $auto$insbuf.cc:97:execute$2512
+T14Y82__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  401.06  905.32  ->  $auto$insbuf.cc:97:execute$2513
+T14Y83__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  400.60  908.04  ->  $auto$insbuf.cc:97:execute$2538
+T14Y83__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  398.30  910.76  ->  $auto$insbuf.cc:97:execute$2514
+T14Y83__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  401.06  916.20  ->  $auto$insbuf.cc:97:execute$2515
+T14Y84__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  400.60  918.92  ->  $auto$insbuf.cc:97:execute$2537
+T14Y84__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  398.30  921.64  ->  $auto$insbuf.cc:97:execute$2516
+T14Y85__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  400.60  929.80  ->  $auto$insbuf.cc:97:execute$2517
+T14Y86__R1_CONB_0  sky130_fd_sc_hd__conb_1  405.66  943.40  ->  $auto$hilomap.cc:48:hilomap_worker$2058
+T14Y87__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  400.60  951.56  ->  $auto$insbuf.cc:97:execute$2501
+T14Y87__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  398.30  954.28  ->  $auto$insbuf.cc:97:execute$2500
+T15Y0__R0_NAND_0  sky130_fd_sc_hd__nand2_2  419.46  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2322
+T15Y0__R0_NAND_3  sky130_fd_sc_hd__nand2_2  433.26  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2246
+T15Y0__R0_NAND_4  sky130_fd_sc_hd__nand2_2  435.56  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2184
+T15Y0__R0_OR_0  sky130_fd_sc_hd__or2_2  437.86  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2185
+T15Y0__R2_OR_0  sky130_fd_sc_hd__or2_2  433.26  10.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2247
+T15Y52__R3_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  434.64  578.92  ->  $flatten\A.\gray_inst.$auto$ff.cc:266:slice$1430
+T15Y53__R1_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  434.64  584.36  ->  $flatten\A.\gray_inst.$auto$ff.cc:266:slice$1431
+T15Y59__R3_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  434.64  655.08  ->  $flatten\A.\counter_inst.$auto$ff.cc:266:slice$1482
+T15Y74__R0_OR_2  sky130_fd_sc_hd__or2_2  442.46  810.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2150
+T15Y79__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  425.90  867.24  ->  $auto$insbuf.cc:97:execute$2544
+T15Y79__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.66  872.68  ->  $auto$insbuf.cc:97:execute$2543
+T15Y80__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.20  875.40  ->  $auto$insbuf.cc:97:execute$2542
+T15Y80__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  425.90  878.12  ->  $auto$insbuf.cc:97:execute$2541
+T15Y80__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.66  883.56  ->  $auto$insbuf.cc:97:execute$2526
+T15Y81__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.20  886.28  ->  $auto$insbuf.cc:97:execute$2527
+T15Y81__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  425.90  889.00  ->  $auto$insbuf.cc:97:execute$2539
+T15Y81__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.66  894.44  ->  $auto$insbuf.cc:97:execute$2528
+T15Y82__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.20  897.16  ->  $auto$insbuf.cc:97:execute$2529
+T15Y82__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  425.90  899.88  ->  $auto$insbuf.cc:97:execute$2540
+T15Y82__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.66  905.32  ->  $auto$insbuf.cc:97:execute$2530
+T15Y83__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.20  908.04  ->  $auto$insbuf.cc:97:execute$2531
+T15Y83__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  425.90  910.76  ->  $auto$insbuf.cc:97:execute$2532
+T15Y83__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.66  916.20  ->  $auto$insbuf.cc:97:execute$2533
+T15Y84__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.20  918.92  ->  $auto$insbuf.cc:97:execute$2534
+T15Y84__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  425.90  921.64  ->  $auto$insbuf.cc:97:execute$2535
+T15Y87__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  428.20  951.56  ->  $auto$insbuf.cc:97:execute$2502
+T15Y87__R2_INV_0  sky130_fd_sc_hd__clkinv_2  419.46  957.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2130
+T15Y87__R2_NAND_0  sky130_fd_sc_hd__nand2_2  423.14  957.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2144
+T15Y89__R2_INV_0  sky130_fd_sc_hd__clkinv_2  419.46  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2115
+T15Y89__R2_OR_4  sky130_fd_sc_hd__or2_2  442.46  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2120
+T16Y0__R0_INV_0  sky130_fd_sc_hd__clkinv_2  453.96  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2105
+T16Y0__R0_NAND_4  sky130_fd_sc_hd__nand2_2  463.16  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2324
+T16Y0__R2_OR_0  sky130_fd_sc_hd__or2_2  460.86  10.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2202
+T16Y12__R0_NAND_1  sky130_fd_sc_hd__nand2_2  449.36  135.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2207
+T16Y2__R0_OR_0  sky130_fd_sc_hd__or2_2  465.46  26.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2370
+T16Y52__R1_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  462.24  573.48  ->  $flatten\A.\gray_inst.$auto$ff.cc:266:slice$1424
+T16Y52__R3_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  462.24  578.92  ->  $flatten\A.\gray_inst.$auto$ff.cc:266:slice$1432
+T16Y59__R3_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  462.24  655.08  ->  $flatten\A.\counter_inst.$auto$ff.cc:266:slice$1483
+T16Y74__R0_NAND_0  sky130_fd_sc_hd__nand2_2  447.06  810.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2149
+T16Y75__R0_INV_0  sky130_fd_sc_hd__clkinv_2  453.96  821.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2122
+T16Y81__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  453.50  889.00  ->  $auto$insbuf.cc:97:execute$2545
+T16Y87__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  455.80  951.56  ->  $auto$insbuf.cc:97:execute$2504
+T16Y87__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  453.50  954.28  ->  $auto$insbuf.cc:97:execute$2503
+T16Y89__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  453.50  976.04  ->  $auto$insbuf.cc:97:execute$2480
+T16Y89__R3_NAND_0  sky130_fd_sc_hd__nand2_2  447.06  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2119
+T17Y1__R0_NAND_2  sky130_fd_sc_hd__nand2_2  479.26  15.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2248
+T17Y2__R2_OR_4  sky130_fd_sc_hd__or2_2  497.66  32.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2291
+T17Y80__R0_NAND_3  sky130_fd_sc_hd__nand2_2  488.46  875.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2125
+T17Y87__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  483.40  951.56  ->  $auto$insbuf.cc:97:execute$2506
+T17Y87__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  481.10  954.28  ->  $auto$insbuf.cc:97:execute$2505
+T17Y89__R2_OR_4  sky130_fd_sc_hd__or2_2  497.66  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2124
+T17Y89__R3_NAND_0  sky130_fd_sc_hd__nand2_2  474.66  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2121
+T18Y0__R1_NAND_2  sky130_fd_sc_hd__nand2_2  511.46  7.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2361
+T18Y0__R2_OR_0  sky130_fd_sc_hd__or2_2  516.06  10.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2362
+T18Y18__R0_INV_0  sky130_fd_sc_hd__clkinv_2  509.16  200.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2371
+T18Y23__R0_NAND_3  sky130_fd_sc_hd__nand2_2  516.06  255.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2259
+T18Y25__R2_OR_0  sky130_fd_sc_hd__or2_2  516.06  282.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2337
+T18Y2__R0_OR_2  sky130_fd_sc_hd__or2_2  525.26  26.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2288
+T18Y2__R2_NAND_0  sky130_fd_sc_hd__nand2_2  505.94  32.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2282
+T18Y2__R2_OR_4  sky130_fd_sc_hd__or2_2  525.26  32.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2411
+T18Y61__R2_OR_0  sky130_fd_sc_hd__or2_2  516.06  674.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2271
+T18Y63__R3_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  517.44  698.60  ->  $flatten\A.\gray_inst.$auto$ff.cc:266:slice$1429
+T18Y80__R1_NAND_2  sky130_fd_sc_hd__nand2_2  511.46  878.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2132
+T18Y89__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  511.46  981.48  ->  $auto$insbuf.cc:97:execute$2481
+T18Y89__R3_NAND_0  sky130_fd_sc_hd__nand2_2  502.26  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2123
+T19Y0__R0_NAND_3  sky130_fd_sc_hd__nand2_2  543.66  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2242
+T19Y0__R0_NAND_4  sky130_fd_sc_hd__nand2_2  545.96  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2181
+T19Y0__R2_OR_0  sky130_fd_sc_hd__or2_2  543.66  10.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2241
+T19Y10__R0_NAND_2  sky130_fd_sc_hd__nand2_2  534.46  113.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2228
+T19Y20__R0_NAND_4  sky130_fd_sc_hd__nand2_2  545.96  222.60  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2256
+T19Y20__R1_NAND_0  sky130_fd_sc_hd__nand2_2  529.86  225.32  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2284
+T19Y21__R2_INV_1  sky130_fd_sc_hd__clkinv_2  531.70  238.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2257
+T19Y24__R2_OR_4  sky130_fd_sc_hd__or2_2  552.86  271.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2178
+T19Y2__R1_NAND_1  sky130_fd_sc_hd__nand2_2  532.16  29.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2287
+T19Y31__R2_OR_0  sky130_fd_sc_hd__or2_2  543.66  347.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2296
+T19Y33__R2_OR_4  sky130_fd_sc_hd__or2_2  552.86  369.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2376
+T19Y76__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  538.60  831.88  ->  $auto$insbuf.cc:97:execute$2483
+T19Y76__R0_INV_0  sky130_fd_sc_hd__clkinv_2  536.76  831.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2098
+T19Y9__R1_NAND_2  sky130_fd_sc_hd__nand2_2  539.06  105.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2186
+T1Y0__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  41.80  5.00  ->  $auto$insbuf.cc:97:execute$2486
+T1Y89__R2_NAND_2  sky130_fd_sc_hd__nand2_2  41.34  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2153
+T1Y89__R3_NAND_0  sky130_fd_sc_hd__nand2_2  33.06  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2146
+T1Y89__R3_NAND_3  sky130_fd_sc_hd__nand2_2  39.96  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2156
+T20Y0__R0_INV_0  sky130_fd_sc_hd__clkinv_2  564.36  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2106
+T20Y0__R1_NAND_0  sky130_fd_sc_hd__nand2_2  557.46  7.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2363
+T20Y0__R1_NAND_2  sky130_fd_sc_hd__nand2_2  566.66  7.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2399
+T20Y18__R3_NAND_3  sky130_fd_sc_hd__nand2_2  564.36  209.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2286
+T20Y19__R2_INV_0  sky130_fd_sc_hd__clkinv_2  557.46  217.16  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2285
+T20Y29__R0_INV_0  sky130_fd_sc_hd__clkinv_2  564.36  320.52  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2166
+T20Y38__R0_OR_2  sky130_fd_sc_hd__or2_2  580.46  418.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2417
+T20Y40__R2_OR_0  sky130_fd_sc_hd__or2_2  571.26  445.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2221
+T20Y4__R0_NAND_3  sky130_fd_sc_hd__nand2_2  571.26  48.52  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2289
+T20Y75__R0_INV_0  sky130_fd_sc_hd__clkinv_2  564.36  821.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2142
+T21Y10__R2_OR_0  sky130_fd_sc_hd__or2_2  598.86  119.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2231
+T21Y17__R2_INV_0  sky130_fd_sc_hd__clkinv_2  585.06  195.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2208
+T21Y21__R0_NAND_2  sky130_fd_sc_hd__nand2_2  589.66  233.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2333
+T21Y42__R2_OR_0  sky130_fd_sc_hd__or2_2  598.86  467.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2454
+T21Y5__R2_OR_1  sky130_fd_sc_hd__or2_2  601.16  64.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2326
+T21Y5__R2_OR_4  sky130_fd_sc_hd__or2_2  608.06  64.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2319
+T21Y5__R3_NAND_0  sky130_fd_sc_hd__nand2_2  585.06  67.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2253
+T21Y6__R0_NAND_0  sky130_fd_sc_hd__nand2_2  585.06  70.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2280
+T21Y6__R0_NAND_3  sky130_fd_sc_hd__nand2_2  598.86  70.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2325
+T21Y6__R0_NAND_4  sky130_fd_sc_hd__nand2_2  601.16  70.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2327
+T21Y6__R1_NAND_0  sky130_fd_sc_hd__nand2_2  585.06  73.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2196
+T21Y81__R3_NAND_0  sky130_fd_sc_hd__nand2_2  585.06  894.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2474
+T22Y0__R0_OR_0  sky130_fd_sc_hd__or2_2  631.06  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2403
+T22Y0__R1_NAND_2  sky130_fd_sc_hd__nand2_2  621.86  7.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2225
+T22Y0__R2_OR_0  sky130_fd_sc_hd__or2_2  626.46  10.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2224
+T22Y10__R0_NAND_1  sky130_fd_sc_hd__nand2_2  614.96  113.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2229
+T22Y10__R2_OR_0  sky130_fd_sc_hd__or2_2  626.46  119.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2451
+T22Y13__R0_INV_0  sky130_fd_sc_hd__clkinv_2  619.56  146.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2415
+T22Y13__R0_OR_2  sky130_fd_sc_hd__or2_2  635.66  146.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2237
+T22Y14__R0_NAND_3  sky130_fd_sc_hd__nand2_2  626.46  157.32  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2258
+T22Y19__R0_NAND_3  sky130_fd_sc_hd__nand2_2  626.46  211.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2416
+T22Y20__R2_OR_3  sky130_fd_sc_hd__or2_2  633.36  228.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2212
+T22Y22__R0_NAND_2  sky130_fd_sc_hd__nand2_2  617.26  244.36  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2216
+T22Y22__R2_OR_0  sky130_fd_sc_hd__or2_2  626.46  249.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2215
+T22Y23__R2_OR_4  sky130_fd_sc_hd__or2_2  635.66  260.68  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2201
+T22Y24__R2_INV_0  sky130_fd_sc_hd__clkinv_2  612.66  271.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2334
+T22Y27__R1_NAND_2  sky130_fd_sc_hd__nand2_2  621.86  301.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2336
+T22Y27__R2_INV_0  sky130_fd_sc_hd__clkinv_2  612.66  304.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2217
+T22Y31__R0_NAND_3  sky130_fd_sc_hd__nand2_2  626.46  342.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2213
+T22Y31__R0_NAND_4  sky130_fd_sc_hd__nand2_2  628.76  342.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2270
+T22Y5__R1_NAND_0  sky130_fd_sc_hd__nand2_2  612.66  62.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2318
+T22Y6__R0_NAND_1  sky130_fd_sc_hd__nand2_2  614.96  70.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2364
+T22Y6__R2_NAND_2  sky130_fd_sc_hd__nand2_2  620.94  75.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2414
+T22Y86__R2_NAND_0  sky130_fd_sc_hd__nand2_2  616.34  946.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2141
+T23Y10__R2_INV_1  sky130_fd_sc_hd__clkinv_2  642.10  119.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2227
+T23Y15__R0_NAND_3  sky130_fd_sc_hd__nand2_2  654.06  168.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2236
+T23Y15__R1_NAND_2  sky130_fd_sc_hd__nand2_2  649.46  170.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2335
+T23Y17__R0_NAND_3  sky130_fd_sc_hd__nand2_2  654.06  189.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2238
+T23Y20__R1_NAND_0  sky130_fd_sc_hd__nand2_2  640.26  225.32  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2209
+T23Y20__R3_NAND_1  sky130_fd_sc_hd__nand2_2  642.56  230.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2235
+T23Y22__R3_NAND_2  sky130_fd_sc_hd__nand2_2  644.86  252.52  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2294
+T23Y23__R0_NAND_3  sky130_fd_sc_hd__nand2_2  654.06  255.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2312
+T23Y27__R0_OR_2  sky130_fd_sc_hd__or2_2  663.26  298.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2233
+T23Y2__R3_NAND_1  sky130_fd_sc_hd__nand2_2  642.56  34.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2446
+T23Y3__R1_NAND_0  sky130_fd_sc_hd__nand2_2  640.26  40.36  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2226
+T23Y3__R2_NAND_2  sky130_fd_sc_hd__nand2_2  648.54  43.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2400
+T23Y40__R0_OR_2  sky130_fd_sc_hd__or2_2  663.26  440.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2174
+T23Y7__R1_NAND_2  sky130_fd_sc_hd__nand2_2  649.46  83.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2320
+T23Y89__R2_OR_3  sky130_fd_sc_hd__or2_2  660.96  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2143
+T23Y89__R2_OR_4  sky130_fd_sc_hd__or2_2  663.26  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2140
+T23Y9__R2_INV_1  sky130_fd_sc_hd__clkinv_2  642.10  108.36  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2230
+T24Y0__R0_INV_0  sky130_fd_sc_hd__clkinv_2  674.76  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2107
+T24Y0__R0_NAND_1  sky130_fd_sc_hd__nand2_2  670.16  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2401
+T24Y11__R0_NAND_4  sky130_fd_sc_hd__nand2_2  683.96  124.68  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2265
+T24Y13__R0_NAND_4  sky130_fd_sc_hd__nand2_2  683.96  146.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2305
+T24Y15__R0_INV_0  sky130_fd_sc_hd__clkinv_2  674.76  168.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2267
+T24Y15__R2_NAND_2  sky130_fd_sc_hd__nand2_2  676.14  173.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2268
+T24Y15__R2_OR_0  sky130_fd_sc_hd__or2_2  681.66  173.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2269
+T24Y17__R0_NAND_0  sky130_fd_sc_hd__nand2_2  667.86  189.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2197
+T24Y17__R2_OR_0  sky130_fd_sc_hd__or2_2  681.66  195.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2274
+T24Y18__R1_NAND_2  sky130_fd_sc_hd__nand2_2  677.06  203.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2373
+T24Y18__R2_NAND_0  sky130_fd_sc_hd__nand2_2  671.54  206.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2273
+T24Y19__R2_OR_4  sky130_fd_sc_hd__or2_2  690.86  217.16  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2315
+T24Y19__R3_NAND_1  sky130_fd_sc_hd__nand2_2  670.16  219.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2275
+T24Y21__R2_OR_0  sky130_fd_sc_hd__or2_2  681.66  238.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2205
+T24Y21__R3_NAND_0  sky130_fd_sc_hd__nand2_2  667.86  241.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2245
+T24Y21__R3_NAND_3  sky130_fd_sc_hd__nand2_2  674.76  241.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2272
+T24Y26__R0_NAND_3  sky130_fd_sc_hd__nand2_2  681.66  287.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2295
+T24Y26__R0_NAND_4  sky130_fd_sc_hd__nand2_2  683.96  287.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2204
+T24Y44__R0_NAND_4  sky130_fd_sc_hd__nand2_2  683.96  483.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2232
+T24Y45__R2_OR_3  sky130_fd_sc_hd__or2_2  688.56  500.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2466
+T24Y4__R2_OR_0  sky130_fd_sc_hd__or2_2  681.66  53.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2263
+T24Y4__R3_NAND_3  sky130_fd_sc_hd__nand2_2  674.76  56.68  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2264
+T24Y72__R0_INV_0  sky130_fd_sc_hd__clkinv_2  674.76  788.36  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2211
+T24Y72__R0_OR_0  sky130_fd_sc_hd__or2_2  686.26  788.36  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2310
+T24Y72__R2_OR_0  sky130_fd_sc_hd__or2_2  681.66  793.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2429
+T24Y72__R2_OR_1  sky130_fd_sc_hd__or2_2  683.96  793.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2389
+T24Y72__R2_OR_2  sky130_fd_sc_hd__or2_2  686.26  793.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2349
+T24Y72__R2_OR_3  sky130_fd_sc_hd__or2_2  688.56  793.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2214
+T24Y89__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  674.30  976.04  ->  $auto$insbuf.cc:97:execute$2482
+T24Y89__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  677.06  981.48  ->  $auto$insbuf.cc:97:execute$2485
+T24Y89__R3_NAND_0  sky130_fd_sc_hd__nand2_2  667.86  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2131
+T24Y89__R3_NAND_1  sky130_fd_sc_hd__nand2_2  670.16  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2133
+T24Y8__R2_NAND_2  sky130_fd_sc_hd__nand2_2  676.14  97.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2366
+T24Y8__R2_OR_0  sky130_fd_sc_hd__or2_2  681.66  97.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2365
+T24Y8__R2_OR_2  sky130_fd_sc_hd__or2_2  686.26  97.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2358
+T24Y9__R0_NAND_4  sky130_fd_sc_hd__nand2_2  683.96  102.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2357
+T24Y9__R1_NAND_0  sky130_fd_sc_hd__nand2_2  667.86  105.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2266
+T25Y10__R0_NAND_4  sky130_fd_sc_hd__nand2_2  711.56  113.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2359
+T25Y10__R2_OR_4  sky130_fd_sc_hd__or2_2  718.46  119.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2402
+T25Y18__R0_INV_0  sky130_fd_sc_hd__clkinv_2  702.36  200.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2304
+T25Y19__R2_NAND_2  sky130_fd_sc_hd__nand2_2  703.74  217.16  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2450
+T25Y20__R2_INV_0  sky130_fd_sc_hd__clkinv_2  695.46  228.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2195
+T25Y20__R3_NAND_1  sky130_fd_sc_hd__nand2_2  697.76  230.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2313
+T25Y21__R0_OR_0  sky130_fd_sc_hd__or2_2  713.86  233.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2404
+T25Y22__R2_INV_1  sky130_fd_sc_hd__clkinv_2  697.30  249.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2314
+T25Y22__R2_NAND_2  sky130_fd_sc_hd__nand2_2  703.74  249.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2306
+T25Y24__R1_NAND_1  sky130_fd_sc_hd__nand2_2  697.76  268.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2330
+T25Y24__R2_NAND_1  sky130_fd_sc_hd__nand2_2  701.44  271.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2351
+T25Y25__R0_NAND_4  sky130_fd_sc_hd__nand2_2  711.56  277.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2292
+T25Y26__R0_OR_1  sky130_fd_sc_hd__or2_2  716.16  287.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2375
+T25Y28__R2_OR_0  sky130_fd_sc_hd__or2_2  709.26  315.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2249
+T25Y29__R2_OR_4  sky130_fd_sc_hd__or2_2  718.46  325.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2290
+T25Y32__R2_OR_3  sky130_fd_sc_hd__or2_2  716.16  358.60  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2308
+T25Y37__R0_NAND_4  sky130_fd_sc_hd__nand2_2  711.56  407.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2445
+T25Y62__R1_NAND_0  sky130_fd_sc_hd__nand2_2  695.46  682.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2475
+T25Y9__R0_NAND_4  sky130_fd_sc_hd__nand2_2  711.56  102.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2398
+T26Y15__R0_NAND_4  sky130_fd_sc_hd__nand2_2  739.16  168.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2303
+T26Y22__R0_OR_1  sky130_fd_sc_hd__or2_2  743.76  244.36  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2352
+T26Y23__R0_NAND_4  sky130_fd_sc_hd__nand2_2  739.16  255.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2353
+T26Y24__R0_INV_0  sky130_fd_sc_hd__clkinv_2  729.96  266.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2354
+T26Y25__R0_NAND_0  sky130_fd_sc_hd__nand2_2  723.06  277.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2243
+T26Y25__R2_NAND_2  sky130_fd_sc_hd__nand2_2  731.34  282.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2391
+T26Y26__R0_NAND_3  sky130_fd_sc_hd__nand2_2  736.86  287.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2328
+T26Y26__R0_NAND_4  sky130_fd_sc_hd__nand2_2  739.16  287.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2369
+T26Y27__R0_NAND_4  sky130_fd_sc_hd__nand2_2  739.16  298.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2412
+T26Y27__R3_NAND_3  sky130_fd_sc_hd__nand2_2  729.96  306.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2203
+T26Y29__R2_OR_0  sky130_fd_sc_hd__or2_2  736.86  325.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2321
+T26Y30__R0_INV_0  sky130_fd_sc_hd__clkinv_2  729.96  331.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2200
+T26Y30__R2_OR_3  sky130_fd_sc_hd__or2_2  743.76  336.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2360
+T26Y30__R3_NAND_1  sky130_fd_sc_hd__nand2_2  725.36  339.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2307
+T26Y31__R0_OR_2  sky130_fd_sc_hd__or2_2  746.06  342.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2317
+T26Y34__R0_OR_2  sky130_fd_sc_hd__or2_2  746.06  374.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2347
+T26Y40__R2_OR_4  sky130_fd_sc_hd__or2_2  746.06  445.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2283
+T26Y43__R2_OR_4  sky130_fd_sc_hd__or2_2  746.06  478.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2435
+T26Y48__R3_NAND_0  sky130_fd_sc_hd__nand2_2  723.06  535.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2309
+T26Y49__R0_NAND_4  sky130_fd_sc_hd__nand2_2  739.16  538.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2348
+T26Y8__R0_NAND_2  sky130_fd_sc_hd__nand2_2  727.66  92.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2448
+T26Y9__R2_OR_0  sky130_fd_sc_hd__or2_2  736.86  108.36  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2301
+T26Y9__R3_NAND_3  sky130_fd_sc_hd__nand2_2  729.96  111.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2302
+T27Y11__R1_NAND_2  sky130_fd_sc_hd__nand2_2  759.86  127.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2406
+T27Y11__R2_OR_0  sky130_fd_sc_hd__or2_2  764.46  130.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2405
+T27Y12__R2_OR_0  sky130_fd_sc_hd__or2_2  764.46  141.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2397
+T27Y21__R0_INV_0  sky130_fd_sc_hd__clkinv_2  757.56  233.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2344
+T27Y25__R1_NAND_0  sky130_fd_sc_hd__nand2_2  750.66  279.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2345
+T27Y25__R2_OR_0  sky130_fd_sc_hd__or2_2  764.46  282.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2394
+T27Y26__R3_NAND_2  sky130_fd_sc_hd__nand2_2  755.26  296.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2392
+T27Y27__R0_INV_0  sky130_fd_sc_hd__clkinv_2  757.56  298.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2393
+T27Y27__R0_NAND_2  sky130_fd_sc_hd__nand2_2  755.26  298.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2367
+T27Y27__R2_OR_4  sky130_fd_sc_hd__or2_2  773.66  304.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2447
+T27Y28__R0_NAND_1  sky130_fd_sc_hd__nand2_2  752.96  309.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2190
+T27Y28__R0_NAND_2  sky130_fd_sc_hd__nand2_2  755.26  309.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2407
+T27Y28__R2_OR_0  sky130_fd_sc_hd__or2_2  764.46  315.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2413
+T27Y32__R0_NAND_3  sky130_fd_sc_hd__nand2_2  764.46  353.16  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2346
+T27Y32__R0_OR_0  sky130_fd_sc_hd__or2_2  769.06  353.16  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2356
+T27Y33__R3_NAND_2  sky130_fd_sc_hd__nand2_2  755.26  372.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2374
+T27Y34__R0_OR_2  sky130_fd_sc_hd__or2_2  773.66  374.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2396
+T27Y40__R2_OR_0  sky130_fd_sc_hd__or2_2  764.46  445.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2255
+T27Y40__R2_OR_1  sky130_fd_sc_hd__or2_2  766.76  445.64  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2182
+T27Y41__R0_OR_0  sky130_fd_sc_hd__or2_2  769.06  451.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2332
+T27Y41__R2_OR_4  sky130_fd_sc_hd__or2_2  773.66  456.52  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2372
+T27Y46__R1_INV_0  sky130_fd_sc_hd__clkinv_2  755.26  508.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2472
+T27Y46__R2_NAND_2  sky130_fd_sc_hd__nand2_2  758.94  510.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2473
+T27Y47__R2_OR_2  sky130_fd_sc_hd__or2_2  769.06  521.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2471
+T27Y48__R0_NAND_1  sky130_fd_sc_hd__nand2_2  752.96  527.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2167
+T27Y51__R1_NAND_0  sky130_fd_sc_hd__nand2_2  750.66  562.60  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2175
+T27Y60__R0_NAND_0  sky130_fd_sc_hd__nand2_2  750.66  657.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2171
+T28Y0__R0_INV_0  sky130_fd_sc_hd__clkinv_2  785.16  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2108
+T28Y14__R2_OR_0  sky130_fd_sc_hd__or2_2  792.06  162.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2341
+T28Y14__R3_NAND_3  sky130_fd_sc_hd__nand2_2  785.16  165.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2342
+T28Y18__R1_NAND_2  sky130_fd_sc_hd__nand2_2  787.46  203.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2343
+T28Y25__R2_INV_0  sky130_fd_sc_hd__clkinv_2  778.26  282.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2384
+T28Y26__R0_NAND_4  sky130_fd_sc_hd__nand2_2  794.36  287.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2385
+T28Y26__R3_NAND_0  sky130_fd_sc_hd__nand2_2  778.26  296.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2430
+T28Y29__R1_NAND_1  sky130_fd_sc_hd__nand2_2  780.56  323.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2409
+T28Y33__R2_OR_0  sky130_fd_sc_hd__or2_2  792.06  369.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2386
+T28Y34__R2_INV_1  sky130_fd_sc_hd__clkinv_2  780.10  380.36  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2189
+T28Y36__R1_INV_0  sky130_fd_sc_hd__clkinv_2  782.86  399.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2432
+T28Y37__R2_INV_0  sky130_fd_sc_hd__clkinv_2  778.26  413.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2444
+T28Y39__R0_NAND_4  sky130_fd_sc_hd__nand2_2  794.36  429.32  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2316
+T28Y39__R3_NAND_2  sky130_fd_sc_hd__nand2_2  782.86  437.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2220
+T28Y42__R0_OR_0  sky130_fd_sc_hd__or2_2  796.66  461.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2410
+T28Y42__R2_NAND_0  sky130_fd_sc_hd__nand2_2  781.94  467.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2428
+T28Y42__R3_NAND_0  sky130_fd_sc_hd__nand2_2  778.26  470.12  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2388
+T28Y43__R0_NAND_3  sky130_fd_sc_hd__nand2_2  792.06  472.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2293
+T28Y43__R0_NAND_4  sky130_fd_sc_hd__nand2_2  794.36  472.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2329
+T28Y43__R0_OR_2  sky130_fd_sc_hd__or2_2  801.26  472.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2476
+T28Y43__R1_NAND_2  sky130_fd_sc_hd__nand2_2  787.46  475.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2244
+T28Y45__R0_OR_0  sky130_fd_sc_hd__or2_2  796.66  494.60  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2239
+T28Y46__R0_OR_2  sky130_fd_sc_hd__or2_2  801.26  505.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2276
+T28Y48__R2_NAND_0  sky130_fd_sc_hd__nand2_2  781.94  532.68  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2470
+T29Y10__R0_NAND_4  sky130_fd_sc_hd__nand2_2  821.96  113.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2449
+T29Y23__R1_NAND_0  sky130_fd_sc_hd__nand2_2  805.86  257.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2383
+T29Y25__R0_NAND_4  sky130_fd_sc_hd__nand2_2  821.96  277.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2425
+T29Y27__R2_OR_4  sky130_fd_sc_hd__or2_2  828.86  304.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2427
+T29Y29__R2_OR_0  sky130_fd_sc_hd__or2_2  819.66  325.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2431
+T29Y29__R3_NAND_3  sky130_fd_sc_hd__nand2_2  812.76  328.68  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2433
+T29Y30__R3_NAND_0  sky130_fd_sc_hd__nand2_2  805.86  339.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2408
+T29Y31__R0_NAND_0  sky130_fd_sc_hd__nand2_2  805.86  342.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2387
+T29Y31__R0_NAND_4  sky130_fd_sc_hd__nand2_2  821.96  342.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2440
+T29Y31__R0_OR_1  sky130_fd_sc_hd__or2_2  826.56  342.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2467
+T29Y38__R0_INV_0  sky130_fd_sc_hd__clkinv_2  812.76  418.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2469
+T29Y40__R0_NAND_0  sky130_fd_sc_hd__nand2_2  805.86  440.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2355
+T29Y40__R3_NAND_1  sky130_fd_sc_hd__nand2_2  808.16  448.36  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2395
+T29Y42__R0_NAND_4  sky130_fd_sc_hd__nand2_2  821.96  461.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2434
+T29Y43__R1_NAND_0  sky130_fd_sc_hd__nand2_2  805.86  475.56  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2368
+T29Y44__R0_OR_0  sky130_fd_sc_hd__or2_2  824.26  483.72  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2439
+T29Y47__R1_INV_0  sky130_fd_sc_hd__clkinv_2  810.46  519.08  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2163
+T29Y62__R2_OR_4  sky130_fd_sc_hd__or2_2  828.86  685.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2172
+T2Y89__R3_NAND_3  sky130_fd_sc_hd__nand2_2  67.56  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2112
+T30Y13__R2_NAND_0  sky130_fd_sc_hd__nand2_2  837.14  151.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2453
+T30Y17__R0_NAND_4  sky130_fd_sc_hd__nand2_2  849.56  189.96  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2452
+T30Y19__R2_OR_0  sky130_fd_sc_hd__or2_2  847.26  217.16  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2380
+T30Y19__R3_NAND_3  sky130_fd_sc_hd__nand2_2  840.36  219.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2382
+T30Y24__R1_INV_0  sky130_fd_sc_hd__clkinv_2  838.06  268.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2381
+T30Y27__R3_NAND_0  sky130_fd_sc_hd__nand2_2  833.46  306.92  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2426
+T30Y30__R2_INV_0  sky130_fd_sc_hd__clkinv_2  833.46  336.84  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2424
+T30Y32__R0_INV_0  sky130_fd_sc_hd__clkinv_2  840.36  353.16  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2438
+T30Y33__R0_NAND_4  sky130_fd_sc_hd__nand2_2  849.56  364.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2423
+T30Y33__R1_NAND_2  sky130_fd_sc_hd__nand2_2  842.66  366.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2442
+T30Y38__R3_NAND_0  sky130_fd_sc_hd__nand2_2  833.46  426.60  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2443
+T30Y52__R0_NAND_2  sky130_fd_sc_hd__nand2_2  838.06  570.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2169
+T30Y55__R0_INV_0  sky130_fd_sc_hd__clkinv_2  840.36  603.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2219
+T30Y60__R0_OR_1  sky130_fd_sc_hd__or2_2  854.16  657.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2162
+T30Y60__R0_OR_2  sky130_fd_sc_hd__or2_2  856.46  657.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2194
+T30Y60__R2_OR_4  sky130_fd_sc_hd__or2_2  856.46  663.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2199
+T31Y19__R2_OR_0  sky130_fd_sc_hd__or2_2  874.86  217.16  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2441
+T31Y19__R3_NAND_3  sky130_fd_sc_hd__nand2_2  867.96  219.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2437
+T31Y25__R0_OR_2  sky130_fd_sc_hd__or2_2  884.06  277.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2422
+T31Y29__R1_NAND_2  sky130_fd_sc_hd__nand2_2  870.26  323.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2468
+T32Y25__R0_NAND_2  sky130_fd_sc_hd__nand2_2  893.26  277.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2421
+T33Y65__R0_INV_0  sky130_fd_sc_hd__clkinv_2  923.16  712.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2161
+T33Y72__R2_OR_3  sky130_fd_sc_hd__or2_2  936.96  793.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2218
+T33Y72__R2_OR_4  sky130_fd_sc_hd__or2_2  939.26  793.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2173
+T33Y73__R0_OR_1  sky130_fd_sc_hd__or2_2  936.96  799.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2210
+T33Y73__R0_OR_2  sky130_fd_sc_hd__or2_2  939.26  799.24  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2188
+T35Y0__R0_INV_0  sky130_fd_sc_hd__clkinv_2  978.36  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2101
+T35Y60__R0_INV_0  sky130_fd_sc_hd__clkinv_2  978.36  657.80  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2099
+T35Y63__R0_NAND_4  sky130_fd_sc_hd__nand2_2  987.56  690.44  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2164
+T35Y63__R2_OR_4  sky130_fd_sc_hd__or2_2  994.46  695.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2160
+T35Y64__R0_NAND_4  sky130_fd_sc_hd__nand2_2  987.56  701.32  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2187
+T35Y64__R0_OR_0  sky130_fd_sc_hd__or2_2  989.86  701.32  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2198
+T35Y80__R0_INV_0  sky130_fd_sc_hd__clkinv_2  978.36  875.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2100
+T35Y80__R0_OR_0  sky130_fd_sc_hd__or2_2  989.86  875.40  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2168
+T3Y0__R0_OR_2  sky130_fd_sc_hd__or2_2  111.26  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2180
+T3Y89__R1_NAND_0  sky130_fd_sc_hd__nand2_2  88.26  976.04  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2154
+T3Y89__R3_NAND_0  sky130_fd_sc_hd__nand2_2  88.26  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2147
+T4Y79__R3_NAND_2  sky130_fd_sc_hd__nand2_2  120.46  872.68  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2111
+T4Y89__R2_OR_0  sky130_fd_sc_hd__or2_2  129.66  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2145
+T4Y89__R2_OR_1  sky130_fd_sc_hd__or2_2  131.96  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2152
+T4Y89__R3_NAND_0  sky130_fd_sc_hd__nand2_2  115.86  981.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2110
+T6Y74__R3_NAND_0  sky130_fd_sc_hd__nand2_2  171.06  818.28  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2128
+T6Y82__R1_NAND_0  sky130_fd_sc_hd__nand2_2  171.06  899.88  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2127
+T7Y10__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  205.10  116.52  ->  $auto$insbuf.cc:97:execute$2498
+T7Y10__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  207.86  121.96  ->  $auto$insbuf.cc:97:execute$2499
+T7Y4__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  207.86  56.68  ->  $auto$insbuf.cc:97:execute$2497
+T7Y5__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  207.40  59.40  ->  $auto$insbuf.cc:97:execute$2507
+T8Y0__R0_INV_0  sky130_fd_sc_hd__clkinv_2  233.16  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2103
+T8Y0__R0_OR_2  sky130_fd_sc_hd__or2_2  249.26  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2192
+T8Y4__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  235.46  56.68  ->  $auto$insbuf.cc:97:execute$2520
+T8Y59__R3_DFBBP_0  sky130_fd_sc_hd__dfbbp_1  241.44  655.08  ->  $flatten\A.\counter_inst.$auto$ff.cc:266:slice$1480
+T8Y5__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  235.00  59.40  ->  $auto$insbuf.cc:97:execute$2519
+T8Y5__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  232.70  62.12  ->  $auto$insbuf.cc:97:execute$2518
+T8Y5__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  235.46  67.56  ->  $auto$insbuf.cc:97:execute$2521
+T8Y6__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  235.00  70.28  ->  $auto$insbuf.cc:97:execute$2522
+T9Y0__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  262.60  5.00  ->  $auto$insbuf.cc:97:execute$2487
+T9Y0__R0_NAND_0  sky130_fd_sc_hd__nand2_2  253.86  5.00  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2191
+T9Y10__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  262.60  113.80  ->  $auto$insbuf.cc:97:execute$2495
+T9Y11__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  262.60  124.68  ->  $auto$insbuf.cc:97:execute$2496
+T9Y2__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  262.60  26.76  ->  $auto$insbuf.cc:97:execute$2488
+T9Y3__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  263.06  45.80  ->  $auto$insbuf.cc:97:execute$2489
+T9Y5__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  262.60  59.40  ->  $auto$insbuf.cc:97:execute$2490
+T9Y5__R1_BUF_0  sky130_fd_sc_hd__clkbuf_4  260.30  62.12  ->  $auto$insbuf.cc:97:execute$2523
+T9Y6__R0_BUF_0  sky130_fd_sc_hd__clkbuf_4  262.60  70.28  ->  $auto$insbuf.cc:97:execute$2491
+T9Y71__R0_INV_0  sky130_fd_sc_hd__clkinv_2  260.76  777.48  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2155
+T9Y71__R1_INV_0  sky130_fd_sc_hd__clkinv_2  258.46  780.20  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2148
+T9Y7__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  263.06  89.32  ->  $auto$insbuf.cc:97:execute$2492
+T9Y89__R2_INV_0  sky130_fd_sc_hd__clkinv_2  253.86  978.76  ->  $abc$2096$auto$blifparse.cc:396:parse_blif$2113
+T9Y8__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  263.06  100.20  ->  $auto$insbuf.cc:97:execute$2493
+T9Y9__R3_BUF_0  sky130_fd_sc_hd__clkbuf_4  263.06  111.08  ->  $auto$insbuf.cc:97:execute$2494

@@ -1,13 +1,13 @@
 # route.tcl - OpenROAD routing script for 6502 design - FULL DEBUG VERSION
 
-set DESIGN "6502"
+set DESIGN "arith"
 set TECH_LEF "tech/sky130_fd_sc_hd.tlef"
 set CELL_LEF "tech/sky130_fd_sc_hd.lef"
 set MERGE_LEF "tech/sky130_merged.lef"
 set LIB_FILE "tech/sky130_fd_sc_hd__tt_025C_1v80.lib"
-set VERILOG_FILE "build/6502/6502_final.v"
-set DEF_FILE "build/6502/6502_fixed.def"
-set OUTPUT_DIR "build/6502"
+set VERILOG_FILE "build/arith/arith_final.v"
+set DEF_FILE "build/arith/arith_fixed.def"
+set OUTPUT_DIR "build/arith"
 set LOG_FILE "${OUTPUT_DIR}/routing_debug.log"
 
 # Create output dir if missing
@@ -525,12 +525,7 @@ log_msg ""
 log_msg "SUMMARY:"
 log_msg "--------"
 
-set total_time [expr [clock seconds] - $::start_time]
-if {![info exists start_time]} {
-  set start_time $global_start
-}
 
-log_msg "Total execution time: $total_time seconds ([expr $total_time / 60] minutes)"
 log_msg ""
 log_msg "Output files:"
 log_msg "  - ${OUTPUT_DIR}/${DESIGN}_routed.def (final routed design)"
@@ -539,11 +534,17 @@ log_msg "  - ${OUTPUT_DIR}/${DESIGN}_maze.log (detailed routing log)"
 log_msg "  - ${OUTPUT_DIR}/${DESIGN}.guide (routing guides)"
 log_msg "  - ${OUTPUT_DIR}/routing_debug.log (this log file)"
 log_msg ""
-log_msg "Completed at: [clock format [clock seconds] -format {%Y-%m-%d %H:%M:%S}]"
 log_msg "=========================================="
-
-close $log_fh
 
 puts ""
 puts "Full debug log written to: $LOG_FILE"
 puts ""
+
+puts "=======Extracting Parasitics======="
+extract_parasitics -ext_model_file tech/rcx_patterns.rules
+
+puts "=======Writing SPEF======="
+write_spef ${OUTPUT_DIR}/${DESIGN}.spef
+
+puts "=======Reporting Congestion======="
+report_congestion > ${OUTPUT_DIR}/${DESIGN}_congestion.rpt
