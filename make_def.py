@@ -733,10 +733,10 @@ def extract_io_pins(logical_db: Dict[str, Any],
         use_attr = 'CLOCK' if 'clk' in pin_name.lower() else 'SIGNAL'
 
         # Calculate pin dimensions based on layer track pitch
-        # Pin should span 2.5x the track pitch of its layer
+        # Pin should span 4x the track pitch of its layer for adequate spacing
         pitch_um = track_pitches.get(layer, 0.46)
-        width_um = pitch_um * 2.5
-        height_um = pitch_um * 2.5
+        width_um = pitch_um * 4.0
+        height_um = pitch_um * 4.0
 
         pins.append({
             'name': pin_name,
@@ -1190,37 +1190,6 @@ def write_def_file(design_name: str,
         
         f.write("\n")
 
-        # ======================================
-        # VIAS Section - DEF 5.8 Format
-        # ======================================
-        if tlef_data and 'vias' in tlef_data and tlef_data['vias']:
-            vias = tlef_data['vias']
-            f.write(f"VIAS {len(vias)} ;\n")
-            for via_name, via_info in sorted(vias.items()):
-                f.write(f"    - {via_name}")
-                if 'viarule' in via_info:
-                    f.write(f" + VIARULE {via_info['viarule']}")
-                if 'cutsize_x' in via_info and 'cutsize_y' in via_info:
-                    f.write(f" + CUTSIZE {int(via_info['cutsize_x'] * units)} {int(via_info['cutsize_y'] * units)}")
-                if 'layers' in via_info:
-                    f.write(f"  + LAYERS {' '.join(via_info['layers'])}")
-                if 'cutspacing_x' in via_info and 'cutspacing_y' in via_info:
-                    f.write(f"  + CUTSPACING {int(via_info['cutspacing_x'] * units)} {int(via_info['cutspacing_y'] * units)}")
-                if 'enclosure' in via_info:
-                    enc = via_info['enclosure']
-                    # Handle both list and dict formats for enclosure
-                    if isinstance(enc, list):
-                        f.write(f"  + ENCLOSURE {int(enc[0] * units)} {int(enc[1] * units)} {int(enc[2] * units)} {int(enc[3] * units)}")
-                    elif isinstance(enc, dict):
-                        # Convert dict format to DEF format if needed
-                        # For now, skip dict format
-                        pass
-                if 'rowcol' in via_info:
-                    f.write(f"  + ROWCOL {via_info['rowcol'][0]} {via_info['rowcol'][1]}")
-                f.write("  ;\n")
-            f.write("END VIAS\n")
-            f.write("\n")
-
         # TRACKS Section intentionally omitted per request.
         # Routing grids will be inferred from technology files or set in OpenROAD.
         f.write("\n")
@@ -1339,10 +1308,10 @@ def write_def_file(design_name: str,
                 'met5': {'x': 3.40, 'y': 3.40}
             }
             
-            # Pin height should span at least 2-3 track pitches of its layer
+            # Pin height should span at least 4 track pitches of its layer for adequate spacing
             track_info = track_pitches.get(pin_layer, {'x': 0.46, 'y': 0.46})
-            pin_height_um = track_info['y'] * 2.5  # 2.5x track pitch for good coverage
-            pin_width_um = track_info['x'] * 2.5
+            pin_height_um = track_info['y'] * 4.0  # 4x track pitch for adequate spacing
+            pin_width_um = track_info['x'] * 4.0
             
             pin_height = int(pin_height_um * units)
             pin_width = int(pin_width_um * units)
@@ -1355,6 +1324,25 @@ def write_def_file(design_name: str,
             x2 = +half_width
             y1 = -half_height
             y2 = +half_height
+            
+            # For pins at the same location, offset input/output pins to avoid overlap
+            # Separate input and output pins on same side by offsetting the geometry
+            if pin['direction'] == 'INPUT':
+                # Offset input pins negative (towards center/inward)
+                if on_south_edge or on_north_edge:
+                    x1 -= half_width // 2
+                    x2 = x1 + half_width
+                else:
+                    y1 -= half_height // 2
+                    y2 = y1 + half_height
+            elif pin['direction'] == 'OUTPUT':
+                # Offset output pins positive (away from center/inward but opposite)
+                if on_south_edge or on_north_edge:
+                    x1 = half_width // 2
+                    x2 = x1 + half_width
+                else:
+                    y1 = half_height // 2
+                    y2 = y1 + half_height
 
             # Adjust for boundary conditions: extend inward only
             if on_east_edge:
