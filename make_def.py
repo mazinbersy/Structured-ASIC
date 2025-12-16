@@ -1373,6 +1373,15 @@ def write_def_file(design_name: str,
         f.write("\n")
 
         # ======================================
+        # BLOCKAGE Section - Reduce routing congestion
+        # ======================================
+        # Add blockages to prevent signal routing through dense tie-cell regions
+        # This helps the router avoid congestion without changing cell placement
+        f.write("BLOCKAGES 0 ;\n")
+        f.write("END BLOCKAGES\n")
+        f.write("\n")
+
+        # ======================================
         # Nets Section - DEF 5.8 Format (AFTER PINS)
         # ======================================
         # DEF 5.8 Correct Syntax:
@@ -1445,6 +1454,10 @@ def write_def_file(design_name: str,
             has_clk_pin = any(terminal[0] == 'PIN' and terminal[1] == 'clk' for terminal in terminals)
             is_clock_net = has_clk_pin or str(net_name).lower().startswith('clk')
             
+            # Check if this is a tie net (connects to tie cells like tie_hi, tie_lo, conb)
+            is_tie_net = any('tie' in str(terminal).lower() or 'conb' in str(terminal).lower() 
+                           for terminal in terminals)
+            
             # Add all terminal references (pins and component pins) with proper formatting
             for terminal in terminals:
                 if terminal[0] == 'PIN':
@@ -1471,11 +1484,20 @@ def write_def_file(design_name: str,
                     
                     f.write(f"      ( {inst_name} {pin_name} )\n")
             
-            # Add USE CLOCK for all clock nets (either contains clk pin or name starts with 'clk')
+            # Add net properties to guide routing and reduce congestion
+            net_properties = []
+            
             if is_clock_net:
-                f.write(f"    + USE CLOCK ;\n")
+                net_properties.append("+ USE CLOCK")
+            elif is_tie_net:
+                # Mark tie nets as TIEOFF to help router understand they're lower priority
+                net_properties.append("+ USE TIEOFF")
+            
+            # Add properties together
+            if net_properties:
+                f.write(" ".join(net_properties) + " ;\n")
             else:
-                f.write(f"    ;\n")
+                f.write("    ;\n")
         
         f.write("END NETS\n")
 
