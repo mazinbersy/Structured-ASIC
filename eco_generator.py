@@ -453,6 +453,8 @@ def main():
     output_dir = args.output
     if output_dir is None:
         output_dir = f"build/{design_name}"
+    # Normalize path on Windows to avoid mixed slashes
+    output_dir = os.path.normpath(output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
     placement_file = args.placement

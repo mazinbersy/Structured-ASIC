@@ -106,6 +106,42 @@ class HTreeCTS:
         self.clock_net_id = None  # Clock net ID from logical_db
         self.buffer_counter = 0  # Counter for naming buffers
 
+    def augment_fabric_cells_with_unused_ffs(self):
+        """
+        Add unused FFs from fabric_db that are not in the placement map.
+        This ensures all FFs in the fabric are available for CTS routing.
+        """
+        cells_by_tile = self.fabric_db.get('fabric', {}).get('cells_by_tile', {})
+        existing_fabric_cells = set(self.fabric_cells.keys())
+        
+        added_count = 0
+        for tile_key, tile_data in cells_by_tile.items():
+            for cell in tile_data.get('cells', []):
+                cell_name = cell.get('name', '')
+                cell_type = cell.get('cell_type', '')
+                
+                # Check if it's a DFF
+                is_dff = 'dfbbp' in cell_type.lower() or 'dff' in cell_type.lower()
+                
+                # Add if it's a DFF and not already in placement map
+                if is_dff and cell_name not in existing_fabric_cells:
+                    x = cell.get('x', 0.0)
+                    y = cell.get('y', 0.0)
+                    
+                    self.fabric_cells[cell_name] = {
+                        'type': cell_type,
+                        'x': x,
+                        'y': y,
+                        'mapped': 'UNUSED',
+                        'is_unused': True
+                    }
+                    added_count += 1
+        
+        if added_count > 0:
+            print(f"Added {added_count} unused FFs from fabric_db")
+        
+        return added_count
+
     def find_clock_net(self, clock_name: str = None) -> str:
         """Identify the clock net (default to 'clk' if not specified)."""
         if clock_name:
@@ -132,7 +168,7 @@ class HTreeCTS:
         return None
 
     def find_sinks(self) -> List[Dict]:
-        """Find all DFF cells (clock sinks) from placement."""
+        """Find all DFF cells (clock sinks) from placement (includes all FFs in fabric)."""
         self.sinks = []
 
         for fabric_cell, info in self.fabric_cells.items():
@@ -141,8 +177,8 @@ class HTreeCTS:
             # Check if it's a DFF
             is_dff = 'dfbbp' in cell_type.lower() or 'dff' in cell_type.lower()
 
-            if is_dff and not info['is_unused']:
-                # Find corresponding logical cell
+            if is_dff:
+                # Include ALL DFFs in fabric, whether mapped or unused
                 logical_cell = info['mapped']
 
                 sink_info = {
@@ -150,11 +186,12 @@ class HTreeCTS:
                     'type': cell_type,
                     'x': info['x'],
                     'y': info['y'],
-                    'mapped': logical_cell
+                    'mapped': logical_cell,
+                    'is_unused': info['is_unused']
                 }
                 self.sinks.append(sink_info)
 
-        print(f"Found {len(self.sinks)} DFF sinks")
+        print(f"Found {len(self.sinks)} DFF sinks (including {sum(1 for s in self.sinks if s['is_unused'])} unused)")
         return self.sinks
 
     def find_resources(self) -> List[Dict]:
@@ -629,7 +666,7 @@ class HTreeCTS:
 
 def main():
     # Set default parameters
-    placement_file = "placement.map"
+    placement_file = "build/6502/debug_placement.map"
     design_json = "designs/6502_mapped.json"
     clock_name = None
 
@@ -669,6 +706,7 @@ def main():
     cts = HTreeCTS(io_ports, fabric_cells, fabric_db, logical_db, netlist_graph)
 
     # Run CTS flow
+    cts.augment_fabric_cells_with_unused_ffs()  # Add unused FFs from fabric_db
     cts.find_clock_net(clock_name)
     cts.find_sinks()
     cts.find_resources()
@@ -678,10 +716,10 @@ def main():
     cts.update_logical_db_and_graph()
 
     # Write outputs
-    cts.write_placement("placement_cts.map")
-    cts.write_clock_tree("clock_tree.json")
-    cts.write_logical_db("logical_db_cts.json")
-    cts.write_netlist_graph("netlist_graph_cts.json")
+    cts.write_placement("build/6502/placement_cts.map")
+    cts.write_clock_tree("build/6502/6502_clock_tree.json")
+    cts.write_logical_db("build/6502/logical_db_cts.json")
+    cts.write_netlist_graph("build/6502/netlist_graph_cts.json")
 
     # Print summary
     cts.print_summary()
