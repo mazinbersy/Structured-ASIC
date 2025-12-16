@@ -358,15 +358,13 @@ def run_eco_generator(
         try:
             if verbose:
                 print("  Running renamer to apply fabric names to final netlist...")
-            
-            renamed_verilog_file = os.path.join(output_dir, f"{design_name}_renamed.v")
             cmd = [
-                sys.executable, "tools/rename.py",
+                sys.executable, "tools/rename_verilog_cells.py",
                 "--verilog", verilog_file,
                 "--placement", cts_placement_file,
-                "--output", renamed_verilog_file
+                "--output", verilog_file
             ]
-            # Run the script to create the renamed file
+            # Run the script; allow it to overwrite the file
             proc = subprocess.run(cmd, capture_output=not verbose, text=True)
             if proc.returncode != 0:
                 print("Warning: renamer script exited with non-zero status")
@@ -375,10 +373,10 @@ def run_eco_generator(
                     print(proc.stderr)
             else:
                 if verbose:
-                    print(f"  Renamer completed; output: {renamed_verilog_file}")
+                    print("  Renamer completed; final netlist updated with fabric names.")
 
             # Read back renamed netlist into memory
-            with open(renamed_verilog_file, 'r') as f:
+            with open(verilog_file, 'r') as f:
                 final_verilog = f.read()
 
         except Exception as e:
@@ -427,9 +425,7 @@ def run_eco_generator(
         print("=" * 70)
         print()
         print("Outputs:")
-        print(f"  - {verilog_file} (un-renamed)")
-        renamed_verilog_file = os.path.join(output_dir, f"{design_name}_renamed.v")
-        print(f"  - {renamed_verilog_file} (fabric-named instances)")
+        print(f"  - {verilog_file}")
         print(f"  - {cts_png}")
         print(f"  - {os.path.join(output_dir, 'eco_report.txt')}")
         print()

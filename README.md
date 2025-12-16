@@ -99,7 +99,7 @@ Across all experiments, annealing effort scales smoothly with solution quality, 
 
 Recent work focused on completing the Phase‑3 ECO flow and ensuring the final Verilog netlist uses the fabric placement names so the netlist can be used directly against the physical fabric.
 
-- Added a renaming utility: `tools/rename.py` — maps logical instance names to fabric cell names using the placement `.map` file.
+- Added a renaming utility: `tools/rename_verilog_cells.py` — maps logical instance names to fabric cell names using the placement `.map` file.
 - Integrated the renamer into the end-to-end generator: `eco_generator.py` now runs the renamer after producing `build/<design>/<design>_final.v` so the file contains fabric names by default.
 - Improved CTS visualization and robustness: `visualization/cts_overlay.py` now falls back to fabric DB and clock-tree coordinates if a placement entry is missing; the CTS overlay is written to `build/<design>/<design>_cts_tree.png`.
 - Added a simple validator script (`tools/validate_cts_scale.py`) to check placement and CTS coordinates against die bounds (units in µm).
