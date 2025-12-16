@@ -26,7 +26,7 @@ from typing import Dict, Any, Tuple, Set
 from cts_htree import HTreeCTS, parse_placement_map
 from power_down import run_power_down_eco, load_placement_mapping
 from parse_lib import parse_liberty_leakage
-from visualization.cts_overlay import plot_cts_tree_overlay
+from visualization.cts_overlay import plot_cts_tree_overlay_from_tree
 from build_fabric_db import build_fabric_db
 from parse_design import parse_design_json
 import subprocess
@@ -229,6 +229,8 @@ def run_eco_generator(
         # Initialize CTS with pre-built databases and placement data
         cts = HTreeCTS(io_ports, fabric_cells, fabric_db, logical_db, netlist_graph)
 
+        # Add unused FFs from fabric to make CTS work on entire fabric
+        cts.augment_fabric_cells_with_unused_ffs()
         cts.find_clock_net()
         cts.find_sinks()
         cts.find_resources()
@@ -399,10 +401,11 @@ def run_eco_generator(
 
     try:
         cts_png = os.path.join(output_dir, f"{design_name}_cts_tree.png")
-        plot_cts_tree_overlay(
-            merged_logical_db,
-            cts_placement_file,
-            clock_tree_file,
+        # Use full-fabric CTS overlay that renders every buffer/FF directly from the tree
+        with open(clock_tree_file, 'r') as f:
+            clock_tree_json = json.load(f)
+        plot_cts_tree_overlay_from_tree(
+            clock_tree_json,
             fabric_db,
             out_png=cts_png
         )
