@@ -16,7 +16,7 @@ python eco_generator.py --design 6502 --placement placement_greedy_initial.map
 
 ### Step 2: Rename Cells to Fabric Names
 ```bash
-python rename.py \
+python rename_verilog_cells.py \
   --verilog build/6502/6502_final.v \
   --placement build/6502/6502_cts.map \
   --output build/6502/6502_final_renamed.v \
@@ -62,7 +62,7 @@ Example: `T8Y18__R2_OR_2` = 2nd OR gate, rank 2, in tile T8Y18
 | File | Purpose | Status |
 |------|---------|--------|
 | `eco_generator.py` | Generate final Verilog with CTS/ECO (keeps original names) | ✓ Complete |
-| `rename.py` | Rename cells from logical to fabric names | ✓ New |
+| `rename_verilog_cells.py` | Rename cells from logical to fabric names | ✓ New |
 | `build/6502/6502_final.v` | Original names (~100K cells) | ✓ Generated |
 | `build/6502/6502_final_renamed.v` | Fabric names (2.9K CTS/ECO renamed) | ✓ Generated |
 | `build/6502/6502_cts.map` | Placement mapping (CTS output) | ✓ Used for renaming |
@@ -73,18 +73,18 @@ Example: `T8Y18__R2_OR_2` = 2nd OR gate, rank 2, in tile T8Y18
 - **Fabric names** for placed cells (handled by this workflow)
 - **Original names** for unmapped cells (will be assigned to available fabric slots in Phase 4)
 
-The `rename.py` script provides the foundation for cell instance mapping to complete the flow.
+The `rename_verilog_cells.py` script provides the foundation for `rename.py` to complete the mapping.
 
 ## Usage Examples
 
 ### Rename single design
 ```bash
-python rename.py --verilog design_final.v --placement design.map
+python rename_verilog_cells.py --verilog design_final.v --placement design.map
 ```
 
 ### Rename with custom output
 ```bash
-python rename.py \
+python rename_verilog_cells.py \
   --verilog build/6502/6502_final.v \
   --placement build/6502/6502_cts.map \
   --output my_renamed_design.v

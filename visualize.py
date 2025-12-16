@@ -510,15 +510,16 @@ def parse_setup_report_for_slacks(report_path: str) -> List[float]:
     """
     Extract endpoint slacks from an OpenSTA or report_timing-style setup report.
 
-    Heuristics: looks for patterns like 'slack = -0.123', 'slack -0.123', or
-    numeric fields next to the word 'slack'. Returns a list of slack floats.
+    Only extracts lines that explicitly contain 'slack' followed by a number,
+    typically formatted as "X.XXX   slack (MET)" or "X.XXX   slack (VIOLATED)".
     """
     if not os.path.exists(report_path):
         raise FileNotFoundError(report_path)
 
     slacks = []
-    slack_re = re.compile(r"slack\s*[=:\s]\s*([-+]?[0-9]*\.?[0-9]+)", re.IGNORECASE)
-    float_re = re.compile(r"([-+]?[0-9]*\.?[0-9]+)")
+    # Match lines with slack value - must have 'slack' keyword followed by optional (MET/VIOLATED)
+    # Format: "                                     7.663   slack (MET)"
+    slack_re = re.compile(r'^\s*([-+]?[0-9]*\.?[0-9]+)\s+slack\s*\(', re.IGNORECASE)
 
     with open(report_path, 'r') as f:
         for line in f:
@@ -526,18 +527,8 @@ def parse_setup_report_for_slacks(report_path: str) -> List[float]:
             if m:
                 try:
                     slacks.append(float(m.group(1)))
-                    continue
                 except Exception:
                     pass
-
-            # If line contains 'endpoint' or 'slack' and a float, try to extract last float
-            if 'slack' in line.lower() or 'endpoint' in line.lower() or 'endpoint slack' in line.lower():
-                floats = float_re.findall(line)
-                if floats:
-                    try:
-                        slacks.append(float(floats[-1]))
-                    except Exception:
-                        pass
 
     return slacks
 
@@ -558,59 +549,64 @@ def plot_slack_histogram(slacks: List[float], outpath: str, bins: int = 100) -> 
 
 def parse_setup_report_for_worst_path(report_path: str, fabric_cell_names: List[str]) -> List[str]:
     """
-    Attempt to extract a sequence of instance names forming the worst path from a setup report.
+    Extract the sequence of instance names from the worst (smallest slack) clock path in a setup report.
 
     Strategy:
-      - Look for lines containing arrows (-> or -->) and collect tokens that match known cell names.
-      - Fallback: scan the file for tokens that match fabric cell names and return the longest ordered sequence found.
+      1. Split report into individual path sections
+      2. Find the clock path with smallest slack
+      3. Extract only cells from that specific path
     """
     if not os.path.exists(report_path):
         raise FileNotFoundError(report_path)
 
     fabric_set = set(fabric_cell_names)
-    candidates = []
-
-    arrow_re = re.compile(r'([A-Za-z0-9_\.]+)\s*(?:->|-->|→)\s*([A-Za-z0-9_\.]+)')
-
+    
     with open(report_path, 'r') as f:
-        lines = f.readlines()
-
-    # First pass: look for arrow-containing lines
-    for line in lines:
-        for m in arrow_re.finditer(line):
-            left = m.group(1).split('.')[-1]
-            right = m.group(2).split('.')[-1]
-            seq = []
-            if left in fabric_set:
-                seq.append(left)
-            if right in fabric_set:
-                seq.append(right)
-            if seq:
-                candidates.append(seq)
-
-    # If found candidate pairs, try to stitch them in order of appearance
-    if candidates:
-        path = []
-        for pair in candidates:
-            for name in pair:
-                if not path or path[-1] != name:
-                    path.append(name)
-        # Deduplicate while preserving order
-        seen = set()
-        ordered = [x for x in path if not (x in seen or seen.add(x))]
-        return ordered
-
-    # Fallback: collect any token that matches fabric cell names in file order
-    token_re = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*)\b")
-    path = []
-    for line in lines:
-        for t in token_re.findall(line):
-            if t in fabric_set:
-                if not path or path[-1] != t:
-                    path.append(t)
-
-    # Return the path (may be long); caller can trim to reasonable length
-    return path
+        content = f.read()
+    
+    # Split into individual path reports by "Startpoint:"
+    path_sections = re.split(r'\nStartpoint:', content)
+    if path_sections and not path_sections[0].strip().startswith('Startpoint'):
+        path_sections = path_sections[1:]  # Skip any header
+    else:
+        # First section already has Startpoint, restore it
+        if len(path_sections) > 1:
+            path_sections = [path_sections[0]] + ['Startpoint:' + s for s in path_sections[1:]]
+    
+    # Find the worst clock path (smallest slack in "Path Group: clk")
+    worst_slack = float('inf')
+    worst_path_section = None
+    
+    for section in path_sections:
+        # Only consider clock domain paths
+        if 'Path Group: clk' in section or 'Path Group:clk' in section:
+            # Extract slack value
+            slack_match = re.search(r'([-\d.]+)\s+slack', section, re.IGNORECASE)
+            if slack_match:
+                slack = float(slack_match.group(1))
+                if slack < worst_slack:
+                    worst_slack = slack
+                    worst_path_section = section
+    
+    if not worst_path_section:
+        # Fallback: no clock paths found, return empty
+        return []
+    
+    # Extract cells from the worst path section only
+    path_cells = []
+    cell_re = re.compile(r'(T\d+Y\d+__R\d+_[A-Z]+_\d+)')
+    
+    for line in worst_path_section.split('\n'):
+        # Look for lines with cell instances (contain fabric pattern and sky130)
+        if '__' in line and 'sky130' in line:
+            match = cell_re.search(line)
+            if match:
+                cell_name = match.group(1)
+                # Only add if it's in the fabric and not already in the path
+                if cell_name in fabric_set and (not path_cells or path_cells[-1] != cell_name):
+                    path_cells.append(cell_name)
+    
+    return path_cells
 
 
 def draw_critical_path_overlay(fabric_db: Dict[str, Any], path_cells: List[str], outpath: str,
