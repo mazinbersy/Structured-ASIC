@@ -693,21 +693,31 @@ def plot_critical_path(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Opti
 def plot_cts_tree(cfg: VizConfig) -> Optional[Path]:
     """
     Render CTS tree overlay (delegates to cts_overlay module).
+    Uses the new plot_cts_tree_overlay_from_tree which reads directly from clock_tree.json.
     """
-    cts_json = cfg.out_dir / f"{cfg.design}_clock_tree.json"
-    if not cts_json.exists():
-        raise FileNotFoundError(f"Clock tree JSON not found: {cts_json}")
-    if cfg.placement_map is None or not cfg.placement_map.exists():
-        raise FileNotFoundError("Placement map not found for CTS overlay")
+    cts_json_path = cfg.out_dir / f"{cfg.design}_clock_tree.json"
+    if not cts_json_path.exists():
+        raise FileNotFoundError(f"Clock tree JSON not found: {cts_json_path}")
 
-    sys.path.insert(0, str(Path(__file__).parent))
-    from cts_overlay import plot_cts_tree_overlay
+    # Load clock tree JSON
+    with open(cts_json_path) as f:
+        clock_tree = json.load(f)
 
     fabric_db = _load_fabric_db(cfg)
-    logical_db, _ = _load_logical_db(cfg)
-
     out_path = cfg.out_path("cts_tree.png")
-    plot_cts_tree_overlay(logical_db, str(cfg.placement_map), str(cts_json), fabric_db, str(out_path))
+
+    # Try new function first (from Routing branch), fallback to old
+    sys.path.insert(0, str(Path(__file__).parent))
+    try:
+        from cts_overlay import plot_cts_tree_overlay_from_tree
+        plot_cts_tree_overlay_from_tree(clock_tree, fabric_db, str(out_path))
+    except ImportError:
+        # Fallback to old function if new one not available
+        from cts_overlay import plot_cts_tree_overlay
+        if cfg.placement_map is None or not cfg.placement_map.exists():
+            raise FileNotFoundError("Placement map not found for CTS overlay (legacy mode)")
+        logical_db, _ = _load_logical_db(cfg)
+        plot_cts_tree_overlay(logical_db, str(cfg.placement_map), str(cts_json_path), fabric_db, str(out_path))
     print(f"Saved cts_tree → {out_path}")
     return out_path
 
@@ -724,7 +734,7 @@ STAGES = [
     ("congestion",    plot_congestion,      False, "congestion.rpt"),
     ("slack",         plot_slack_histogram, False, "setup_timing.rpt"),
     ("critical_path", plot_critical_path,   False, "setup_timing.rpt"),
-    ("cts_tree",      plot_cts_tree,        True,  None),
+    ("cts_tree",      plot_cts_tree,        False, None),  # No longer requires map with new function
 ]
 
 
