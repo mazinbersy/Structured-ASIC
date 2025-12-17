@@ -1,13 +1,13 @@
-# route.tcl - OpenROAD routing script for 6502 design - FULL DEBUG VERSION
+# route.tcl - OpenROAD routing script for expanded_6502 design - FULL DEBUG VERSION
 
-set DESIGN "arith"
-set TECH_LEF "tech/sky130_fd_sc_hd.tlef"
-set CELL_LEF "tech/sky130_fd_sc_hd.lef"
-set MERGE_LEF "tech/sky130_merged.lef"
-set LIB_FILE "tech/sky130_fd_sc_hd__tt_025C_1v80.lib"
-set VERILOG_FILE "build/arith/arith_final.v"
-set DEF_FILE "build/arith/arith_fixed.def"
-set OUTPUT_DIR "build/arith"
+  set DESIGN "expanded_6502"
+  set TECH_LEF "tech/sky130_fd_sc_hd.tlef"
+  set CELL_LEF "tech/sky130_fd_sc_hd.lef"
+  set MERGE_LEF "tech/sky130_merged.lef"
+  set LIB_FILE "tech/sky130_fd_sc_hd__tt_025C_1v80.lib"
+  set VERILOG_FILE "build/expanded_6502/expanded_6502_final.v"
+  set DEF_FILE "build/expanded_6502/expanded_6502_fixed.def"
+  set OUTPUT_DIR "build/expanded_6502"
 set LOG_FILE "${OUTPUT_DIR}/routing_debug.log"
 
 # Create output dir if missing
@@ -275,6 +275,8 @@ log_msg ""
 if {[catch {
   global_route \
     -guide_file ${OUTPUT_DIR}/${DESIGN}.guide \
+    -congestion_iterations 100 \
+    -congestion_report_file ${OUTPUT_DIR}/${DESIGN}_congestion.rpt \
     -verbose
 } result]} {
   # Check if it's just a congestion warning
@@ -643,6 +645,3 @@ extract_parasitics -ext_model_file tech/rcx_patterns.rules
 
 puts "=======Writing SPEF======="
 write_spef ${OUTPUT_DIR}/${DESIGN}.spef
-
-puts "=======Reporting Congestion======="
-report_congestion > ${OUTPUT_DIR}/${DESIGN}_congestion.rpt

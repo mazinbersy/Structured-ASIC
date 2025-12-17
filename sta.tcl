@@ -1,5 +1,5 @@
 #!/usr/bin/tclsh
-# sta.tcl - Static Timing Analysis Script for arith design
+# sta.tcl - Static Timing Analysis Script for expanded_6502 design
 # This version works with STANDALONE OpenSTA (no LEF required)
 
 # Force output to flush immediately
@@ -9,10 +9,10 @@ fconfigure stderr -buffering line
 # ============================================================================
 # Configuration Parameters
 # ============================================================================
-set design_name "arith"
+set design_name "expanded_6502"
 set lib_file "tech/sky130_fd_sc_hd__tt_025C_1v80.lib"
-set verilog_file "build/arith/arith_final.v"
-set spef_file "build/arith/arith.spef"
+set verilog_file "build/expanded_6502/expanded_6502_final.v"
+set spef_file "build/expanded_6502/expanded_6502.spef"
 set sdc_file "arith.sdc"
 set report_dir "build/${design_name}"
 
