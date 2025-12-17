@@ -1,37 +1,15 @@
 #!/usr/bin/env python3
 """
-visualization/viz.py
---------------------
-Lightweight visualization layer for Structured-ASIC.
-
-Consolidates all plot outputs into a single module with:
-  - VizConfig: dataclass for paths, design name, style options
-  - Individual plot functions (reusing existing logic)
-  - run_all(): orchestrator that produces all outputs
-  - CLI entrypoint for Makefile integration
-
-Outputs:
-  - <design>_layout.png         Fabric ground-truth layout
-  - <design>_density.png        Placement density heatmap
-  - <design>_net_length.png     Net HPWL histogram
-  - <design>_congestion.png     Congestion heatmap (from .rpt)
-  - <design>_slack.png          Slack histogram (from STA .rpt)
-  - <design>_critical_path.png  Critical path overlay
-  - <design>_cts_tree.png       CTS tree overlay
-
-Usage:
-  python visualization/viz.py --design 6502
-  python visualization/viz.py --design 6502 --only layout density
-  python visualization/viz.py --design 6502 --skip congestion slack
+visualization/stages.py
+-----------------------
+All visualization plot functions for the 7 stages.
 """
 
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, List, Tuple, Dict, Any, Callable
-import os
-import sys
+from typing import Optional, Tuple, Dict, Any, List
 import re
 import json
+import sys
 
 import numpy as np
 import matplotlib
@@ -39,114 +17,14 @@ matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Config
-# ═══════════════════════════════════════════════════════════════════════════════
-
-@dataclass
-class VizConfig:
-    """Configuration for all visualization outputs."""
-    design: str
-    build_dir: Path = field(default_factory=lambda: Path("build"))
-    fabric_cells: Path = field(default_factory=lambda: Path("fabric/fabric_cells.yaml"))
-    pins_yaml: Path = field(default_factory=lambda: Path("fabric/pins.yaml"))
-    fabric_yaml: Path = field(default_factory=lambda: Path("fabric/fabric.yaml"))
-    design_json: Optional[Path] = None  # Auto-derived if None
-    placement_map: Optional[Path] = None  # Auto-derived if None
-    
-    # Style options
-    figsize: Tuple[int, int] = (12, 12)
-    dpi: int = 300
-    alpha: float = 0.35
-    cmap: str = 'tab20'
-    hist_bins: int = 100
-    heatmap_bins: Tuple[int, int] = (200, 200)
-
-    def __post_init__(self):
-        self.build_dir = Path(self.build_dir)
-        self.fabric_cells = Path(self.fabric_cells)
-        self.pins_yaml = Path(self.pins_yaml)
-        self.fabric_yaml = Path(self.fabric_yaml)
-        
-        if self.design_json is None:
-            self.design_json = Path(f"designs/{self.design}_mapped.json")
-        else:
-            self.design_json = Path(self.design_json)
-            
-        if self.placement_map is None:
-            # Try common map filenames
-            candidates = [
-                self.out_dir / f"{self.design}.map",
-                self.out_dir / f"{self.design}_cts.map",
-                self.out_dir / f"{self.design}_placement.map",
-                self.out_dir / "placement.map",
-            ]
-            for c in candidates:
-                if c.exists():
-                    self.placement_map = c
-                    break
-
-    @property
-    def out_dir(self) -> Path:
-        return self.build_dir / self.design
-
-    def out_path(self, suffix: str) -> Path:
-        """Generate output path: build/<design>/<design>_<suffix>"""
-        return self.out_dir / f"{self.design}_{suffix}"
-
-    def report_path(self, suffix: str) -> Path:
-        """Generate report input path: build/<design>/<design>_<suffix>"""
-        return self.out_dir / f"{self.design}_{suffix}"
+from .config import VizConfig, MissingDataError, load_fabric_db, load_logical_db, read_placement_map
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Result Container
+# Helper Functions
 # ═══════════════════════════════════════════════════════════════════════════════
 
-@dataclass
-class VizResult:
-    """Result of a single visualization stage."""
-    stage: str
-    ok: bool
-    path: Optional[Path] = None
-    error: Optional[str] = None
-    skipped: bool = False
-    missing_input: bool = False  # True if failure is due to missing input file
-
-    def __str__(self):
-        if self.skipped:
-            return f"  ⊘ {self.stage}: skipped"
-        sym = "✓" if self.ok else ("⚠" if self.missing_input else "✗")
-        detail = str(self.path) if self.path else self.error
-        return f"  {sym} {self.stage}: {detail}"
-
-
-class MissingDataError(Exception):
-    """Raised when input file exists but contains no usable data."""
-    pass
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Fabric DB Helpers (inlined to avoid circular imports)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def _load_fabric_db(cfg: VizConfig) -> Dict[str, Any]:
-    """Load fabric database using build_fabric_db."""
-    # Import here to avoid circular dependency
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from build_fabric_db import build_fabric_db
-    return build_fabric_db(str(cfg.fabric_cells), str(cfg.pins_yaml), str(cfg.fabric_yaml))
-
-
-def _load_logical_db(cfg: VizConfig) -> Tuple[Dict[str, Any], Any]:
-    """Load logical database from design JSON."""
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from parse_design import parse_design_json
-    return parse_design_json(str(cfg.design_json))
-
-
-def _normalize_cells_by_tile(fabric_db: Dict[str, Any]):
+def normalize_cells_by_tile(fabric_db: Dict[str, Any]):
     """Yield (tile_name, x, y, width, height, cell_dict) for each fabric cell."""
     cells_by_tile = fabric_db.get("fabric", {}).get("cells_by_tile", {})
     for tile_name, tile in cells_by_tile.items():
@@ -161,7 +39,7 @@ def _normalize_cells_by_tile(fabric_db: Dict[str, Any]):
             yield tile_name, cx, cy, w, h, cell
 
 
-def _extract_die_core_bbox(fabric_db: Dict[str, Any]) -> Tuple[Optional[Tuple], Optional[Tuple]]:
+def extract_die_core_bbox(fabric_db: Dict[str, Any]) -> Tuple[Optional[Tuple], Optional[Tuple]]:
     """Extract die and core bounding boxes from pin_placement."""
     pin_placement = fabric_db.get("fabric", {}).get("pin_placement", {})
     die_bbox = None
@@ -186,7 +64,7 @@ def _extract_die_core_bbox(fabric_db: Dict[str, Any]) -> Tuple[Optional[Tuple], 
     return die_bbox, core_bbox
 
 
-def _collect_pin_list(pins) -> List[Dict[str, Any]]:
+def collect_pin_list(pins) -> List[Dict[str, Any]]:
     """Normalize pins into list of {name, x, y}."""
     pin_list = []
     if pins is None:
@@ -210,7 +88,7 @@ def _collect_pin_list(pins) -> List[Dict[str, Any]]:
     return pin_list
 
 
-def _extract_cell_type(cell: Dict[str, Any]) -> str:
+def extract_cell_type(cell: Dict[str, Any]) -> str:
     """Extract short cell type name for legend."""
     cell_type = cell.get("cell_type", "")
     if cell_type:
@@ -229,57 +107,27 @@ def _extract_cell_type(cell: Dict[str, Any]) -> str:
     return "UNKNOWN"
 
 
-def _get_all_fabric_cell_names(fabric_db: Dict[str, Any]) -> List[str]:
+def get_all_fabric_cell_names(fabric_db: Dict[str, Any]) -> List[str]:
     """Return list of all fabric cell names."""
-    return [cell.get("name") for _, _, _, _, _, cell in _normalize_cells_by_tile(fabric_db) if cell.get("name")]
+    return [cell.get("name") for _, _, _, _, _, cell in normalize_cells_by_tile(fabric_db) if cell.get("name")]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Placement Map Parser
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def _read_placement_map(map_path: Path) -> Dict[str, Tuple[float, float]]:
-    """Parse placement .map file → {instance: (x, y)}."""
-    placement = {}
-    if not map_path or not map_path.exists():
-        return placement
-    with open(map_path) as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            parts = line.split()
-            if "->" in line:
-                arrow_idx = parts.index("->")
-                if arrow_idx >= 3 and arrow_idx + 1 < len(parts):
-                    x = float(parts[arrow_idx - 2])
-                    y = float(parts[arrow_idx - 1])
-                    instance = parts[arrow_idx + 1]
-                    placement[instance] = (x, y)
-            elif len(parts) == 3:
-                port_name, x, y = parts
-                placement[port_name] = (float(x), float(y))
-    return placement
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Plot Functions
+# Stage 1: Layout
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def plot_layout(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Path:
-    """
-    Render fabric ground-truth layout with die/core boundaries, cells, and pins.
-    """
+    """Render fabric ground-truth layout with die/core boundaries, cells, and pins."""
     if fabric_db is None:
-        fabric_db = _load_fabric_db(cfg)
+        fabric_db = load_fabric_db(cfg)
 
     cfg.out_dir.mkdir(parents=True, exist_ok=True)
     out_path = cfg.out_path("layout.png")
 
     pins = fabric_db.get("fabric", {}).get("pin_placement", {})
-    die_bbox, core_bbox = _extract_die_core_bbox(fabric_db)
+    die_bbox, core_bbox = extract_die_core_bbox(fabric_db)
 
-    cell_entries = list(_normalize_cells_by_tile(fabric_db))
+    cell_entries = list(normalize_cells_by_tile(fabric_db))
     if not cell_entries:
         raise ValueError("No fabric cells found")
 
@@ -306,7 +154,7 @@ def plot_layout(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Path:
     # Build type → color index
     type_to_idx = {}
     for _, _, _, _, _, cell in cell_entries:
-        t = _extract_cell_type(cell)
+        t = extract_cell_type(cell)
         if t not in type_to_idx:
             type_to_idx[t] = len(type_to_idx)
 
@@ -325,7 +173,7 @@ def plot_layout(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Path:
 
     # Draw cells
     for tile_name, cx, cy, w, h, cell in cell_entries:
-        t = _extract_cell_type(cell)
+        t = extract_cell_type(cell)
         idx = type_to_idx.get(t, 0)
         if w is None or h is None:
             w, h = 1.0, 1.0
@@ -336,7 +184,7 @@ def plot_layout(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Path:
                                         edgecolor='black', lw=0.4, alpha=cfg.alpha))
 
     # Draw pins
-    pin_list = _collect_pin_list(pins)
+    pin_list = collect_pin_list(pins)
     if pin_list:
         ax.scatter([p["x"] for p in pin_list], [p["y"] for p in pin_list],
                    s=18, marker='o', color='red', zorder=10)
@@ -363,17 +211,19 @@ def plot_layout(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Path:
     return out_path
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage 2: Density
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def plot_density(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Optional[Path]:
-    """
-    Render placement density heatmap from .map file.
-    """
+    """Render placement density heatmap from .map file."""
     if cfg.placement_map is None or not cfg.placement_map.exists():
-        raise FileNotFoundError(f"Placement map not found (tried auto-discovery)")
+        raise FileNotFoundError("Placement map not found (tried auto-discovery)")
 
     if fabric_db is None:
-        fabric_db = _load_fabric_db(cfg)
+        fabric_db = load_fabric_db(cfg)
 
-    placement = _read_placement_map(cfg.placement_map)
+    placement = read_placement_map(cfg.placement_map)
     if not placement:
         raise ValueError("No placement coords in map file")
 
@@ -401,17 +251,19 @@ def plot_density(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Optional[P
     return out_path
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage 3: Net Length
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def plot_net_length(cfg: VizConfig) -> Optional[Path]:
-    """
-    Render net HPWL histogram from logical_db + placement map.
-    """
+    """Render net HPWL histogram from logical_db + placement map."""
     if cfg.placement_map is None or not cfg.placement_map.exists():
         raise FileNotFoundError("Placement map not found")
     if not cfg.design_json.exists():
         raise FileNotFoundError(f"Design JSON not found: {cfg.design_json}")
 
-    logical_db, _ = _load_logical_db(cfg)
-    placement = _read_placement_map(cfg.placement_map)
+    logical_db, _ = load_logical_db(cfg)
+    placement = read_placement_map(cfg.placement_map)
 
     net_hpwl = []
     for net_id, net in logical_db.get('nets', {}).items():
@@ -444,10 +296,12 @@ def plot_net_length(cfg: VizConfig) -> Optional[Path]:
     return out_path
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage 4: Congestion
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def plot_congestion(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Optional[Path]:
-    """
-    Render congestion heatmap from _congestion.rpt.
-    """
+    """Render congestion heatmap from _congestion.rpt."""
     rpt_path = cfg.report_path("congestion.rpt")
     if not rpt_path.exists():
         raise FileNotFoundError(f"Congestion report not found: {rpt_path}")
@@ -516,10 +370,12 @@ def plot_congestion(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Optiona
     return out_path
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage 5: Slack Histogram
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def plot_slack_histogram(cfg: VizConfig) -> Optional[Path]:
-    """
-    Render slack histogram from _setup_timing.rpt.
-    """
+    """Render slack histogram from _setup_timing.rpt."""
     rpt_path = cfg.report_path("setup_timing.rpt")
     if not rpt_path.exists():
         raise FileNotFoundError(f"Setup timing report not found: {rpt_path}")
@@ -553,18 +409,20 @@ def plot_slack_histogram(cfg: VizConfig) -> Optional[Path]:
     return out_path
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage 6: Critical Path
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def plot_critical_path(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Optional[Path]:
-    """
-    Render critical path overlay on fabric layout.
-    """
+    """Render critical path overlay on fabric layout."""
     rpt_path = cfg.report_path("setup_timing.rpt")
     if not rpt_path.exists():
         raise FileNotFoundError(f"Setup timing report not found: {rpt_path}")
 
     if fabric_db is None:
-        fabric_db = _load_fabric_db(cfg)
+        fabric_db = load_fabric_db(cfg)
 
-    fabric_names = set(_get_all_fabric_cell_names(fabric_db))
+    fabric_names = set(get_all_fabric_cell_names(fabric_db))
 
     with open(rpt_path) as f:
         content = f.read()
@@ -603,7 +461,7 @@ def plot_critical_path(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Opti
 
     # Build name → center lookup
     name_to_center = {}
-    for _, cx, cy, w, h, cell in _normalize_cells_by_tile(fabric_db):
+    for _, cx, cy, w, h, cell in normalize_cells_by_tile(fabric_db):
         name = cell.get('name')
         if not name:
             continue
@@ -618,8 +476,8 @@ def plot_critical_path(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Opti
 
     # Reuse layout plot then overlay path
     pins = fabric_db.get("fabric", {}).get("pin_placement", {})
-    die_bbox, core_bbox = _extract_die_core_bbox(fabric_db)
-    cell_entries = list(_normalize_cells_by_tile(fabric_db))
+    die_bbox, core_bbox = extract_die_core_bbox(fabric_db)
+    cell_entries = list(normalize_cells_by_tile(fabric_db))
 
     if die_bbox is None:
         xs, ys = [], []
@@ -640,7 +498,7 @@ def plot_critical_path(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Opti
 
     type_to_idx = {}
     for _, _, _, _, _, cell in cell_entries:
-        t = _extract_cell_type(cell)
+        t = extract_cell_type(cell)
         if t not in type_to_idx:
             type_to_idx[t] = len(type_to_idx)
 
@@ -656,7 +514,7 @@ def plot_critical_path(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Opti
 
     cmap_obj = matplotlib.colormaps.get_cmap(cfg.cmap)
     for _, cx, cy, w, h, cell in cell_entries:
-        t = _extract_cell_type(cell)
+        t = extract_cell_type(cell)
         idx = type_to_idx.get(t, 0)
         if w is None: w = 1.0
         if h is None: h = 1.0
@@ -690,11 +548,12 @@ def plot_critical_path(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Opti
     return out_path
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage 7: CTS Tree
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def plot_cts_tree(cfg: VizConfig) -> Optional[Path]:
-    """
-    Render CTS tree overlay (delegates to cts_overlay module).
-    Uses the new plot_cts_tree_overlay_from_tree which reads directly from clock_tree.json.
-    """
+    """Render CTS tree overlay (delegates to cts_overlay module)."""
     cts_json_path = cfg.out_dir / f"{cfg.design}_clock_tree.json"
     if not cts_json_path.exists():
         raise FileNotFoundError(f"Clock tree JSON not found: {cts_json_path}")
@@ -703,171 +562,20 @@ def plot_cts_tree(cfg: VizConfig) -> Optional[Path]:
     with open(cts_json_path) as f:
         clock_tree = json.load(f)
 
-    fabric_db = _load_fabric_db(cfg)
+    fabric_db = load_fabric_db(cfg)
     out_path = cfg.out_path("cts_tree.png")
 
     # Try new function first (from Routing branch), fallback to old
     sys.path.insert(0, str(Path(__file__).parent))
     try:
-        from cts_overlay import plot_cts_tree_overlay_from_tree
+        from .cts_overlay import plot_cts_tree_overlay_from_tree
         plot_cts_tree_overlay_from_tree(clock_tree, fabric_db, str(out_path))
     except ImportError:
         # Fallback to old function if new one not available
-        from cts_overlay import plot_cts_tree_overlay
+        from .cts_overlay import plot_cts_tree_overlay
         if cfg.placement_map is None or not cfg.placement_map.exists():
             raise FileNotFoundError("Placement map not found for CTS overlay (legacy mode)")
-        logical_db, _ = _load_logical_db(cfg)
+        logical_db, _ = load_logical_db(cfg)
         plot_cts_tree_overlay(logical_db, str(cfg.placement_map), str(cts_json_path), fabric_db, str(out_path))
     print(f"Saved cts_tree → {out_path}")
     return out_path
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Orchestrator
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Stage registry: (name, function, requires_map, requires_report)
-STAGES = [
-    ("layout",        plot_layout,          False, None),
-    ("density",       plot_density,         True,  None),
-    ("net_length",    plot_net_length,      True,  None),
-    ("congestion",    plot_congestion,      False, "congestion.rpt"),
-    ("slack",         plot_slack_histogram, False, "setup_timing.rpt"),
-    ("critical_path", plot_critical_path,   False, "setup_timing.rpt"),
-    ("cts_tree",      plot_cts_tree,        False, None),  # No longer requires map with new function
-]
-
-
-def run_all(cfg: VizConfig, only: List[str] = None, skip: List[str] = None) -> List[VizResult]:
-    """
-    Run all visualization stages, returning results for each.
-
-    Args:
-        cfg: VizConfig with design name and paths
-        only: If set, only run these stages
-        skip: If set, skip these stages
-    """
-    results = []
-    fabric_db = None  # Lazy-load and cache
-
-    for name, fn, needs_map, needs_rpt in STAGES:
-        # Filter logic
-        if only and name not in only:
-            results.append(VizResult(name, False, skipped=True))
-            continue
-        if skip and name in skip:
-            results.append(VizResult(name, False, skipped=True))
-            continue
-
-        # Pre-check requirements (missing input = soft failure)
-        if needs_map and (cfg.placement_map is None or not cfg.placement_map.exists()):
-            results.append(VizResult(name, False, error="No placement map found", missing_input=True))
-            continue
-        if needs_rpt:
-            rpt = cfg.report_path(needs_rpt)
-            if not rpt.exists():
-                results.append(VizResult(name, False, error=f"Missing {needs_rpt}", missing_input=True))
-                continue
-
-        # Run
-        try:
-            if fabric_db is None and name in ("layout", "congestion", "critical_path", "cts_tree"):
-                fabric_db = _load_fabric_db(cfg)
-            
-            if name in ("layout", "density", "congestion", "critical_path"):
-                path = fn(cfg, fabric_db)
-            else:
-                path = fn(cfg)
-            results.append(VizResult(name, True, path=path))
-        except (FileNotFoundError, MissingDataError) as e:
-            # Missing input file or no usable data in file
-            results.append(VizResult(name, False, error=str(e), missing_input=True))
-        except Exception as e:
-            # Real error (parser bug, etc.)
-            results.append(VizResult(name, False, error=str(e), missing_input=False))
-
-    return results
-
-
-def print_summary(results: List[VizResult], design: str):
-    """Print a formatted summary of results."""
-    print(f"\n{'='*60}")
-    print(f"Visualization Summary: {design}")
-    print(f"{'='*60}")
-
-    passed = sum(1 for r in results if r.ok)
-    skipped = sum(1 for r in results if r.skipped)
-    missing = sum(1 for r in results if not r.ok and not r.skipped and r.missing_input)
-    failed = sum(1 for r in results if not r.ok and not r.skipped and not r.missing_input)
-    total = len(results) - skipped
-
-    for r in results:
-        print(r)
-
-    print(f"\n{'='*60}")
-    summary_parts = [f"Passed: {passed}/{total}"]
-    if missing:
-        summary_parts.append(f"{missing} missing inputs")
-    if failed:
-        summary_parts.append(f"{failed} errors")
-    if skipped:
-        summary_parts.append(f"{skipped} skipped")
-    print(" | ".join(summary_parts))
-    print(f"{'='*60}\n")
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# CLI
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def main():
-    import argparse
-    parser = argparse.ArgumentParser(description="Structured-ASIC Visualization Layer")
-    parser.add_argument("--design", help="Design name (e.g., 6502)")
-    parser.add_argument("--only", nargs="+", help="Only run these stages")
-    parser.add_argument("--skip", nargs="+", help="Skip these stages")
-    parser.add_argument("--map", help="Path to placement .map file")
-    parser.add_argument("--list", action="store_true", help="List available stages")
-    parser.add_argument("--strict", action="store_true", 
-                        help="Exit with error even if failures are just missing inputs")
-    parser.add_argument("--quiet", action="store_true", help="Suppress per-stage output")
-    args = parser.parse_args()
-
-    if args.list:
-        print("Available stages:")
-        for name, _, needs_map, needs_rpt in STAGES:
-            reqs = []
-            if needs_map: reqs.append(".map")
-            if needs_rpt: reqs.append(needs_rpt)
-            req_str = f" (requires: {', '.join(reqs)})" if reqs else ""
-            print(f"  • {name}{req_str}")
-        return
-
-    if not args.design:
-        parser.error("--design is required (unless using --list)")
-
-    cfg = VizConfig(design=args.design)
-    if args.map:
-        cfg.placement_map = Path(args.map)
-
-    results = run_all(cfg, only=args.only, skip=args.skip)
-    
-    if not args.quiet:
-        print_summary(results, args.design)
-
-    # Determine exit code
-    hard_failures = [r for r in results if not r.ok and not r.skipped and not r.missing_input]
-    soft_failures = [r for r in results if not r.ok and not r.skipped and r.missing_input]
-    
-    if hard_failures:
-        # Real errors always cause exit 1
-        sys.exit(1)
-    elif soft_failures and args.strict:
-        # Missing inputs only cause exit 1 in strict mode
-        sys.exit(1)
-    else:
-        sys.exit(0)
-
-
-if __name__ == "__main__":
-    main()
