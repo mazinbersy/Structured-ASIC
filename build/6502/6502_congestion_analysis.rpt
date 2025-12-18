@@ -1,0 +1,24 @@
+========================================
+Global Routing Congestion Analysis
+========================================
+
+Net Statistics:
+  Total nets: 9649
+
+Guide File Analysis:
+  Guide file: build/6502/6502.guide
+  File size: 3604 KB
+  Status: ✓ Global routing completed successfully
+  Analysis: Guide file size indicates routing data is present
+
+Note: No detailed congestion report generated
+This may be normal for some OpenROAD versions
+
+========================================
+Summary:
+========================================
+✓ Global routing completed
+✓ Routing guides generated
+✓ Design appears ready for detailed routing
+
+Next step: Run detailed routing using the generated guides

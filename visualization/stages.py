@@ -238,7 +238,8 @@ def plot_density(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Optional[P
     plt.figure(figsize=(6, 6))
     H, xedges, yedges = np.histogram2d(xs, ys, bins=cfg.heatmap_bins,
                                        range=[[0, extent[0]], [0, extent[1]]])
-    H = np.flipud(np.rot90(H))
+    # Transpose so rows=Y, cols=X, then flip so high-Y is at top
+    H = np.flipud(H.T)
     plt.imshow(H, extent=[0, extent[0], 0, extent[1]], aspect='auto', cmap='hot')
     plt.colorbar(label='Cell count')
     plt.title(f'{cfg.design} Placement Density')
@@ -358,7 +359,8 @@ def plot_congestion(cfg: VizConfig, fabric_db: Dict[str, Any] = None) -> Optiona
         H[np.isnan(H)] = 0.0
 
     plt.figure(figsize=(8, 6))
-    plt.imshow(np.flipud(H), extent=[min(xs), max(xs), min(ys), max(ys)], cmap='hot', aspect='auto')
+    # Transpose so rows=Y, cols=X, then flip so high-Y is at top
+    plt.imshow(np.flipud(H.T), extent=[min(xs), max(xs), min(ys), max(ys)], cmap='hot', aspect='auto')
     plt.colorbar(label='Congestion (%)')
     plt.title(f'{cfg.design} Congestion Heatmap')
     plt.xlabel('X (μm)')
