@@ -1,4 +1,80 @@
 # Structured-ASIC
+
+A complete Place-and-Route (PnR) and Static Timing Analysis (STA) flow for a structured ASIC platform using the SKY130 PDK.
+
+## Project Overview
+
+This project implements a physical design flow for a pre-fabricated structured ASIC fabric. Unlike standard-cell ASIC where placement determines cell coordinates, structured ASIC "placement" is an **assignment problem**: mapping logical cells to fixed physical fabric slots.
+
+### Flow Stages
+1. **Phase 1:** Fabric parsing, design validation, visualization
+2. **Phase 2:** Placement (Greedy + Simulated Annealing)
+3. **Phase 3:** Clock Tree Synthesis (H-Tree) + ECO netlist generation
+4. **Phase 4:** DEF generation + OpenROAD routing
+5. **Phase 5:** Static Timing Analysis (OpenSTA)
+
+---
+
+## Results Dashboard
+
+### Design Comparison
+
+| Design | Cells | Util % | Placer | WNS (ns) | TNS (ns) | DRC | Status |
+|--------|-------|--------|--------|----------|----------|-----|--------|
+| arith | 463 | 0.3% | Greedy+SA | +1.14 ✅ | 0.00 ✅ | 0 ✅ | **PASS** |
+| 6502 | 2,899 | 1.8% | Greedy+SA | +2.47 ✅ | 0.00 ✅ | 0 ✅ | **PASS** |
+| expanded_6502 | 2,899 | 1.8% | Greedy+SA | +2.47 ✅ | 0.00 ✅ | 0 ✅ | **PASS** |
+| z80 | 9,144 | 5.8% | Greedy+SA | — | — | — | Placed |
+
+**Fabric Size:** 158,760 cells
+
+### CTS Statistics
+
+| Design | CTS Buffers | Tree Depth | DFF Sinks | Clock Skew |
+|--------|-------------|------------|-----------|------------|
+| arith | 3,669 | 6 | 6,480 | 0.27 ns |
+| 6502 | 3,669 | 6 | 6,480 | 0.28 ns |
+| expanded_6502 | 3,669 | 6 | 6,480 | 0.28 ns |
+| z80 | 3,669 | 6 | 6,480 | — |
+
+### Power Analysis
+
+| Design | Sequential | Combinational | Clock | Total |
+|--------|------------|---------------|-------|-------|
+| arith | 0.14 mW | 0.16 mW | 18.2 mW | **18.5 mW** |
+| 6502 | 1.01 mW | 4.46 mW | 18.3 mW | **23.8 mW** |
+| expanded_6502 | 1.01 mW | 4.46 mW | 18.3 mW | **23.8 mW** |
+
+---
+
+## Analysis
+
+### Timing Closure
+All tested designs achieve **timing closure** with positive worst negative slack (WNS > 0). This indicates:
+- Clock period of 10 ns (100 MHz) is achievable
+- H-Tree CTS provides balanced clock distribution (skew < 0.3 ns)
+- Placement quality from SA optimization enables short timing paths
+
+### Utilization Scaling
+- Low-utilization designs (arith, 6502, expanded_6502) route cleanly with **zero DRC violations**
+- z80 (5.8% utilization) demonstrates scaling to larger designs
+- The fabric has ample routing resources for designs at low utilization
+
+### Clock Network Dominance
+Power analysis shows clock network consumes 77-98% of total power. This is expected because:
+- H-Tree uses 3,669 buffers driving 6,480 DFF sinks
+- All fabric DFF slots receive clock signal (power-down ECO mitigates unused cells)
+
+---
+
+## Final Layout
+
+![6502 Layout](build/expanded_6502/expanded_6502_layout.png)
+
+*Routed layout of expanded_6502 design showing placed cells and I/O pins*
+
+---
+
 ## SA Knob Exploration (Task 1.D)
 
 To evaluate how simulated annealing parameters affect placement quality and runtime, a structured two-phase sweep was performed using the **6502** design.
@@ -113,3 +189,164 @@ Build outputs (examples):
 Next recommended steps:
 - Keep the renamer integrated in the ECO flow (already applied). Optionally add a small CI check that verifies no logical placement keys remain in the final `.v`.
 - If you want to retain old experiment outputs, consider archiving `build/experiments/` before removing; otherwise the repo now only keeps the production `build/<design>/` outputs.
+---
+
+## Phase 4 & 5 — Routing and STA
+
+### DEF Generation (`make_def.py`)
+Generates a fixed DEF file containing:
+- `DIEAREA` from fabric specification
+- All 158,760 fabric cells as `+ FIXED` components
+- I/O pins placed on die boundary
+
+### Routing (`route.tcl`)
+OpenROAD-based routing flow:
+- 5-layer metal stack (met1 → met5)
+- Global routing with congestion handling
+- Detailed routing with DRC checking
+- SPEF parasitic extraction
+
+### Static Timing Analysis (`sta.tcl`)
+OpenSTA-based timing flow:
+- Setup and hold timing analysis (top 100 paths)
+- Clock skew reporting
+- WNS/TNS calculation
+- Power analysis
+
+---
+
+## Visualizations
+
+The visualization pipeline generates the following outputs for each design:
+
+| Visualization | Description | Status |
+|---------------|-------------|--------|
+| `*_layout.png` | Chip layout with placed cells and pins | ✅ |
+| `*_density.png` | Placement density heatmap | ✅ |
+| `*_net_length.png` | Net length histogram | ✅ |
+| `*_cts_tree.png` | CTS H-Tree overlay on layout | ✅ |
+| `*_slack.png` | Slack distribution histogram | ✅ |
+| `*_critical_path.png` | Critical path overlay on layout | ✅ |
+| `*_congestion.png` | Congestion heatmap | ❌ (see limitations) |
+
+### Example Visualizations
+
+#### CTS Tree
+![CTS Tree](build/expanded_6502/expanded_6502_cts_tree.png)
+
+#### Slack Histogram
+![Slack Histogram](build/arith/arith_slack.png)
+
+#### Critical Path
+![Critical Path](build/arith/arith_critical_path.png)
+
+---
+
+## Known Limitations
+
+| Issue | Root Cause | Impact |
+|-------|------------|--------|
+| Congestion heatmap unavailable | OpenROAD `grt::get_congestion_grid` API not exposed | Cannot visualize routing congestion |
+| SDC files incomplete | Only `arith.sdc` written | STA for other designs requires SDC creation |
+| Scripts hardcoded | Design name not parameterized via env vars | Manual script editing per design |
+
+---
+
+## Usage
+
+### Run Full Flow for a Design
+```bash
+# Placement
+python3 placer.py --design arith
+
+# ECO + CTS
+python3 eco_generator.py arith
+
+# DEF Generation
+python3 make_def.py arith
+
+# Routing (requires OpenROAD)
+openroad route.tcl
+
+# STA (requires OpenSTA)
+sta sta.tcl
+
+# Visualizations
+python3 visualize.py --design arith
+```
+
+### Generated Outputs
+All outputs are placed in `build/<design>/`:
+- `*.map` — Placement mapping
+- `*_final.v` — ECO'd Verilog netlist
+- `*_fixed.def` — Fixed DEF for routing
+- `*_routed.def` — Routed DEF
+- `*.spef` — Parasitic extraction
+- `*_setup_timing.rpt` — Setup timing report
+- `*.png` — Visualizations
+
+---
+
+## Makefile Usage
+
+The provided Makefile automates the full structured ASIC flow. You can run, clean, and visualize any design by specifying the DESIGN variable.
+
+### Common Commands
+
+- **Run full flow for a design:**
+  ```sh
+  make all DESIGN=6502
+  ```
+- **Run only placement:**
+  ```sh
+  make place DESIGN=arith
+  ```
+- **Generate visualizations:**
+  ```sh
+  make viz DESIGN=6502
+  ```
+- **Clean build files for a design:**
+  ```sh
+  make clean DESIGN=arith
+  ```
+- **Clean all build files:**
+  ```sh
+  make clean-all
+  ```
+
+### Cleaning Build Files
+
+- `make clean DESIGN=arith` will remove only the build/arith directory and all generated files for the arith design. Other designs are unaffected.
+- `make clean-all` will remove the entire build/ directory and all generated files for all designs.
+
+See `make help` for a full list of targets and usage examples.
+
+---
+
+## Repository Structure
+
+```
+├── placer.py              # Greedy + SA placement
+├── eco_generator.py       # CTS + ECO flow
+├── cts_htree.py           # H-Tree CTS algorithm
+├── make_def.py            # DEF generation
+├── route.tcl              # OpenROAD routing script
+├── sta.tcl                # OpenSTA timing script
+├── visualize.py           # Visualization CLI
+├── validator.py           # Design validation
+├── designs/               # Input design JSONs
+├── fabric/                # Fabric specification files
+├── tech/                  # SKY130 LEF/Liberty files
+├── build/                 # Generated outputs per design
+└── visualization/         # Visualization package
+```
+
+---
+
+## Team
+
+[Team member names]
+
+## License
+
+[License information]

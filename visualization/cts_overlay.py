@@ -5,14 +5,55 @@ CTS tree visualization: overlays DFFs, buffers, and tree edges on the chip layou
 
 Functions:
   - plot_cts_tree_overlay(logical_db, placement_file, clock_tree_json, fabric_db, out_png)
+  - plot_cts_tree_overlay_from_tree(clock_tree_json, fabric_db, out_png)
 """
 
 import json
 import math
+import re
 from typing import Dict, Any, Optional, List, Tuple
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.lines import Line2D
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Helper functions for fabric layout rendering
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _normalize_cells_by_tile(fabric_db: Dict[str, Any]):
+    """Yield (tile_name, x, y, width, height, cell_dict) for each fabric cell."""
+    cells_by_tile = fabric_db.get("fabric", {}).get("cells_by_tile", {})
+    for tile_name, tile in cells_by_tile.items():
+        tile_x = tile.get("x", None)
+        tile_y = tile.get("y", None)
+        cells = tile.get("cells", []) or []
+        for cell in cells:
+            cx = cell.get("x", tile_x)
+            cy = cell.get("y", tile_y)
+            w = cell.get("width_um")
+            h = cell.get("height_um")
+            yield tile_name, cx, cy, w, h, cell
+
+
+def _extract_cell_type(cell: Dict[str, Any]) -> str:
+    """Extract short cell type name for legend."""
+    cell_type = cell.get("cell_type", "")
+    if cell_type:
+        parts = cell_type.split("__")
+        if len(parts) > 1:
+            base = parts[-1]
+            m = re.match(r"([a-z]+)\d*", base)
+            if m:
+                return m.group(1).upper()
+            return base.upper()
+    template = cell.get("template_name", "")
+    if template:
+        m = re.match(r"R\d+_([A-Z]+)_\d+", template)
+        if m:
+            return m.group(1)
+    return "UNKNOWN"
 
 
 def plot_cts_tree_overlay(
@@ -180,6 +221,32 @@ def plot_cts_tree_overlay(
 
     ax.add_patch(patches.Rectangle((dx0, dy0), dx1 - dx0, dy1 - dy0, fill=False, lw=2, edgecolor='blue', label="Die"))
     ax.add_patch(patches.Rectangle((cx0, cy0), cx1 - cx0, cy1 - cy0, fill=False, lw=2, ls='--', edgecolor='green', label="Core"))
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Draw fabric cells as semi-transparent background (chip layout overlay)
+    # ═══════════════════════════════════════════════════════════════════════════
+    cell_entries = list(_normalize_cells_by_tile(fabric_db))
+    
+    # Build type → color index for consistent coloring
+    type_to_idx = {}
+    for _, _, _, _, _, cell in cell_entries:
+        t = _extract_cell_type(cell)
+        if t not in type_to_idx:
+            type_to_idx[t] = len(type_to_idx)
+
+    cmap = matplotlib.colormaps.get_cmap('tab20')
+    
+    # Draw all fabric cells as background layer
+    for tile_name, cx, cy, w, h, cell in cell_entries:
+        t = _extract_cell_type(cell)
+        idx = type_to_idx.get(t, 0)
+        if w is None or h is None:
+            w, h = 1.0, 1.0
+        if cx is None or cy is None:
+            continue
+        color = cmap(idx % cmap.N)
+        ax.add_patch(patches.Rectangle((cx, cy), w, h, facecolor=color,
+                                        edgecolor='black', lw=0.2, alpha=0.15, zorder=0))
 
     # Draw tree edges (buffer to buffer, buffer to DFF)
     def draw_edges(node, parent_x=None, parent_y=None):
@@ -407,6 +474,32 @@ def plot_cts_tree_overlay_from_tree(
 
     ax.add_patch(patches.Rectangle((dx0, dy0), dx1 - dx0, dy1 - dy0, fill=False, lw=2, edgecolor='blue', label="Die"))
     ax.add_patch(patches.Rectangle((cx0, cy0), cx1 - cx0, cy1 - cy0, fill=False, lw=2, ls='--', edgecolor='green', label="Core"))
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Draw fabric cells as semi-transparent background (chip layout overlay)
+    # ═══════════════════════════════════════════════════════════════════════════
+    cell_entries = list(_normalize_cells_by_tile(fabric_db))
+    
+    # Build type → color index for consistent coloring
+    type_to_idx = {}
+    for _, _, _, _, _, cell in cell_entries:
+        t = _extract_cell_type(cell)
+        if t not in type_to_idx:
+            type_to_idx[t] = len(type_to_idx)
+
+    cmap = matplotlib.colormaps.get_cmap('tab20')
+    
+    # Draw all fabric cells as background layer
+    for tile_name, cx, cy, w, h, cell in cell_entries:
+        t = _extract_cell_type(cell)
+        idx = type_to_idx.get(t, 0)
+        if w is None or h is None:
+            w, h = 1.0, 1.0
+        if cx is None or cy is None:
+            continue
+        color = cmap(idx % cmap.N)
+        ax.add_patch(patches.Rectangle((cx, cy), w, h, facecolor=color,
+                                        edgecolor='black', lw=0.2, alpha=0.15, zorder=0))
 
     # Draw tree edges (buffer to buffer, buffer to DFF)
     def draw_edges(node, parent_x=None, parent_y=None):
