@@ -453,7 +453,21 @@ class HTreeCTS:
         self.remove_old_clock_connections()
 
         # Counter for creating new net IDs
-        max_net_id = max(self.logical_db['nets'].keys()) if self.logical_db['nets'] else 0
+        # Extract numeric net IDs to find the maximum
+        if self.logical_db['nets']:
+            net_ids = []
+            for k in self.logical_db['nets'].keys():
+                if isinstance(k, int):
+                    net_ids.append(k)
+                else:
+                    try:
+                        net_ids.append(int(k))
+                    except (ValueError, TypeError):
+                        # Skip non-numeric net IDs
+                        continue
+            max_net_id = max(net_ids) if net_ids else 0
+        else:
+            max_net_id = 0
         net_counter = max_net_id + 1
 
         # Track all buffers to add

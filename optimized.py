@@ -37,15 +37,15 @@ class SAConfig:
         self.initial_temp = 100.0       # Starting temperature
         self.final_temp = 0.01          # Stopping temperature
         self.cooling_rate = 0.97        # Slower cooling for better exploration
-        self.moves_per_temp = 100       # More moves per temperature
-        self.max_iterations = 15000     # Safety limit
+        self.moves_per_temp = 750       # More moves per temperature
+        self.max_iterations = 150000000     # Safety limit
         
         # Move type probabilities
-        self.prob_refine = 0.5          # REFINE: Swap two cells
-        self.prob_explore = 0.5         # EXPLORE: Move one cell to new location
+        self.prob_refine = 0.7          # REFINE: Swap two cells
+        self.prob_explore = 0.3         # EXPLORE: Move one cell to new location
         
         # Range-limiting window for Explore moves
-        self.w_initial = 0.5            # Initial window size (50% of die width)
+        self.w_initial = 0.3            # Initial window size (50% of die width)
 
 
 # ===============================================================
@@ -76,7 +76,7 @@ def get_available_slots(fabric_db, placement_dict):
 def get_placeable_cells(logical_db, placement_dict):
     """Return list of cell names (exclude ports)."""
     cells = []
-    for cell_name in logical_db["cells"].keys():
+    for cell_name in placement_dict.keys():
         # Check if it's not a port (ports have cell_type "PIN")
         if placement_dict[cell_name][1] != "PIN":
             cells.append(cell_name)
@@ -455,17 +455,35 @@ def simulated_annealing(fabric_db, logical_db, netlist_graph, initial_placement_
 # ===============================================================
 
 if __name__ == "__main__":
+    import sys
+    
+    # Parse command-line arguments
+    design = sys.argv[1] if len(sys.argv) > 1 else "6502"
+    output_dir = sys.argv[2] if len(sys.argv) > 2 else "."
+    
+    fabric_cells = sys.argv[3] if len(sys.argv) > 3 else "fabric/fabric_cells.yaml"
+    fabric_pins = sys.argv[4] if len(sys.argv) > 4 else "fabric/pins.yaml"
+    fabric_def = sys.argv[5] if len(sys.argv) > 5 else "fabric/fabric.yaml"
+    
+    if len(sys.argv) == 1 or sys.argv[1] in ['-h', '--help']:
+        print("Usage: python optimized.py [design] [output_dir] [fabric_cells] [fabric_pins] [fabric_def]")
+        print("\nDefaults:")
+        print("  design:        6502")
+        print("  output_dir:    .")
+        print("  fabric_cells:  fabric/fabric_cells.yaml")
+        print("  fabric_pins:   fabric/pins.yaml")
+        print("  fabric_def:    fabric/fabric.yaml")
+        print("\nExample:")
+        print("  python optimized.py aes_128 build/aes_128")
+        sys.exit(0)
+    
+    print(f"Design: {design}")
+    print(f"Output directory: {output_dir}")
     print("Loading fabric and design data...")
     
     # Build data structures
-    fabric_db = build_fabric_db(
-        "fabric/fabric_cells.yaml",
-        "fabric/pins.yaml",
-        "fabric/fabric.yaml"
-    )
-    logical_db, netlist_graph = parse_design_json(
-        "designs/6502_mapped.json"
-    )
+    fabric_db = build_fabric_db(fabric_cells, fabric_pins, fabric_def)
+    logical_db, netlist_graph = parse_design_json(f"designs/{design}_mapped.json")
     
     print("Running initial greedy placement...")
     initial_placement_dict = initial_placement(fabric_db, logical_db, netlist_graph)
@@ -475,8 +493,9 @@ if __name__ == "__main__":
     print(f"\nGreedy Placement HPWL: {initial_hpwl:.2f} µm")
     
     # Write initial placement
-    write_map_file(initial_placement_dict, fabric_db, filename="placement_greedy_initial.map")
-    print(f"[OK] Greedy placement saved to: placement_greedy_initial.map")
+    greedy_output = f"{output_dir}/placement_greedy_initial.map"
+    write_map_file(initial_placement_dict, fabric_db, filename=greedy_output)
+    print(f"[OK] Greedy placement saved to: {greedy_output}")
     
     # Configure SA (uses defaults from SAConfig class)
     config = SAConfig()
@@ -491,5 +510,6 @@ if __name__ == "__main__":
     )
     
     # Write optimized placement
-    write_map_file(optimized_placement, fabric_db, filename="placement_sa_optimized.map")
-    print(f"[OK] SA-optimized placement saved to: placement_sa_optimized.map")
+    sa_output = f"{output_dir}/placement_sa_optimized.map"
+    write_map_file(optimized_placement, fabric_db, filename=sa_output)
+    print(f"[OK] SA-optimized placement saved to: {sa_output}")

@@ -278,15 +278,34 @@ def write_map_file(placement_dict, fabric_db, filename="placement.map"):
 # --------------------------------------------------
 
 if __name__ == "__main__":
+    import sys
+    
+    # Parse command-line arguments
+    design = sys.argv[1] if len(sys.argv) > 1 else "6502"
+    output_file = sys.argv[2] if len(sys.argv) > 2 else f"build/{design}/debug_placement.map"
+    
+    fabric_cells = sys.argv[3] if len(sys.argv) > 3 else "fabric/fabric_cells.yaml"
+    fabric_pins = sys.argv[4] if len(sys.argv) > 4 else "fabric/pins.yaml"
+    fabric_def = sys.argv[5] if len(sys.argv) > 5 else "fabric/fabric.yaml"
+    
+    if design in ['-h', '--help']:
+        print("Usage: python placer.py [design] [output_file] [fabric_cells] [fabric_pins] [fabric_def]")
+        print("\nDefaults:")
+        print("  design:        6502")
+        print("  output_file:   build/{design}/debug_placement.map")
+        print("  fabric_cells:  fabric/fabric_cells.yaml")
+        print("  fabric_pins:   fabric/pins.yaml")
+        print("  fabric_def:    fabric/fabric.yaml")
+        print("\nExample:")
+        print("  python placer.py aes_128 build/aes_128/placement.map")
+        sys.exit(0)
+    
+    print(f"Design: {design}")
+    print(f"Output file: {output_file}")
+    
     # Build data structures
-    fabric_db = build_fabric_db(
-        "fabric/fabric_cells.yaml",
-        "fabric/pins.yaml",
-        "fabric/fabric.yaml"
-    )
-    logical_db, netlist_graph = parse_design_json(
-        "designs/6502_mapped.json"
-    )
+    fabric_db = build_fabric_db(fabric_cells, fabric_pins, fabric_def)
+    logical_db, netlist_graph = parse_design_json(f"designs/{design}_mapped.json")
 
     placement_dict = initial_placement(fabric_db, logical_db, netlist_graph)
 
@@ -297,4 +316,5 @@ if __name__ == "__main__":
     print(f"{'='*50}\n")
 
     # Write .map
-    write_map_file(placement_dict, fabric_db, filename="build/6502/debug_placement.map")
+    write_map_file(placement_dict, fabric_db, filename=output_file)
+    print(f"[OK] Placement saved to: {output_file}")
