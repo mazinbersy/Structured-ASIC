@@ -24,29 +24,80 @@ from build_fabric_db import build_fabric_db
 from parse_design import parse_design_json
 
 
+def parse_placement_map(placement_file: str) -> Tuple[Dict, Dict]:
+    """
+    Parse placement.map file and return I/O ports and fabric cells.
+
+    Returns:
+        Tuple of (io_ports, fabric_cells)
+    """
+    io_ports = {}  # I/O port positions
+    fabric_cells = {}  # Fabric cell info
+
+    print(f"Loading placement: {placement_file}")
+
+    with open(placement_file, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+
+            # Check if line contains '->' (fabric cell mapping)
+            if '->' in line:
+                parts = line.split('->')
+                left_parts = parts[0].strip().split()
+
+                if len(left_parts) < 4:
+                    continue
+
+                fabric_cell = left_parts[0]
+                cell_type = left_parts[1]
+
+                try:
+                    x = float(left_parts[2])
+                    y = float(left_parts[3])
+                except (ValueError, IndexError):
+                    continue
+
+                mapped_cell = parts[1].strip()
+
+                fabric_cells[fabric_cell] = {
+                    'type': cell_type,
+                    'x': x,
+                    'y': y,
+                    'mapped': mapped_cell,
+                    'is_unused': (mapped_cell == 'UNUSED')
+                }
+            else:
+                # I/O port line: port_name x y
+                parts = line.split()
+                if len(parts) >= 3:
+                    port_name = parts[0]
+                    try:
+                        x = float(parts[1])
+                        y = float(parts[2])
+                        io_ports[port_name] = (x, y)
+                    except ValueError:
+                        continue
+
+    print(f"Loaded {len(io_ports)} I/O ports")
+    print(f"Loaded {len(fabric_cells)} fabric cells from placement")
+
+    return io_ports, fabric_cells
+
+
 class HTreeCTS:
-    def __init__(self, placement_file: str = "placement.map",
-                 design_json: str = "designs/6502_mapped.json"):
+    def __init__(self, io_ports: Dict, fabric_cells: Dict,
+                 fabric_db: Dict, logical_db: Dict, netlist_graph: nx.Graph):
         """Initialize CTS with placement data, fabric database, and logical netlist."""
-        self.placement_file = placement_file
-        self.design_json = design_json
+        self.io_ports = io_ports
+        self.fabric_cells = fabric_cells
+        self.fabric_db = fabric_db
+        self.logical_db = logical_db
+        self.netlist_graph = netlist_graph
 
-        print(f"Loading placement: {placement_file}")
-        self.io_ports = {}  # I/O port positions
-        self.fabric_cells = {}  # Fabric cell info
-        self._parse_placement()
-
-        print(f"Building fabric database from YAML files...")
-        self.fabric_db = build_fabric_db(
-            'fabric/fabric_cells.yaml',
-            'fabric/pins.yaml',
-            'fabric/fabric.yaml'
-        )
-
-        print(f"Loading design netlist: {design_json}")
-        self.logical_db, self.netlist_graph = parse_design_json(design_json)
-        print(f"Loaded logical_db with {len(self.logical_db['cells'])} cells")
-        print(f"Loaded netlist_graph with {len(self.netlist_graph.nodes())} nodes")
+        print(f"Initialized with logical_db containing {len(self.logical_db['cells'])} cells")
+        print(f"Initialized with netlist_graph containing {len(self.netlist_graph.nodes())} nodes")
 
         self.sinks = []  # DFF locations (clock sinks)
         self.resources = []  # Available buffers/inverters
@@ -55,54 +106,41 @@ class HTreeCTS:
         self.clock_net_id = None  # Clock net ID from logical_db
         self.buffer_counter = 0  # Counter for naming buffers
 
-    def _parse_placement(self):
-        """Parse placement.map file."""
-        with open(self.placement_file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-
-                # Check if line contains '->' (fabric cell mapping)
-                if '->' in line:
-                    parts = line.split('->')
-                    left_parts = parts[0].strip().split()
-
-                    if len(left_parts) < 4:
-                        continue
-
-                    fabric_cell = left_parts[0]
-                    cell_type = left_parts[1]
-
-                    try:
-                        x = float(left_parts[2])
-                        y = float(left_parts[3])
-                    except (ValueError, IndexError):
-                        continue
-
-                    mapped_cell = parts[1].strip()
-
-                    self.fabric_cells[fabric_cell] = {
+    def augment_fabric_cells_with_unused_ffs(self):
+        """
+        Add unused FFs from fabric_db that are not in the placement map.
+        This ensures all FFs in the fabric are available for CTS routing.
+        """
+        cells_by_tile = self.fabric_db.get('fabric', {}).get('cells_by_tile', {})
+        existing_fabric_cells = set(self.fabric_cells.keys())
+        
+        added_count = 0
+        for tile_key, tile_data in cells_by_tile.items():
+            for cell in tile_data.get('cells', []):
+                cell_name = cell.get('name', '')
+                cell_type = cell.get('cell_type', '')
+                
+                # Check if it's a DFF
+                is_dff = 'dfbbp' in cell_type.lower() or 'dff' in cell_type.lower()
+                
+                # Add if it's a DFF and not already in placement map
+                if is_dff and cell_name not in existing_fabric_cells:
+                    x = cell.get('x', 0.0)
+                    y = cell.get('y', 0.0)
+                    
+                    self.fabric_cells[cell_name] = {
                         'type': cell_type,
                         'x': x,
                         'y': y,
-                        'mapped': mapped_cell,
-                        'is_unused': (mapped_cell == 'UNUSED')
+                        'mapped': 'UNUSED',
+                        'is_unused': True
                     }
-                else:
-                    # I/O port line: port_name x y
-                    parts = line.split()
-                    if len(parts) >= 3:
-                        port_name = parts[0]
-                        try:
-                            x = float(parts[1])
-                            y = float(parts[2])
-                            self.io_ports[port_name] = (x, y)
-                        except ValueError:
-                            continue
-
-        print(f"Loaded {len(self.io_ports)} I/O ports")
-        print(f"Loaded {len(self.fabric_cells)} fabric cells from placement")
+                    added_count += 1
+        
+        if added_count > 0:
+            print(f"Added {added_count} unused FFs from fabric_db")
+        
+        return added_count
 
     def find_clock_net(self, clock_name: str = None) -> str:
         """Identify the clock net (default to 'clk' if not specified)."""
@@ -130,7 +168,7 @@ class HTreeCTS:
         return None
 
     def find_sinks(self) -> List[Dict]:
-        """Find all DFF cells (clock sinks) from placement."""
+        """Find all DFF cells (clock sinks) from placement (includes all FFs in fabric)."""
         self.sinks = []
 
         for fabric_cell, info in self.fabric_cells.items():
@@ -139,8 +177,8 @@ class HTreeCTS:
             # Check if it's a DFF
             is_dff = 'dfbbp' in cell_type.lower() or 'dff' in cell_type.lower()
 
-            if is_dff and not info['is_unused']:
-                # Find corresponding logical cell
+            if is_dff:
+                # Include ALL DFFs in fabric, whether mapped or unused
                 logical_cell = info['mapped']
 
                 sink_info = {
@@ -148,11 +186,12 @@ class HTreeCTS:
                     'type': cell_type,
                     'x': info['x'],
                     'y': info['y'],
-                    'mapped': logical_cell
+                    'mapped': logical_cell,
+                    'is_unused': info['is_unused']
                 }
                 self.sinks.append(sink_info)
 
-        print(f"Found {len(self.sinks)} DFF sinks")
+        print(f"Found {len(self.sinks)} DFF sinks (including {sum(1 for s in self.sinks if s['is_unused'])} unused)")
         return self.sinks
 
     def find_resources(self) -> List[Dict]:
@@ -414,7 +453,21 @@ class HTreeCTS:
         self.remove_old_clock_connections()
 
         # Counter for creating new net IDs
-        max_net_id = max(self.logical_db['nets'].keys()) if self.logical_db['nets'] else 0
+        # Extract numeric net IDs to find the maximum
+        if self.logical_db['nets']:
+            net_ids = []
+            for k in self.logical_db['nets'].keys():
+                if isinstance(k, int):
+                    net_ids.append(k)
+                else:
+                    try:
+                        net_ids.append(int(k))
+                    except (ValueError, TypeError):
+                        # Skip non-numeric net IDs
+                        continue
+            max_net_id = max(net_ids) if net_ids else 0
+        else:
+            max_net_id = 0
         net_counter = max_net_id + 1
 
         # Track all buffers to add
@@ -627,7 +680,7 @@ class HTreeCTS:
 
 def main():
     # Set default parameters
-    placement_file = "placement.map"
+    placement_file = "build/6502/debug_placement.map"
     design_json = "designs/6502_mapped.json"
     clock_name = None
 
@@ -646,10 +699,28 @@ def main():
     print(f"  Clock net:      {clock_name if clock_name else 'auto-detect'}")
     print()
 
-    # Initialize CTS
-    cts = HTreeCTS(placement_file, design_json)
+    # Build fabric database
+    print(f"Building fabric database from YAML files...")
+    fabric_db = build_fabric_db(
+        'fabric/fabric_cells.yaml',
+        'fabric/pins.yaml',
+        'fabric/fabric.yaml'
+    )
+
+    # Parse design netlist
+    print(f"Loading design netlist: {design_json}")
+    logical_db, netlist_graph = parse_design_json(design_json)
+    print(f"Loaded logical_db with {len(logical_db['cells'])} cells")
+    print(f"Loaded netlist_graph with {len(netlist_graph.nodes())} nodes")
+
+    # Parse placement map
+    io_ports, fabric_cells = parse_placement_map(placement_file)
+
+    # Initialize CTS with pre-built databases and placement data
+    cts = HTreeCTS(io_ports, fabric_cells, fabric_db, logical_db, netlist_graph)
 
     # Run CTS flow
+    cts.augment_fabric_cells_with_unused_ffs()  # Add unused FFs from fabric_db
     cts.find_clock_net(clock_name)
     cts.find_sinks()
     cts.find_resources()
@@ -659,10 +730,10 @@ def main():
     cts.update_logical_db_and_graph()
 
     # Write outputs
-    cts.write_placement("placement_cts.map")
-    cts.write_clock_tree("clock_tree.json")
-    cts.write_logical_db("logical_db_cts.json")
-    cts.write_netlist_graph("netlist_graph_cts.json")
+    cts.write_placement("build/6502/placement_cts.map")
+    cts.write_clock_tree("build/6502/6502_clock_tree.json")
+    cts.write_logical_db("build/6502/logical_db_cts.json")
+    cts.write_netlist_graph("build/6502/netlist_graph_cts.json")
 
     # Print summary
     cts.print_summary()

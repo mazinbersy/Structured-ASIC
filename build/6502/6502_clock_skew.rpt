@@ -1,0 +1,8 @@
+Clock clk
+   0.88 source latency T14Y6__R1_DFBBP_0/CLK ^
+  -0.85 target latency T15Y3__R3_DFBBP_0/CLK ^
+   0.25 clock uncertainty
+   0.00 CRPR
+--------------
+   0.28 setup skew
+

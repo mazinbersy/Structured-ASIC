@@ -192,21 +192,24 @@ def print_validation_report(logical_db, validation_results, is_valid):
 
 def main():
     """Main validation workflow."""
+    import sys
     
     # Parse command line arguments
-    design_path = "designs/6502_mapped.json"
-    fabric_cells_path = "fabric/fabric_cells.yaml"
-    pins_path = "fabric/pins.yaml"
-    fabric_def_path = "fabric/fabric.yaml"
+    design_path = sys.argv[1] if len(sys.argv) > 1 else "designs/6502_mapped.json"
+    fabric_cells_path = sys.argv[2] if len(sys.argv) > 2 else "fabric/fabric_cells.yaml"
+    pins_path = sys.argv[3] if len(sys.argv) > 3 else "fabric/pins.yaml"
+    fabric_def_path = sys.argv[4] if len(sys.argv) > 4 else "fabric/fabric.yaml"
     
-    if len(sys.argv) > 1:
-        design_path = sys.argv[1]
-    if len(sys.argv) > 2:
-        fabric_cells_path = sys.argv[2]
-    if len(sys.argv) > 3:
-        pins_path = sys.argv[3]
-    if len(sys.argv) > 3:
-        fabric_def_path = sys.argv[4]
+    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
+        print("Usage: python validator.py [design_json] [fabric_cells] [pins] [fabric_def]")
+        print("\nDefaults:")
+        print("  design_json:   designs/6502_mapped.json")
+        print("  fabric_cells:  fabric/fabric_cells.yaml")
+        print("  pins:          fabric/pins.yaml")
+        print("  fabric_def:    fabric/fabric.yaml")
+        print("\nExample:")
+        print("  python validator.py designs/aes_128_mapped.json")
+        sys.exit(0)
     
     # Load design
     try:

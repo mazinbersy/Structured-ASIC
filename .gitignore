@@ -5,4 +5,12 @@ build/window_cooling_experiments
 
 __pycache__/
 .DS_Store
+
+# Ignore all common Python virtual environments
 .venv/
+venv/
+env/
+.env/
+ENV/
+pyenv/
+*venv*/

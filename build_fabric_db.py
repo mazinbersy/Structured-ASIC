@@ -161,19 +161,35 @@ def build_fabric_db(fabric_cells_path, pins_path, fabric_def_path):
 
 
 if __name__ == "__main__":
-    fabric_cells_file = "fabric/fabric_cells.yaml"
-    pins_file = "fabric/pins.yaml"
-    fabric_def_file = "fabric/fabric.yaml"
-    output_file = "fabric/fabric_db.yaml"
+    import sys
+    
+    # Parse command-line arguments
+    fabric_cells_file = sys.argv[1] if len(sys.argv) > 1 else "fabric/fabric_cells.yaml"
+    pins_file = sys.argv[2] if len(sys.argv) > 2 else "fabric/pins.yaml"
+    fabric_def_file = sys.argv[3] if len(sys.argv) > 3 else "fabric/fabric.yaml"
+    output_yaml = sys.argv[4] if len(sys.argv) > 4 else "fabric/fabric_db.yaml"
+    output_json = sys.argv[5] if len(sys.argv) > 5 else "fabric/fabric_db.json"
+    
+    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
+        print("Usage: python build_fabric_db.py [fabric_cells] [pins] [fabric_def] [output_yaml] [output_json]")
+        print("\nDefaults:")
+        print("  fabric_cells:  fabric/fabric_cells.yaml")
+        print("  pins:          fabric/pins.yaml")
+        print("  fabric_def:    fabric/fabric.yaml")
+        print("  output_yaml:   fabric/fabric_db.yaml")
+        print("  output_json:   fabric/fabric_db.json")
+        print("\nExample:")
+        print("  python build_fabric_db.py fabric/fabric_cells.yaml fabric/pins.yaml fabric/fabric.yaml")
+        sys.exit(0)
 
     db = build_fabric_db(fabric_cells_file, pins_file, fabric_def_file)
 
     # Save as YAML
-    with open(output_file, "w") as f:
+    with open(output_yaml, "w") as f:
         yaml.dump(db, f, sort_keys=False, default_flow_style=False, indent=2)
-    print(f"Fabric database written to {output_file}")
+    print(f"Fabric database written to {output_yaml}")
 
     # Save as JSON
-    with open("fabric/fabric_db.json", "w") as f:
+    with open(output_json, "w") as f:
         json.dump(db, f, indent=2)
-    print("Fabric database also saved as fabric_db.json")
+    print(f"Fabric database also saved as {output_json}")
