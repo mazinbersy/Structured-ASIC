@@ -21,9 +21,9 @@ This project implements a physical design flow for a pre-fabricated structured A
 
 | Design | Cells | Util % | Placer | WNS (ns) | TNS (ns) | DRC | Status |
 |--------|-------|--------|--------|----------|----------|-----|--------|
-| arith | 463 | 0.3% | Greedy+SA | +1.14 ✅ | 0.00 ✅ | 0 ✅ | **PASS** |
-| 6502 | 2,899 | 1.8% | Greedy+SA | +2.47 ✅ | 0.00 ✅ | 0 ✅ | **PASS** |
-| expanded_6502 | 2,899 | 1.8% | Greedy+SA | +2.47 ✅ | 0.00 ✅ | 0 ✅ | **PASS** |
+| arith | 463 | 0.3% | Greedy+SA | +1.14 | 0.00  | 0  | **PASS** |
+| 6502 | 2,899 | 1.8% | Greedy+SA | +2.47  | 0.00 | 0  | **PASS** |
+| expanded_6502 | 2,899 | 1.8% | Greedy+SA | +2.47  | 0.00 | 0 | **PASS** |
 | z80 | 9,144 | 5.8% | Greedy+SA | — | — | — | Placed |
 
 **Fabric Size:** 158,760 cells
@@ -86,7 +86,7 @@ To evaluate how simulated annealing parameters affect placement quality and runt
 In the first sweep, we varied the main cost–runtime control parameters:
 
 - **Cooling Rate (α):** {0.85, 0.92, 0.97}  
-- **Moves per Temperature (N):** {100, 200, 400}  
+- **Moves per Temperature (N):** {100, 200, 400}  This was latter revised after advice from Dr. Shalan
 - **Initial Temperature (T₀):** 50.0 (held constant)  
 - **Refine Probability (P_refine):** 0.7 (held constant)
 
@@ -137,6 +137,7 @@ Again, each configuration was run three times with independent random seeds.
 - **Very high refine probabilities (≥0.85)** converge quickly but risk getting trapped early.
 - **Very low refine probabilities (≤0.25)** explore widely but are slower.
 
+
 ---
 
 ### Final Recommended Default SA Settings
@@ -154,6 +155,9 @@ This setting:
 - Produces solutions near the Pareto frontier  
 - Runs comfortably within reasonable time budgets  
 - Is recommended as the standard configuration for normal Structured-ASIC placement
+
+- **In General, we should have began with a much higher initial temperature, closer to 1 million**
+
 
 ---
 
@@ -221,13 +225,13 @@ The visualization pipeline generates the following outputs for each design:
 
 | Visualization | Description | Status |
 |---------------|-------------|--------|
-| `*_layout.png` | Chip layout with placed cells and pins | ✅ |
-| `*_density.png` | Placement density heatmap | ✅ |
-| `*_net_length.png` | Net length histogram | ✅ |
-| `*_cts_tree.png` | CTS H-Tree overlay on layout | ✅ |
-| `*_slack.png` | Slack distribution histogram | ✅ |
-| `*_critical_path.png` | Critical path overlay on layout | ✅ |
-| `*_congestion.png` | Congestion heatmap | ❌ (see limitations) |
+| `*_layout.png` | Chip layout with placed cells and pins | Generated |
+| `*_density.png` | Placement density heatmap | Generated |
+| `*_net_length.png` | Net length histogram | Generated |
+| `*_cts_tree.png` | CTS H-Tree overlay on layout | Generated |
+| `*_slack.png` | Slack distribution histogram | Generated |
+| `*_critical_path.png` | Critical path overlay on layout | Generated |
+| `*_congestion.png` | Congestion heatmap | No (see limitations) |
 
 ### Example Visualizations
 
@@ -253,39 +257,6 @@ The visualization pipeline generates the following outputs for each design:
 ---
 
 ## Usage
-
-### Run Full Flow for a Design
-```bash
-# Placement
-python3 placer.py --design arith
-
-# ECO + CTS
-python3 eco_generator.py arith
-
-# DEF Generation
-python3 make_def.py arith
-
-# Routing (requires OpenROAD)
-openroad route.tcl
-
-# STA (requires OpenSTA)
-sta sta.tcl
-
-# Visualizations
-python3 visualize.py --design arith
-```
-
-### Generated Outputs
-All outputs are placed in `build/<design>/`:
-- `*.map` — Placement mapping
-- `*_final.v` — ECO'd Verilog netlist
-- `*_fixed.def` — Fixed DEF for routing
-- `*_routed.def` — Routed DEF
-- `*.spef` — Parasitic extraction
-- `*_setup_timing.rpt` — Setup timing report
-- `*.png` — Visualizations
-
----
 
 ## Makefile Usage
 
@@ -323,6 +294,43 @@ See `make help` for a full list of targets and usage examples.
 
 ---
 
+### Run Full Flow for a Design
+
+The above make file description runs the following commands. You can also run each script manually, though using the makefile is preffered.
+```bash
+# Placement
+python3 placer.py --design arith
+
+# ECO + CTS
+python3 eco_generator.py arith
+
+# DEF Generation
+python3 make_def.py arith
+
+# Routing (requires OpenROAD)
+openroad route.tcl
+
+# STA (requires OpenSTA)
+sta sta.tcl
+
+# Visualizations
+python3 visualize.py --design arith
+```
+
+### Generated Outputs
+All outputs are placed in `build/<design>/`:
+- `*.map` — Placement mapping
+- `*_final.v` — ECO'd Verilog netlist
+- `*_fixed.def` — Fixed DEF for routing
+- `*_routed.def` — Routed DEF
+- `*.spef` — Parasitic extraction
+- `*_setup_timing.rpt` — Setup timing report
+- `*.png` — Visualizations
+
+---
+
+
+
 ## Repository Structure
 
 ```
@@ -338,15 +346,13 @@ See `make help` for a full list of targets and usage examples.
 ├── fabric/                # Fabric specification files
 ├── tech/                  # SKY130 LEF/Liberty files
 ├── build/                 # Generated outputs per design
-└── visualization/         # Visualization package
+└── visualization/         # Visualization package, some of these are archived and just for reference, others contain util functions
 ```
 
 ---
 
 ## Team
 
-[Team member names]
-
-## License
-
-[License information]
+- Mostafa Elshamy
+- Mazin Bersy
+- Malek Mahmoud
