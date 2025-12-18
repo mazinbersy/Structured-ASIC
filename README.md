@@ -287,6 +287,42 @@ All outputs are placed in `build/<design>/`:
 
 ---
 
+## Makefile Usage
+
+The provided Makefile automates the full structured ASIC flow. You can run, clean, and visualize any design by specifying the DESIGN variable.
+
+### Common Commands
+
+- **Run full flow for a design:**
+  ```sh
+  make all DESIGN=6502
+  ```
+- **Run only placement:**
+  ```sh
+  make place DESIGN=arith
+  ```
+- **Generate visualizations:**
+  ```sh
+  make viz DESIGN=6502
+  ```
+- **Clean build files for a design:**
+  ```sh
+  make clean DESIGN=arith
+  ```
+- **Clean all build files:**
+  ```sh
+  make clean-all
+  ```
+
+### Cleaning Build Files
+
+- `make clean DESIGN=arith` will remove only the build/arith directory and all generated files for the arith design. Other designs are unaffected.
+- `make clean-all` will remove the entire build/ directory and all generated files for all designs.
+
+See `make help` for a full list of targets and usage examples.
+
+---
+
 ## Repository Structure
 
 ```
