@@ -58,7 +58,7 @@ All tested designs achieve **timing closure** with positive worst negative slack
 ### Utilization Scaling
 - Low-utilization designs (arith, 6502, expanded_6502) route cleanly with **zero DRC violations**
 - z80 (5.8% utilization) demonstrates scaling to larger designs
-- The fabric has ample routing resources for designs at low utilization
+- The fabric has ample routing resources for designs at low utilization, but may become congested at larger designs.
 
 ### Clock Network Dominance
 Power analysis shows clock network consumes 77-98% of total power. This is expected because:
@@ -94,10 +94,12 @@ Each configuration was run **three times with different random seeds**, starting
 
 - **Runtime (s)** on the X-axis  
 - **Final HPWL (µm)** on the Y-axis  
-- Pareto frontier highlighted
+- Pareto frontier highlighted in red dots/lines
 
+The purpose of calculating the Pareto optimal frontier, is to figure out which range of values provide the maximum possible output, balancing between several variables ("knobs") of the simulating annealing configuration.  
 #### Observations
 
+Overall, we observed a dramatic improvement in wirre placement quality, HPWL and runtime, compared to the greedy  algorithm. 
 - The frontier was smooth, with **no single dramatic “knee”**, suggesting:
   - Increasing annealing effort (higher N or α) steadily improves HPWL  
   - But also increases runtime proportionally  
@@ -140,9 +142,9 @@ Again, each configuration was run three times with independent random seeds.
 
 ---
 
-### Final Recommended Default SA Settings
+### Final calculated Default SA Settings
 
-From both sweeps, the following configuration provides the **best tradeoff between runtime and placement quality**:
+According to both sweeps, the following configuration provides the **best tradeoff between runtime and placement quality**:
 
 Initial Temperature (T₀) = 100
 Cooling Rate (α) = 0.92
@@ -154,9 +156,10 @@ This setting:
 
 - Produces solutions near the Pareto frontier  
 - Runs comfortably within reasonable time budgets  
-- Is recommended as the standard configuration for normal Structured-ASIC placement
 
 - **In General, we should have began with a much higher initial temperature, closer to 1 million**
+
+This would have provided far mor optimized Simulated annealing results.
 
 
 ---
@@ -173,7 +176,7 @@ This setting:
 
 ### Overall Conclusion
 
-Across all experiments, annealing effort scales smoothly with solution quality, and no single sharp “knee” dominates the frontier. However, **α = 0.92, N = 200, T₀ = 100, and P_refine = 0.50** consistently offer the best balance of placement quality and runtime, making them the recommended default SA configuration for this flow.
+Across all experiments, annealing effort scales smoothly with solution quality, and no single sharp “knee” dominates the frontier. It would be expected to see a knee on the temperature diagram, but in retrospect, this was because of how low we ran our temperature at. However, **α = 0.92, N = 200, T₀ = 100, and P_refine = 0.50** consistently offer the best balance of placement quality and runtime, making them the recommended default SA configuration for this flow (ammended in the current default config).
 
 ## Phase 3 — ECO, CTS and Verilog netlist generation
 
@@ -190,9 +193,6 @@ Build outputs (examples):
 - `build/<design>/<design>_cts_tree.png` — CTS overlay visualization
 - `build/<design>/eco_report.txt` — ECO summary report
 
-Next recommended steps:
-- Keep the renamer integrated in the ECO flow (already applied). Optionally add a small CI check that verifies no logical placement keys remain in the final `.v`.
-- If you want to retain old experiment outputs, consider archiving `build/experiments/` before removing; otherwise the repo now only keeps the production `build/<design>/` outputs.
 ---
 
 ## Phase 4 & 5 — Routing and STA
@@ -205,7 +205,6 @@ Generates a fixed DEF file containing:
 
 ### Routing (`route.tcl`)
 OpenROAD-based routing flow:
-- 5-layer metal stack (met1 → met5)
 - Global routing with congestion handling
 - Detailed routing with DRC checking
 - SPEF parasitic extraction
@@ -353,6 +352,6 @@ All outputs are placed in `build/<design>/`:
 
 ## Team
 
-- Mostafa Elshamy
 - Mazin Bersy
+- Mostafa Elshamy
 - Malek Mahmoud
